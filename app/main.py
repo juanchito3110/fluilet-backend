@@ -1,30 +1,36 @@
-"""
-Fluilet API — Registro, autenticación (JWT) y CRUD de usuarios / perfiles de niño.
-
-Alcance de este entregable: 'Ingeniería' (arquitectura, BD, API, backend) y
-la parte de 'Desarrollo' correspondiente a Autenticación, CRUD y Validaciones.
-Fuera de alcance por ahora: carga/procesamiento de documentos (Integración NLP),
-que se añadirá en la siguiente iteración sobre esta misma base.
-"""
+"""Fluilet API: async persistence, scoped identities and zero-retention adaptation."""
 
 import uuid
+from contextlib import asynccontextmanager
+from datetime import timedelta
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, Response
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import auth, models, schemas
+from app.activities import router as activities_router
+from app.adaptations import router as adaptations_router
 from app.config import settings
-from app.database import get_db
+from app.database import engine, get_db
+from app.health import router as health_router
+from app.nlp.mt5 import runtime
+from app.privacy import PrivacyMiddleware, validation_error
 
-app = FastAPI(
-    title="Fluilet API",
-    description="Backend de Fluilet — Plataforma Móvil de Lectura Adaptativa con IA",
-    version="0.1.0",
-)
 
+@asynccontextmanager
+async def lifespan(app):
+    yield
+    await runtime.close()
+    await auth.close()
+    await engine.dispose()
+
+
+app = FastAPI(title="Fluilet API", version="0.2.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -32,208 +38,282 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "DELETE"],
     allow_headers=["Authorization", "Content-Type"],
 )
+app.add_middleware(PrivacyMiddleware)
+app.add_exception_handler(RequestValidationError, validation_error)
+ADULTS = (models.UserRole.TUTOR, models.UserRole.ADULTO_INDEPENDIENTE)
 
 
-# ---------------------------------------------------------------------------
-# Auth: registro, login, refresh
-# ---------------------------------------------------------------------------
+async def commit(db):
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(409, "No fue posible completar la operación.") from None
 
-@app.post(
-    "/api/v1/auth/register",
-    response_model=schemas.UserRead,
-    status_code=status.HTTP_201_CREATED,
-    tags=["auth"],
-)
-def register(payload: schemas.UserCreate, db: Session = Depends(get_db)):
-    new_user = models.User(
-        email=payload.email.lower(),
-        hashed_password=auth.hash_password(payload.password),
+
+async def lock_user(user, db):
+    return await db.scalar(
+        select(models.User)
+        .where(models.User.id == user.id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+
+
+@app.post("/api/v1/auth/register", response_model=schemas.UserRead, status_code=201, tags=["auth"])
+async def register(payload: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
+    user = models.User(
+        email=str(payload.email).lower(),
         full_name=payload.full_name,
+        hashed_password=await auth.hash_async(payload.password),
         role=payload.role,
     )
-    db.add(new_user)
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        # Mensaje genérico: no confirma si el email ya existe (OWASP ASVS 2.2.3)
-        raise HTTPException(status.HTTP_409_CONFLICT, "No fue posible completar el registro.")
-    db.refresh(new_user)
-    return new_user
+    db.add(user)
+    await commit(db)
+    await db.refresh(user)
+    return user
 
 
 @app.post("/api/v1/auth/login", response_model=schemas.Token, tags=["auth"])
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    
-    # --- INICIO DEL SALVAVIDAS PARA LA DEMO ---
-    if form_data.username.lower() == "profe@fluilet.com" and form_data.password == "123456":
-        return schemas.Token(
-            access_token="demo-access-token",
-            refresh_token="demo-refresh-token"
-        )
-    # --- FIN DEL SALVAVIDAS ---
-
-    generic_error = HTTPException(status.HTTP_401_UNAUTHORIZED, "Credenciales inválidas.")
-
-    user = db.query(models.User).filter(models.User.email == form_data.username.lower()).first()
-    if user is None:
-        # Hash "señuelo" para que el tiempo de respuesta no delate emails inexistentes.
-        auth.hash_password(form_data.password)
-        raise generic_error
-
-    if auth.is_locked_out(user):
-        raise HTTPException(
-            status.HTTP_423_LOCKED, "Cuenta bloqueada temporalmente por múltiples intentos fallidos."
-        )
-
-    if not user.is_active:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Cuenta inactiva.")
-
-    if not auth.verify_password(form_data.password, user.hashed_password):
-        auth.register_failed_attempt(user, db)
-        raise generic_error
-
-    auth.reset_failed_attempts(user, db)
-
-    return schemas.Token(
-        access_token=auth.create_access_token(user),
-        refresh_token=auth.create_refresh_token(user),
+async def login(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    if len(form.username) > 254 or len(form.password.encode("utf-8")) > 72:
+        raise auth.unauthorized()
+    user = await db.scalar(
+        select(models.User).where(models.User.email == form.username.lower()).with_for_update()
     )
+    correct = await auth.verify_async(form.password, user.hashed_password if user else None)
+    if user is None:
+        raise auth.unauthorized()
+    if user.locked_until and auth.aware(user.locked_until) > auth.utcnow():
+        raise auth.unauthorized()
+    if not correct:
+        if user.locked_until and auth.aware(user.locked_until) <= auth.utcnow():
+            user.failed_login_attempts = 0
+        user.failed_login_attempts += 1
+        if user.failed_login_attempts >= 5:
+            user.locked_until = auth.utcnow() + timedelta(minutes=15)
+        await db.commit()
+        raise auth.unauthorized()
+    await auth.validate_identity(user, db)
+    user.failed_login_attempts, user.locked_until = 0, None
+    if int(user.hashed_password.split("$")[2]) < settings.BCRYPT_ROUNDS:
+        user.hashed_password = await auth.hash_async(form.password)
+    result = await auth.issue_pair(user, db)
+    await db.commit()
+    return result
 
 
 @app.post("/api/v1/auth/refresh", response_model=schemas.Token, tags=["auth"])
-def refresh_token(payload: schemas.TokenRefreshRequest, db: Session = Depends(get_db)):
-    data = auth.decode_token(payload.refresh_token)
-    if data.get("type") != "refresh":
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Tipo de token inválido.")
-
-    user = db.get(models.User, uuid.UUID(data["sub"]))
-    if user is None or not user.is_active:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Usuario no encontrado o inactivo.")
-
-    return schemas.Token(
-        access_token=auth.create_access_token(user),
-        refresh_token=auth.create_refresh_token(user),
-    )
+async def refresh_token(payload: schemas.TokenRefreshRequest, db: AsyncSession = Depends(get_db)):
+    return await auth.rotate_refresh(payload.refresh_token, db)
 
 
-# ---------------------------------------------------------------------------
-# CRUD: usuario autenticado ("/me")
-# ---------------------------------------------------------------------------
+@app.post("/api/v1/auth/logout", status_code=204, tags=["auth"])
+async def logout(
+    user: models.User = Depends(auth.get_current_user), db: AsyncSession = Depends(get_db)
+):
+    user = await lock_user(user, db)
+    await auth.revoke_all(user, db)
+    await db.commit()
+    return Response(status_code=204)
+
+
+@app.post("/api/v1/auth/password", status_code=204, tags=["auth"])
+async def change_password(
+    payload: schemas.PasswordChange,
+    user: models.User = Depends(auth.require_roles(*ADULTS)),
+    db: AsyncSession = Depends(get_db),
+):
+    user = await lock_user(user, db)
+    if not await auth.verify_async(payload.current_password, user.hashed_password):
+        raise auth.unauthorized()
+    user.hashed_password = await auth.hash_async(payload.new_password)
+    await auth.revoke_all(user, db)
+    await db.commit()
+    return Response(status_code=204)
+
 
 @app.get("/api/v1/users/me", response_model=schemas.UserRead, tags=["users"])
-def read_current_user(current_user: models.User = Depends(auth.get_current_user)):
-    return current_user
+async def read_current_user(user: models.User = Depends(auth.get_current_user)):
+    return user
 
 
 @app.patch("/api/v1/users/me", response_model=schemas.UserRead, tags=["users"])
-def update_current_user(
+async def update_current_user(
     payload: schemas.UserUpdate,
-    current_user: models.User = Depends(auth.get_current_user),
-    db: Session = Depends(get_db),
+    user: models.User = Depends(auth.require_roles(*ADULTS)),
+    db: AsyncSession = Depends(get_db),
 ):
     if payload.full_name is not None:
-        current_user.full_name = payload.full_name
-    db.commit()
-    db.refresh(current_user)
-    return current_user
+        user.full_name = payload.full_name
+    await commit(db)
+    await db.refresh(user)
+    return user
 
 
-@app.delete("/api/v1/users/me", status_code=status.HTTP_204_NO_CONTENT, tags=["users"])
-def deactivate_current_user(
-    current_user: models.User = Depends(auth.get_current_user),
-    db: Session = Depends(get_db),
+@app.delete("/api/v1/users/me", status_code=204, tags=["users"])
+async def deactivate_current_user(
+    user: models.User = Depends(auth.require_roles(*ADULTS)), db: AsyncSession = Depends(get_db)
 ):
-    # Baja lógica: preserva integridad referencial con ChildProfile / Document.
-    current_user.is_active = False
-    db.commit()
+    user = await lock_user(user, db)
+    user.is_active = False
+    await auth.revoke_all(user, db)
+    await db.commit()
+    return Response(status_code=204)
 
 
-# ---------------------------------------------------------------------------
-# CRUD: perfiles de niño — solo accesible por Tutor/Padre (RBAC en acción)
-# ---------------------------------------------------------------------------
+async def owned_child(child_id: uuid.UUID, user: models.User, db: AsyncSession, *, lock=False):
+    statement = select(models.ChildProfile).where(
+        models.ChildProfile.id == child_id, models.ChildProfile.tutor_id == user.id
+    )
+    if lock:
+        statement = statement.with_for_update()
+    child = await db.scalar(statement)
+    if child is None:
+        raise HTTPException(404, "Perfil no encontrado.")
+    return child
+
 
 @app.post(
-    "/api/v1/children",
-    response_model=schemas.ChildProfileRead,
-    status_code=status.HTTP_201_CREATED,
-    tags=["children"],
+    "/api/v1/children", response_model=schemas.ChildProfileRead, status_code=201, tags=["children"]
 )
-def create_child_profile(
+async def create_child_profile(
     payload: schemas.ChildProfileCreate,
-    current_user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
-    db: Session = Depends(get_db),
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
 ):
     child = models.ChildProfile(
-        tutor_id=current_user.id,
-        name=payload.name,
-        birth_date=payload.birth_date,
-        tipo_dificultad=payload.tipo_dificultad,
-        nivel_simplificacion_nlp=payload.nivel_simplificacion_nlp,
-        paleta_visual=payload.paleta_visual,
-        tamano_fuente=payload.tamano_fuente,
-        interlineado=payload.interlineado,
-        pin_hash=auth.hash_password(payload.pin) if payload.pin else None,
+        **payload.model_dump(exclude={"pin"}),
+        tutor_id=user.id,
+        pin_hash=await auth.hash_async(payload.pin) if payload.pin else None,
     )
     db.add(child)
-    db.commit()
-    db.refresh(child)
+    await commit(db)
+    await db.refresh(child)
     return child
 
 
 @app.get("/api/v1/children", response_model=list[schemas.ChildProfileRead], tags=["children"])
-def list_child_profiles(
-    current_user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
-    db: Session = Depends(get_db),
+async def list_child_profiles(
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
 ):
     return (
-        db.query(models.ChildProfile)
-        .filter(
-            models.ChildProfile.tutor_id == current_user.id,
-            models.ChildProfile.is_active.is_(True),
+        await db.scalars(
+            select(models.ChildProfile)
+            .where(models.ChildProfile.tutor_id == user.id, models.ChildProfile.is_active.is_(True))
+            .order_by(models.ChildProfile.created_at)
+            .limit(500)
         )
-        .all()
-    )
+    ).all()
 
 
-def _get_owned_child(child_id: uuid.UUID, current_user: models.User, db: Session) -> models.ChildProfile:
-    child = db.get(models.ChildProfile, child_id)
-    if child is None or child.tutor_id != current_user.id:
-        # 404 en vez de 403: no revela la existencia de perfiles de otros tutores.
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Perfil no encontrado.")
-    return child
+@app.get("/api/v1/children/me", response_model=schemas.ChildProfileRead, tags=["children"])
+async def my_child_profile(
+    user: models.User = Depends(auth.require_roles(models.UserRole.NINO)),
+    db: AsyncSession = Depends(get_db),
+):
+    return await auth.child_for_user(user, db)
 
 
 @app.get("/api/v1/children/{child_id}", response_model=schemas.ChildProfileRead, tags=["children"])
-def get_child_profile(
+async def get_child_profile(
     child_id: uuid.UUID,
-    current_user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
-    db: Session = Depends(get_db),
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
 ):
-    return _get_owned_child(child_id, current_user, db)
+    return await owned_child(child_id, user, db)
 
 
-@app.patch("/api/v1/children/{child_id}", response_model=schemas.ChildProfileRead, tags=["children"])
-def update_child_profile(
+@app.patch(
+    "/api/v1/children/{child_id}", response_model=schemas.ChildProfileRead, tags=["children"]
+)
+async def update_child_profile(
     child_id: uuid.UUID,
     payload: schemas.ChildProfileUpdate,
-    current_user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
-    db: Session = Depends(get_db),
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
 ):
-    child = _get_owned_child(child_id, current_user, db)
+    child = await owned_child(child_id, user, db, lock=True)
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(child, field, value)
-    db.commit()
-    db.refresh(child)
+    if "is_active" in payload.model_fields_set and child.user_id:
+        account = await db.get(models.User, child.user_id, with_for_update=True)
+        account.is_active = child.is_active
+        await auth.revoke_all(account, db)
+    await commit(db)
+    await db.refresh(child)
     return child
 
 
-@app.delete("/api/v1/children/{child_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["children"])
-def delete_child_profile(
+@app.delete("/api/v1/children/{child_id}", status_code=204, tags=["children"])
+async def delete_child_profile(
     child_id: uuid.UUID,
-    current_user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
-    db: Session = Depends(get_db),
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
 ):
-    child = _get_owned_child(child_id, current_user, db)
-    db.delete(child)
-    db.commit()
+    child = await owned_child(child_id, user, db, lock=True)
+    child.is_active = False
+    if child.user_id:
+        account = await db.get(models.User, child.user_id, with_for_update=True)
+        account.is_active = False
+        await auth.revoke_all(account, db)
+    await db.commit()
+    return Response(status_code=204)
+
+
+@app.post(
+    "/api/v1/children/{child_id}/account",
+    response_model=schemas.UserRead,
+    status_code=201,
+    tags=["children"],
+)
+async def create_child_account(
+    child_id: uuid.UUID,
+    payload: schemas.ChildAccountCreate,
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
+):
+    child = await owned_child(child_id, user, db, lock=True)
+    if child.user_id or not child.is_active:
+        raise HTTPException(409, "No fue posible crear la cuenta infantil.")
+    account = models.User(
+        email=str(payload.email).lower(),
+        full_name=child.name,
+        hashed_password=await auth.hash_async(payload.password),
+        role=models.UserRole.NINO,
+    )
+    db.add(account)
+    try:
+        await db.flush()
+        child.user_id = account.id
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(409, "No fue posible crear la cuenta infantil.") from None
+    await db.refresh(account)
+    return account
+
+
+@app.post("/api/v1/children/{child_id}/session", response_model=schemas.Token, tags=["children"])
+async def open_child_session(
+    child_id: uuid.UUID,
+    payload: schemas.ChildSessionRequest,
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
+):
+    child = await owned_child(child_id, user, db, lock=True)
+    if child.pin_hash and not await auth.verify_async(payload.pin or "", child.pin_hash):
+        raise auth.unauthorized()
+    if not child.user_id or not child.is_active:
+        raise HTTPException(409, "El perfil requiere una cuenta infantil activa.")
+    account = await db.get(models.User, child.user_id, with_for_update=True)
+    await auth.validate_identity(account, db)
+    result = await auth.issue_pair(account, db)
+    await db.commit()
+    return result
+
+
+app.include_router(activities_router)
+app.include_router(adaptations_router)
+app.include_router(health_router)

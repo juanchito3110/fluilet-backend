@@ -1,29 +1,30 @@
-"""
-Motor y sesión de SQLAlchemy para PostgreSQL.
+"""Async psycopg persistence; schema changes belong exclusively to Alembic."""
 
-En producción, el esquema se gestiona con Alembic (migraciones versionadas),
-no con `init_db()` — esa función es solo para arranque rápido en desarrollo.
-"""
+from collections.abc import AsyncIterator
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.config import settings
-from app.models import Base
 
-engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    pool_pre_ping=True,
+    hide_parameters=True,
+    pool_size=5,
+    max_overflow=5,
+    pool_timeout=5,
+    connect_args={
+        "connect_timeout": 5,
+        "options": "-c statement_timeout=10000 -c idle_in_transaction_session_timeout=70000",
+    },
+)
+SessionLocal = async_sessionmaker(engine, expire_on_commit=False, autoflush=False)
 
 
-def get_db() -> Session:
-    """Dependencia de FastAPI: una sesión por request, cerrada al finalizar."""
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-def init_db() -> None:
-    """Crea las tablas directamente desde los modelos. Solo para desarrollo local."""
-    Base.metadata.create_all(bind=engine)
+async def get_db() -> AsyncIterator[AsyncSession]:
+    async with SessionLocal() as session:
+        try:
+            yield session
+        except BaseException:
+            await session.rollback()
+            raise

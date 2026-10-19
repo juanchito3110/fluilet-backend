@@ -1,0 +1,9 @@
+-r ../requirements.txt
+torch>=2.6,<3
+transformers>=4.55,<5
+sentencepiece>=0.2,<1
+safetensors>=0.6,<1
+accelerate>=1.10,<2
+datasets>=4,<5
+PyYAML>=6,<7
+sacrebleu>=2.5,<3

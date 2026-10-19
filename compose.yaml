@@ -1,0 +1,65 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: fluilet
+      POSTGRES_USER: fluilet
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    command: ["postgres", "-c", "log_statement=none", "-c", "log_parameter_max_length_on_error=0", "-c", "log_min_error_statement=panic"]
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fluilet -d fluilet"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    security_opt: ["no-new-privileges:true"]
+
+  api:
+    build:
+      context: .
+      args:
+        INSTALL_ML: ${INSTALL_ML:-false}
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://fluilet:${POSTGRES_PASSWORD}@db:5432/fluilet
+      HF_HOME: /tmp/huggingface
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      db:
+        condition: service_healthy
+    read_only: true
+    tmpfs: ["/tmp:size=64m,noexec,nosuid,nodev"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    ulimits:
+      core: 0
+    mem_limit: 4g
+    pids_limit: 64
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  proxy:
+    image: nginx:stable-alpine
+    ports: ["443:8443"]
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/fluilet/tls:/etc/nginx/tls:ro
+    tmpfs: ["/tmp:size=64m,noexec,nosuid,nodev", "/var/cache/nginx:size=16m,noexec,nosuid,nodev"]
+    read_only: true
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    ulimits:
+      core: 0
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

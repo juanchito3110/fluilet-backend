@@ -1,26 +1,4 @@
-"""
-Esquema de base de datos (SQLAlchemy 2.0 / PostgreSQL) para Fluilet.
-
-Decisiones de diseño relevantes para el rubro de 'Base de datos' / 'Arquitectura':
-
-1. RBAC — Tutor/Padre y Adulto independiente son los ÚNICOS roles que se
-   autentican con email + contraseña (RF01). El "Niño" NO tiene credenciales
-   propias: es un perfil (ChildProfile) creado y administrado por su Tutor
-   (RF02), acorde a la LFPDPPP para datos de menores. El acceso del niño se
-   resuelve como un cambio de perfil dentro de la sesión ya autenticada del
-   Tutor (opcionalmente protegido con un PIN corto), nunca con un JWT propio
-   de larga vida emitido a nombre del menor.
-
-2. Cero retención de texto en la nube — la tabla `documents` almacena
-   ÚNICAMENTE metadatos del archivo (nombre, tipo, tamaño, ruta de
-   almacenamiento). Ni el texto original ni el texto simplificado por el
-   motor NLP se persisten en la base de datos, conforme a la política de
-   seguridad declarada en el Project Charter.
-
-3. UUID como PK en todas las tablas para no filtrar conteos/orden de
-   registros (relevante tratándose de datos de menores) y para facilitar
-   claves distribuidas si el proyecto escala a múltiples backends.
-"""
+"""Accounts, relationships and numerical telemetry only. Never document content."""
 
 import enum
 import uuid
@@ -31,7 +9,6 @@ from sqlalchemy import (
     CheckConstraint,
     Date,
     DateTime,
-    Enum as SAEnum,
     Float,
     ForeignKey,
     Integer,
@@ -39,6 +16,9 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
     func,
+)
+from sqlalchemy import (
+    Enum as SAEnum,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -52,29 +32,31 @@ class Base(DeclarativeBase):
 # Enums de dominio
 # ---------------------------------------------------------------------------
 
-class UserRole(str, enum.Enum):
-    TUTOR = "tutor"
-    ADULTO_INDEPENDIENTE = "adulto_independiente"
+
+class UserRole(enum.StrEnum):
+    TUTOR = "TUTOR"
+    NINO = "NINO"
+    ADULTO_INDEPENDIENTE = "ADULTO_INDEPENDIENTE"
 
 
-class DifficultyType(str, enum.Enum):
+class DifficultyType(enum.StrEnum):
     DISLEXIA = "dislexia"
     TDAH = "tdah"
     COMBINADO = "combinado"
 
 
-class VisualPalette(str, enum.Enum):
+class VisualPalette(enum.StrEnum):
     ALTO_CONTRASTE = "alto_contraste"
     SEPIA = "sepia"
     ESTANDAR = "estandar"
 
 
-class DocumentType(str, enum.Enum):
+class DocumentType(enum.StrEnum):
     PDF = "pdf"
     TXT = "txt"
 
 
-class DocumentStatus(str, enum.Enum):
+class DocumentStatus(enum.StrEnum):
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -86,8 +68,9 @@ def _uuid_pk():
 
 
 # ---------------------------------------------------------------------------
-# Usuarios — Tutor/Padre y Adulto independiente (los únicos que se autentican)
+# Cuentas autenticables — Tutor, Niño y Adulto independiente
 # ---------------------------------------------------------------------------
+
 
 class User(Base):
     __tablename__ = "users"
@@ -101,6 +84,9 @@ class User(Base):
     )
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    auth_version: Mapped[int] = mapped_column(
+        Integer, default=0, server_default="0", nullable=False
+    )
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     # Mitigación de fuerza bruta (OWASP MSTG-AUTH-9 / ASVS V2.2)
@@ -113,7 +99,7 @@ class User(Base):
     )
 
     children: Mapped[list["ChildProfile"]] = relationship(
-        back_populates="tutor", cascade="all, delete-orphan"
+        back_populates="tutor", cascade="all, delete-orphan", foreign_keys="ChildProfile.tutor_id"
     )
     documents: Mapped[list["Document"]] = relationship(
         back_populates="owner", cascade="all, delete-orphan"
@@ -124,8 +110,9 @@ class User(Base):
 
 
 # ---------------------------------------------------------------------------
-# Perfiles de niño (RF02) — vinculados a un Tutor, sin credenciales propias
+# Perfiles vinculados a un Tutor y, opcionalmente, a una cuenta NINO
 # ---------------------------------------------------------------------------
+
 
 class ChildProfile(Base):
     __tablename__ = "child_profiles"
@@ -140,6 +127,9 @@ class ChildProfile(Base):
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), unique=True, nullable=True
+    )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     birth_date: Mapped[date] = mapped_column(Date, nullable=False)
 
@@ -158,8 +148,7 @@ class ChildProfile(Base):
     tamano_fuente: Mapped[int] = mapped_column(Integer, default=18, nullable=False)
     interlineado: Mapped[float] = mapped_column(Float, default=1.5, nullable=False)
 
-    # PIN corto opcional para cambiar de perfil dentro de la app.
-    # Se guarda hasheado con bcrypt; NO es un mecanismo de autenticación JWT.
+    # PIN adicional para abrir una sesión infantil desde la sesión del tutor.
     pin_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
@@ -168,7 +157,7 @@ class ChildProfile(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    tutor: Mapped["User"] = relationship(back_populates="children")
+    tutor: Mapped["User"] = relationship(back_populates="children", foreign_keys=[tutor_id])
     reading_sessions: Mapped[list["ReadingSession"]] = relationship(
         back_populates="child", cascade="all, delete-orphan"
     )
@@ -181,12 +170,35 @@ class ChildProfile(Base):
 # Documentos (RF03) — SOLO METADATOS. Política de cero retención de texto.
 # ---------------------------------------------------------------------------
 
-class Document(Base):
+
+class AdaptationTelemetry:
+    # Nullable only for legacy records whose content must never be reconstructed.
+    original_szigriszt_score: Mapped[float | None] = mapped_column(Float)
+    adapted_szigriszt_score: Mapped[float | None] = mapped_column(Float)
+    score_delta: Mapped[float | None] = mapped_column(Float)
+    original_word_count: Mapped[int | None] = mapped_column(Integer)
+    adapted_word_count: Mapped[int | None] = mapped_column(Integer)
+    original_syllable_count: Mapped[int | None] = mapped_column(Integer)
+    original_sentence_count: Mapped[int | None] = mapped_column(Integer)
+    syllable_count: Mapped[int | None] = mapped_column(Integer)
+    sentence_count: Mapped[int | None] = mapped_column(Integer)
+    maintenance_exception: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false", nullable=False
+    )
+
+
+TELEMETRY_CHECK = "(original_szigriszt_score IS NULL AND adapted_szigriszt_score IS NULL AND score_delta IS NULL AND original_word_count IS NULL AND adapted_word_count IS NULL AND original_syllable_count IS NULL AND original_sentence_count IS NULL AND syllable_count IS NULL AND sentence_count IS NULL AND maintenance_exception = false) OR (original_szigriszt_score IS NOT NULL AND adapted_szigriszt_score IS NOT NULL AND score_delta IS NOT NULL AND original_word_count IS NOT NULL AND adapted_word_count IS NOT NULL AND original_syllable_count IS NOT NULL AND original_sentence_count IS NOT NULL AND syllable_count IS NOT NULL AND sentence_count IS NOT NULL AND original_word_count > 0 AND adapted_word_count > 0 AND original_syllable_count > 0 AND original_sentence_count > 0 AND syllable_count > 0 AND sentence_count > 0 AND abs(original_szigriszt_score) < 1000000 AND abs(adapted_szigriszt_score) < 1000000 AND score_delta = adapted_szigriszt_score - original_szigriszt_score AND ((original_szigriszt_score > 128.535 AND maintenance_exception = true AND adapted_szigriszt_score >= 85.0) OR (original_szigriszt_score <= 128.535 AND maintenance_exception = false AND adapted_szigriszt_score >= 65.0 AND score_delta >= 15.0)))"
+
+
+class Document(AdaptationTelemetry, Base):
     __tablename__ = "documents"
     __table_args__ = (
         CheckConstraint(
-            "file_size_bytes > 0 AND file_size_bytes <= 10485760", name="ck_tamano_max_10mb"
+            "file_size_bytes > 0 AND file_size_bytes <= 5242880", name="ck_tamano_max_5mb"
         ),
+        UniqueConstraint("owner_id", "content_sha256", name="uq_owner_content_sha256"),
+        CheckConstraint("word_count >= 0 AND chunk_count >= 0", name="ck_document_counts"),
+        CheckConstraint(TELEMETRY_CHECK, name="ck_document_acceptance"),
     )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
@@ -194,12 +206,14 @@ class Document(Base):
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
-    file_name: Mapped[str] = mapped_column(String(255), nullable=False)
     file_type: Mapped[DocumentType] = mapped_column(
         SAEnum(DocumentType, name="document_type", native_enum=True), nullable=False
     )
     file_size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
-    storage_path: Mapped[str] = mapped_column(String(500), nullable=False)
+    content_sha256: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    word_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    chunk_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
+    adaptation_method: Mapped[str | None] = mapped_column(String(32))
 
     status: Mapped[DocumentStatus] = mapped_column(
         SAEnum(DocumentStatus, name="document_status", native_enum=True),
@@ -207,7 +221,9 @@ class Document(Base):
         nullable=False,
     )
 
-    uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    uploaded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     owner: Mapped["User"] = relationship(back_populates="documents")
     assigned_to: Mapped[list["ChildLibraryItem"]] = relationship(
@@ -229,7 +245,9 @@ class ChildLibraryItem(Base):
     document_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
     )
-    assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    assigned_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     child: Mapped["ChildProfile"] = relationship(back_populates="library")
     document: Mapped["Document"] = relationship(back_populates="assigned_to")
@@ -239,15 +257,21 @@ class ChildLibraryItem(Base):
 # Sesiones de lectura (RF08)
 # ---------------------------------------------------------------------------
 
+
 class ReadingSession(Base):
     __tablename__ = "reading_sessions"
     __table_args__ = (
-        CheckConstraint("progress_percentage BETWEEN 0 AND 100", name="ck_progreso_rango"),
+        CheckConstraint("completion_percent BETWEEN 0 AND 100", name="ck_progreso_rango"),
+        CheckConstraint("reading_time_seconds >= 0", name="ck_reading_time"),
+        CheckConstraint("NOT completed OR completion_percent = 100", name="ck_completed_progress"),
     )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
     child_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("child_profiles.id", ondelete="CASCADE"), nullable=False, index=True
+        UUID(as_uuid=True),
+        ForeignKey("child_profiles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     document_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("documents.id", ondelete="SET NULL"), nullable=True
@@ -255,8 +279,8 @@ class ReadingSession(Base):
 
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    duration_seconds: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    progress_percentage: Mapped[float] = mapped_column(Numeric(5, 2), default=0, nullable=False)
+    reading_time_seconds: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    completion_percent: Mapped[float] = mapped_column(Numeric(5, 2), default=0, nullable=False)
     completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     child: Mapped["ChildProfile"] = relationship(back_populates="reading_sessions")
@@ -267,6 +291,7 @@ class ReadingSession(Base):
 # Refresh tokens — permite revocación/rotación (OWASP ASVS 3.x)
 # ---------------------------------------------------------------------------
 
+
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
 
@@ -274,9 +299,29 @@ class RefreshToken(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
+    family_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), default=uuid.uuid4, index=True, nullable=False
+    )
     token_hash: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revoked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     user: Mapped["User"] = relationship(back_populates="refresh_tokens")
+
+
+class AdaptationChunk(AdaptationTelemetry, Base):
+    __tablename__ = "adaptation_chunks"
+    __table_args__ = (
+        UniqueConstraint("document_id", "chunk_index", name="uq_document_chunk"),
+        CheckConstraint("chunk_index >= 0", name="ck_chunk_index"),
+        CheckConstraint(TELEMETRY_CHECK, name="ck_chunk_acceptance"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("documents.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)

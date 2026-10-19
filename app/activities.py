@@ -1,0 +1,265 @@
+"""Only metadata and numeric reading telemetry. Every access is owner-scoped."""
+
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app import auth, models, schemas
+from app.database import get_db
+
+router = APIRouter(prefix="/api/v1", tags=["activities"])
+
+
+async def accessible_child(child_id, user, db):
+    if user.role == models.UserRole.NINO:
+        child = await auth.child_for_user(user, db)
+        if child.id != child_id:
+            raise HTTPException(404, "Perfil no encontrado.")
+    elif user.role == models.UserRole.TUTOR:
+        child = await db.scalar(
+            select(models.ChildProfile).where(
+                models.ChildProfile.id == child_id,
+                models.ChildProfile.tutor_id == user.id,
+                models.ChildProfile.is_active.is_(True),
+            )
+        )
+        if child is None:
+            raise HTTPException(404, "Perfil no encontrado.")
+    else:
+        raise HTTPException(403, "Acceso no permitido.")
+    return child
+
+
+async def accessible_document(document_id, user, db):
+    statement = select(models.Document).where(models.Document.id == document_id)
+    if user.role == models.UserRole.NINO:
+        child = await auth.child_for_user(user, db)
+        statement = statement.join(
+            models.ChildLibraryItem, models.ChildLibraryItem.document_id == models.Document.id
+        ).where(
+            models.ChildLibraryItem.child_id == child.id, models.Document.owner_id == child.tutor_id
+        )
+    else:
+        statement = statement.where(models.Document.owner_id == user.id)
+    document = await db.scalar(statement)
+    if document is None:
+        raise HTTPException(404, "Actividad no encontrada.")
+    return document
+
+
+@router.get("/documents", response_model=list[schemas.DocumentRead])
+async def documents(
+    user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(get_db),
+    offset: int = 0,
+):
+    if offset < 0:
+        raise HTTPException(422, "Paginación inválida.")
+    statement = select(models.Document)
+    if user.role == models.UserRole.NINO:
+        child = await auth.child_for_user(user, db)
+        statement = statement.join(
+            models.ChildLibraryItem, models.ChildLibraryItem.document_id == models.Document.id
+        ).where(
+            models.ChildLibraryItem.child_id == child.id, models.Document.owner_id == child.tutor_id
+        )
+    else:
+        statement = statement.where(models.Document.owner_id == user.id)
+    return (
+        await db.scalars(
+            statement.order_by(models.Document.uploaded_at, models.Document.id)
+            .offset(offset)
+            .limit(100)
+        )
+    ).all()
+
+
+@router.get("/documents/{document_id}", response_model=schemas.DocumentRead)
+async def document(
+    document_id: uuid.UUID,
+    user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    return await accessible_document(document_id, user, db)
+
+
+@router.post("/children/{child_id}/library", status_code=204)
+async def assign_document(
+    child_id: uuid.UUID,
+    payload: schemas.AssignmentRequest,
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
+):
+    await accessible_child(child_id, user, db)
+    await accessible_document(payload.document_id, user, db)
+    existing = await db.scalar(
+        select(models.ChildLibraryItem).where(
+            models.ChildLibraryItem.child_id == child_id,
+            models.ChildLibraryItem.document_id == payload.document_id,
+        )
+    )
+    if existing is None:
+        db.add(models.ChildLibraryItem(child_id=child_id, document_id=payload.document_id))
+        try:
+            await db.commit()
+        except IntegrityError:
+            await db.rollback()
+            raise HTTPException(409, "La asignación ya existe.") from None
+
+
+@router.delete("/children/{child_id}/library/{document_id}", status_code=204)
+async def unassign_document(
+    child_id: uuid.UUID,
+    document_id: uuid.UUID,
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
+):
+    await accessible_child(child_id, user, db)
+    item = await db.scalar(
+        select(models.ChildLibraryItem).where(
+            models.ChildLibraryItem.child_id == child_id,
+            models.ChildLibraryItem.document_id == document_id,
+        )
+    )
+    if item is None:
+        raise HTTPException(404, "Asignación no encontrada.")
+    await db.delete(item)
+    await db.commit()
+
+
+@router.post("/children/{child_id}/readings", response_model=schemas.ReadingRead, status_code=201)
+async def start_reading(
+    child_id: uuid.UUID,
+    payload: schemas.ReadingCreate,
+    user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await accessible_child(child_id, user, db)
+    await accessible_document(payload.document_id, user, db)
+    assigned = await db.scalar(
+        select(models.ChildLibraryItem).where(
+            models.ChildLibraryItem.child_id == child_id,
+            models.ChildLibraryItem.document_id == payload.document_id,
+        )
+    )
+    if assigned is None:
+        raise HTTPException(404, "Asignación no encontrada.")
+    reading = models.ReadingSession(child_id=child_id, document_id=payload.document_id)
+    db.add(reading)
+    await db.commit()
+    await db.refresh(reading)
+    return reading
+
+
+@router.patch("/readings/{reading_id}", response_model=schemas.ReadingRead)
+async def update_reading(
+    reading_id: uuid.UUID,
+    payload: schemas.ReadingUpdate,
+    user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    reading = await db.get(models.ReadingSession, reading_id, with_for_update=True)
+    if reading is None:
+        raise HTTPException(404, "Sesión no encontrada.")
+    await accessible_child(reading.child_id, user, db)
+    if reading.document_id:
+        await accessible_document(reading.document_id, user, db)
+    data = payload.model_dump(exclude_unset=True)
+    if reading.completed:
+        raise HTTPException(409, "La sesión ya está finalizada.")
+    elapsed = max(0, (auth.utcnow() - auth.aware(reading.started_at)).total_seconds())
+    if "reading_time_seconds" in data and (
+        data["reading_time_seconds"] < reading.reading_time_seconds
+        or data["reading_time_seconds"] > elapsed + 5
+    ):
+        raise HTTPException(422, "Tiempo de lectura inválido.")
+    if "completion_percent" in data and data["completion_percent"] < float(
+        reading.completion_percent
+    ):
+        raise HTTPException(422, "El progreso no puede retroceder.")
+    if data.get("completed") is True:
+        if data.get("completion_percent", float(reading.completion_percent)) != 100:
+            raise HTTPException(422, "La finalización requiere 100 por ciento de avance.")
+        reading.ended_at = auth.utcnow()
+    for key, value in data.items():
+        setattr(reading, key, value)
+    await db.commit()
+    await db.refresh(reading)
+    return reading
+
+
+@router.get("/children/{child_id}/readings", response_model=list[schemas.ReadingRead])
+async def readings(
+    child_id: uuid.UUID,
+    user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await accessible_child(child_id, user, db)
+    return (
+        await db.scalars(
+            select(models.ReadingSession)
+            .where(models.ReadingSession.child_id == child_id)
+            .order_by(models.ReadingSession.started_at)
+            .limit(500)
+        )
+    ).all()
+
+
+@router.get("/children/{child_id}/progress", response_model=list[schemas.SessionProgress])
+async def progress(
+    child_id: uuid.UUID,
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
+):
+    sessions = await readings(child_id, user, db)
+    accumulated = 0
+    result = []
+    for index, session in enumerate(sessions, 1):
+        accumulated += session.reading_time_seconds
+        result.append(
+            schemas.SessionProgress(
+                sessionLabel=f"Sesión {index}",
+                accumulatedMinutes=accumulated / 60,
+                completionPercent=int(session.completion_percent),
+            )
+        )
+    return result
+
+
+@router.get("/children/{child_id}/library", response_model=list[schemas.DocumentRead])
+async def child_library(
+    child_id: uuid.UUID,
+    user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    child = await accessible_child(child_id, user, db)
+    return (
+        await db.scalars(
+            select(models.Document)
+            .join(
+                models.ChildLibraryItem, models.ChildLibraryItem.document_id == models.Document.id
+            )
+            .where(
+                models.ChildLibraryItem.child_id == child.id,
+                models.Document.owner_id == child.tutor_id,
+            )
+            .order_by(models.Document.uploaded_at, models.Document.id)
+            .limit(500)
+        )
+    ).all()
+
+
+@router.delete("/documents/{document_id}", status_code=204)
+async def delete_document(
+    document_id: uuid.UUID,
+    user: models.User = Depends(
+        auth.require_roles(models.UserRole.TUTOR, models.UserRole.ADULTO_INDEPENDIENTE)
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    document = await accessible_document(document_id, user, db)
+    await db.delete(document)
+    await db.commit()

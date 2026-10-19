@@ -1,31 +1,40 @@
-"""
-Configuración centralizada de Fluilet API.
+"""Validated configuration. ML is optional and never imported at API startup."""
 
-Todos los valores sensibles (SECRET_KEY, credenciales de BD) se leen desde
-variables de entorno / archivo .env — NUNCA se hardcodean en el código
-(OWASP MSTG-STORAGE-1 / ASVS 6.4).
-"""
+from typing import Literal
 
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
-    # Base de datos (PostgreSQL en DigitalOcean según Project Charter)
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore", hide_input_in_errors=True)
     DATABASE_URL: str = "postgresql+psycopg://fluilet:changeme@localhost:5432/fluilet"
-
-    # JWT
-    SECRET_KEY: str  # obligatorio — generar con: openssl rand -hex 32
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
-
-    # RF07: hashing bcrypt con factor de coste >= 12
-    BCRYPT_ROUNDS: int = 12
-
-    # CORS — restringir en producción al dominio real de la app / panel tutor
+    SECRET_KEY: SecretStr = Field(min_length=32)
+    ALGORITHM: Literal["HS256"] = "HS256"
+    JWT_ISSUER: str = "fluilet-api"
+    JWT_AUDIENCE: str = "fluilet-android"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=15, ge=1, le=60)
+    REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=7, ge=1, le=30)
+    BCRYPT_ROUNDS: int = Field(default=13, ge=13, le=16)
     CORS_ORIGINS: list[str] = ["http://localhost"]
+    MAX_BODY_BYTES: int = Field(default=5 * 1024 * 1024, ge=1024, le=5 * 1024 * 1024)
+    BODY_TIMEOUT_SECONDS: float = Field(default=15, gt=0, le=60)
+    MAX_DOCUMENT_WORDS: int = Field(default=20000, ge=800, le=50000)
+    MAX_PDF_PAGES: int = Field(default=100, ge=1, le=500)
+    PROCESSING_CONCURRENCY: int = Field(default=2, ge=1, le=4)
+    PROCESSING_TIMEOUT_SECONDS: float = Field(default=60, gt=0, le=180)
+    MAX_GENERATION_ATTEMPTS: int = Field(default=3, ge=1, le=5)
+    MT5_MODEL: Literal["google/mt5-small", "google/mt5-base"] = "google/mt5-small"
+    MT5_CHECKPOINT: str | None = None
+    MT5_LOCAL_FILES_ONLY: bool = True
+    MT5_ENABLED: bool = True
+    MT5_CONCURRENCY: int = Field(default=1, ge=1, le=2)
+    MT5_TIMEOUT_SECONDS: float = Field(default=20, gt=0, le=120)
+    MT5_MAX_INPUT_TOKENS: int = Field(default=4096, ge=128, le=8192)
+    MT5_MAX_NEW_TOKENS: int = Field(default=2048, ge=32, le=4096)
+    ALLOW_RULE_BASED_FALLBACK: bool = True
+    REQUESTS_PER_MINUTE: int = Field(default=120, ge=1)
+    AUTH_REQUESTS_PER_MINUTE: int = Field(default=15, ge=1)
 
 
 settings = Settings()
