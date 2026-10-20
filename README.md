@@ -52,8 +52,9 @@ chunk and the whole document. Only originals strictly >128.535 use maintenance
 No score is clamped to 0–100. These are readability criteria, not a clinical
 certification or a guarantee of comprehension or semantic equivalence.
 
-The rule vocabulary is hand-curated, EASIER-style; it is not redistributed EASIER
-content. A finite deterministic rewriter cannot guarantee success on every input.
+The rule vocabulary includes context-constrained EASIER lexical pairs and bounded
+structural templates; the raw corpus and parallel examples are not redistributed.
+A finite deterministic rewriter cannot guarantee success on every input.
 Unresolvable material returns 422. Relative/coordination rewriting is deliberately
 restricted; ambiguous constructions are preserved.
 
@@ -83,6 +84,9 @@ The complete hybrid system evaluates a deterministic candidate before generating
 with mT5, applies the same fidelity/readability gates, and explicitly abstains on
 unsupported inputs. Its acceptance coverage and conditional compliance are measured
 separately on EASIER and on a disclosed synthetic diagnostic fixture.
+The six EASIER cases now explicitly inform rule calibration (5/6 accepted); a
+separate 12-document internal audit remains 0/12. See the report for the distinction
+between calibration coverage, generalization and automatic fidelity checks.
 
 `GET /health/ready` returns 200 when PostgreSQL and the configured pipeline are
 operative, including deterministic-only service. It reports `engine_mode` and runs

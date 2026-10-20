@@ -28,6 +28,7 @@ def main():
     args = parser.parse_args()
     import torch
     import yaml
+    from datasets import load_dataset
     from transformers import (
         AutoModelForSeq2SeqLM,
         AutoTokenizer,
@@ -36,8 +37,6 @@ def main():
         Seq2SeqTrainingArguments,
         set_seed,
     )
-
-    from datasets import load_dataset
 
     config = yaml.safe_load(args.config.read_text(encoding="utf-8"))
     set_seed(config["seed"])

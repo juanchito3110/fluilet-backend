@@ -1,0 +1,1902 @@
+{
+  "date": "2026-10-20",
+  "phase": "Requested in-sample EASIER rule calibration; separate internal audit",
+  "training_evidence": "ml-evaluation-results.json",
+  "previous_system_evidence": "hybrid-evaluation-results.json",
+  "base_model_revision": "73fb5dbe4756edadc8fbe8c769b0a109493acf7a",
+  "merged_checkpoint_sha256": "3b5f44e74c22665dc703f0481f42db7555c4f778ee6a0438e8fc0c36a120afaa",
+  "hardware": {
+    "cpu": "Apple M1",
+    "ram_bytes": 8589934592
+  },
+  "semantic_validation": "Automated rule consistency and lexical/order/number/negation checks; no independent human semantic validation",
+  "cohorts": {
+    "easier": {
+      "examples": 6,
+      "scope": "Calibration: these six documents explicitly informed the new rules; NOT a holdout",
+      "runs": {
+        "base": {
+          "examples": 6,
+          "valid_predictions": 0,
+          "original_score": 32.14575574577862,
+          "score_delta": null,
+          "adapted_score": null,
+          "acceptance_rate": 0.0,
+          "strict_double_condition_rate": 0.0,
+          "maintenance_eligible_rate": 0.0,
+          "lexical_fidelity_guard_rate": 0.0,
+          "strict_and_fidelity_rate": 0.0,
+          "reference_unigram_f1": 0.0,
+          "timing": {
+            "count": 6,
+            "mean_seconds": 0.24674691683321726,
+            "median_seconds": 0.20673295850428985,
+            "min_seconds": 0.17261745799623895,
+            "max_seconds": 0.3940492089968757,
+            "p95_seconds": 0.3940492089968757,
+            "first_seconds": 0.3940492089968757,
+            "total_seconds": 1.4804815009993035
+          },
+          "model_loading_seconds": 5.684625040994433,
+          "metadata": {
+            "python": "3.14.7",
+            "platform": "Darwin",
+            "architecture": "arm64",
+            "device": "cpu",
+            "threads": 2,
+            "max_input_tokens": 96,
+            "max_new_tokens": 64,
+            "num_beams": 2,
+            "data_sha256": "0a0150d78fae93d533e60f68dc275efcf43334d9dfe3b9cd4ea363f21483e2f6",
+            "timing_scope": "tokenization + generation + decoding; no warmup excluded",
+            "package_versions": {
+              "torch": "2.14.1",
+              "transformers": "4.57.6"
+            }
+          },
+          "per_example": [
+            {
+              "document_id": "120",
+              "category": null,
+              "original_score": 58.68500000000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.3940492089968757
+            },
+            {
+              "document_id": "276",
+              "category": null,
+              "original_score": 27.559390243902442,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.20841908300644718
+            },
+            {
+              "document_id": "68",
+              "category": null,
+              "original_score": 44.8324358974359,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.20504683400213253
+            },
+            {
+              "document_id": "30",
+              "category": null,
+              "original_score": 36.606875,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.17261745799623895
+            },
+            {
+              "document_id": "200",
+              "category": null,
+              "original_score": 14.10583333333335,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.19923262499651173
+            },
+            {
+              "document_id": "84",
+              "category": null,
+              "original_score": 11.085000000000008,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.30111629200109746
+            }
+          ],
+          "hybrid": {
+            "examples": 6,
+            "original_score_all_inputs": 32.14575574577862,
+            "accepted_examples": 5,
+            "acceptance_rate": 0.8333333333333334,
+            "abstention_rate": 0.16666666666666663,
+            "strict_double_condition_rate_all_inputs": 0.8333333333333334,
+            "strict_compliance_nonmaintenance_accepted": 1.0,
+            "maintenance_accepted_examples": 0,
+            "gate_and_lexical_guard_compliance_accepted": 1.0,
+            "model_generation_calls": 3,
+            "engine_policy": "deterministic candidate first; then mT5 + refinement; bounded retries; chunk/document gates",
+            "timing": {
+              "count": 6,
+              "mean_seconds": 0.11797655550132428,
+              "median_seconds": 0.004245166503096698,
+              "min_seconds": 0.0033309999998891726,
+              "max_seconds": 0.686198625000543,
+              "p95_seconds": 0.686198625000543,
+              "first_seconds": 0.006385416003467981,
+              "total_seconds": 0.7078593330079457
+            },
+            "accepted_only_metrics": {
+              "examples": 5,
+              "valid_predictions": 5,
+              "original_score": 29.608419715447162,
+              "score_delta": 46.527253361617944,
+              "adapted_score": 76.1356730770651,
+              "acceptance_rate": 1.0,
+              "strict_double_condition_rate": 1.0,
+              "maintenance_eligible_rate": 0.0,
+              "lexical_fidelity_guard_rate": 1.0,
+              "strict_and_fidelity_rate": 1.0,
+              "reference_unigram_f1": 0.5727036248775379
+            },
+            "method_counts": {
+              "rules": 5,
+              "rejected": 1
+            },
+            "outcomes": [
+              {
+                "document_id": "120",
+                "category": null,
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 58.68500000000002,
+                "adapted_szigriszt_score": 85.933,
+                "score_delta": 27.24799999999999,
+                "original_word_count": 28,
+                "adapted_word_count": 50,
+                "original_syllable_count": 54,
+                "original_sentence_count": 1,
+                "syllable_count": 87,
+                "sentence_count": 4,
+                "maintenance_exception": false,
+                "inference_seconds": 0.006385416003467981,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "276",
+                "category": null,
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 27.559390243902442,
+                "adapted_szigriszt_score": 71.34284313725492,
+                "score_delta": 43.783452893352475,
+                "original_word_count": 41,
+                "adapted_word_count": 51,
+                "original_syllable_count": 91,
+                "original_sentence_count": 1,
+                "syllable_count": 97,
+                "sentence_count": 3,
+                "maintenance_exception": false,
+                "inference_seconds": 0.004019250001874752,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "68",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.686198625000543,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "30",
+                "category": null,
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 36.606875,
+                "adapted_szigriszt_score": 72.5644117647059,
+                "score_delta": 35.95753676470589,
+                "original_word_count": 32,
+                "adapted_word_count": 34,
+                "original_syllable_count": 71,
+                "original_sentence_count": 1,
+                "syllable_count": 64,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0033309999998891726,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "200",
+                "category": null,
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 14.10583333333335,
+                "adapted_szigriszt_score": 84.77203703703705,
+                "score_delta": 70.6662037037037,
+                "original_word_count": 24,
+                "adapted_word_count": 54,
+                "original_syllable_count": 65,
+                "original_sentence_count": 1,
+                "syllable_count": 98,
+                "sentence_count": 6,
+                "maintenance_exception": false,
+                "inference_seconds": 0.003453958997852169,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "84",
+                "category": null,
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 11.085000000000008,
+                "adapted_szigriszt_score": 66.06607344632768,
+                "score_delta": 54.98107344632767,
+                "original_word_count": 40,
+                "adapted_word_count": 59,
+                "original_syllable_count": 100,
+                "original_sentence_count": 1,
+                "syllable_count": 124,
+                "sentence_count": 6,
+                "maintenance_exception": false,
+                "inference_seconds": 0.004471083004318643,
+                "model_generation_calls": 0
+              }
+            ],
+            "paired_nonmaintenance_accepted_derived": {
+              "examples": 5,
+              "original_szigriszt_score": 29.608419715447162,
+              "adapted_szigriszt_score": 76.1356730770651,
+              "score_delta": 46.527253361617944,
+              "original_word_count": 33,
+              "adapted_word_count": 49.6
+            }
+          }
+        },
+        "tuned": {
+          "examples": 6,
+          "valid_predictions": 0,
+          "original_score": 32.14575574577862,
+          "score_delta": null,
+          "adapted_score": null,
+          "acceptance_rate": 0.0,
+          "strict_double_condition_rate": 0.0,
+          "maintenance_eligible_rate": 0.0,
+          "lexical_fidelity_guard_rate": 0.0,
+          "strict_and_fidelity_rate": 0.0,
+          "reference_unigram_f1": 0.22757286627212017,
+          "timing": {
+            "count": 6,
+            "mean_seconds": 2.4770072779998977,
+            "median_seconds": 2.1293830834983964,
+            "min_seconds": 0.6360244169991347,
+            "max_seconds": 5.794633208002779,
+            "p95_seconds": 5.794633208002779,
+            "first_seconds": 5.794633208002779,
+            "total_seconds": 14.862043667999387
+          },
+          "model_loading_seconds": 0.7196986249982729,
+          "metadata": {
+            "python": "3.14.7",
+            "platform": "Darwin",
+            "architecture": "arm64",
+            "device": "cpu",
+            "threads": 2,
+            "max_input_tokens": 96,
+            "max_new_tokens": 64,
+            "num_beams": 2,
+            "data_sha256": "0a0150d78fae93d533e60f68dc275efcf43334d9dfe3b9cd4ea363f21483e2f6",
+            "timing_scope": "tokenization + generation + decoding; no warmup excluded",
+            "package_versions": {
+              "torch": "2.14.1",
+              "transformers": "4.57.6"
+            }
+          },
+          "per_example": [
+            {
+              "document_id": "120",
+              "category": null,
+              "original_score": 58.68500000000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 5.794633208002779
+            },
+            {
+              "document_id": "276",
+              "category": null,
+              "original_score": 27.559390243902442,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.358746499994595
+            },
+            {
+              "document_id": "68",
+              "category": null,
+              "original_score": 44.8324358974359,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 2.900019667002198
+            },
+            {
+              "document_id": "30",
+              "category": null,
+              "original_score": 36.606875,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.6360244169991347
+            },
+            {
+              "document_id": "200",
+              "category": null,
+              "original_score": 14.10583333333335,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.2678472920015338
+            },
+            {
+              "document_id": "84",
+              "category": null,
+              "original_score": 11.085000000000008,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 2.904772583999147
+            }
+          ],
+          "hybrid": {
+            "examples": 6,
+            "original_score_all_inputs": 32.14575574577862,
+            "accepted_examples": 5,
+            "acceptance_rate": 0.8333333333333334,
+            "abstention_rate": 0.16666666666666663,
+            "strict_double_condition_rate_all_inputs": 0.8333333333333334,
+            "strict_compliance_nonmaintenance_accepted": 1.0,
+            "maintenance_accepted_examples": 0,
+            "gate_and_lexical_guard_compliance_accepted": 1.0,
+            "model_generation_calls": 3,
+            "engine_policy": "deterministic candidate first; then mT5 + refinement; bounded retries; chunk/document gates",
+            "timing": {
+              "count": 6,
+              "mean_seconds": 1.5343786666659678,
+              "median_seconds": 0.00440131250070408,
+              "min_seconds": 0.0034962499994435348,
+              "max_seconds": 9.184177916999033,
+              "p95_seconds": 9.184177916999033,
+              "first_seconds": 0.0059810409948113374,
+              "total_seconds": 9.206271999995806
+            },
+            "accepted_only_metrics": {
+              "examples": 5,
+              "valid_predictions": 5,
+              "original_score": 29.608419715447162,
+              "score_delta": 46.527253361617944,
+              "adapted_score": 76.1356730770651,
+              "acceptance_rate": 1.0,
+              "strict_double_condition_rate": 1.0,
+              "maintenance_eligible_rate": 0.0,
+              "lexical_fidelity_guard_rate": 1.0,
+              "strict_and_fidelity_rate": 1.0,
+              "reference_unigram_f1": 0.5727036248775379
+            },
+            "method_counts": {
+              "rules": 5,
+              "rejected": 1
+            },
+            "outcomes": [
+              {
+                "document_id": "120",
+                "category": null,
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 58.68500000000002,
+                "adapted_szigriszt_score": 85.933,
+                "score_delta": 27.24799999999999,
+                "original_word_count": 28,
+                "adapted_word_count": 50,
+                "original_syllable_count": 54,
+                "original_sentence_count": 1,
+                "syllable_count": 87,
+                "sentence_count": 4,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0059810409948113374,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "276",
+                "category": null,
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 27.559390243902442,
+                "adapted_szigriszt_score": 71.34284313725492,
+                "score_delta": 43.783452893352475,
+                "original_word_count": 41,
+                "adapted_word_count": 51,
+                "original_syllable_count": 91,
+                "original_sentence_count": 1,
+                "syllable_count": 97,
+                "sentence_count": 3,
+                "maintenance_exception": false,
+                "inference_seconds": 0.003977500004111789,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "68",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 9.184177916999033,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "30",
+                "category": null,
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 36.606875,
+                "adapted_szigriszt_score": 72.5644117647059,
+                "score_delta": 35.95753676470589,
+                "original_word_count": 32,
+                "adapted_word_count": 34,
+                "original_syllable_count": 71,
+                "original_sentence_count": 1,
+                "syllable_count": 64,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0034962499994435348,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "200",
+                "category": null,
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 14.10583333333335,
+                "adapted_szigriszt_score": 84.77203703703705,
+                "score_delta": 70.6662037037037,
+                "original_word_count": 24,
+                "adapted_word_count": 54,
+                "original_syllable_count": 65,
+                "original_sentence_count": 1,
+                "syllable_count": 98,
+                "sentence_count": 6,
+                "maintenance_exception": false,
+                "inference_seconds": 0.003814167001110036,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "84",
+                "category": null,
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 11.085000000000008,
+                "adapted_szigriszt_score": 66.06607344632768,
+                "score_delta": 54.98107344632767,
+                "original_word_count": 40,
+                "adapted_word_count": 59,
+                "original_syllable_count": 100,
+                "original_sentence_count": 1,
+                "syllable_count": 124,
+                "sentence_count": 6,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0048251249972963706,
+                "model_generation_calls": 0
+              }
+            ],
+            "paired_nonmaintenance_accepted_derived": {
+              "examples": 5,
+              "original_szigriszt_score": 29.608419715447162,
+              "adapted_szigriszt_score": 76.1356730770651,
+              "score_delta": 46.527253361617944,
+              "original_word_count": 33,
+              "adapted_word_count": 49.6
+            }
+          }
+        }
+      }
+    },
+    "diagnostic": {
+      "examples": 14,
+      "scope": "Known synthetic developer diagnostic; includes intended abstentions",
+      "runs": {
+        "base": {
+          "examples": 14,
+          "valid_predictions": 0,
+          "original_score": 54.746347159784676,
+          "score_delta": null,
+          "adapted_score": null,
+          "acceptance_rate": 0.0,
+          "strict_double_condition_rate": 0.0,
+          "maintenance_eligible_rate": 0.14285714285714285,
+          "lexical_fidelity_guard_rate": 0.0,
+          "strict_and_fidelity_rate": 0.0,
+          "reference_unigram_f1": 0.0,
+          "timing": {
+            "count": 14,
+            "mean_seconds": 0.1801189910713999,
+            "median_seconds": 0.15311858350105467,
+            "min_seconds": 0.14599220899981447,
+            "max_seconds": 0.4274558329998399,
+            "p95_seconds": 0.4274558329998399,
+            "first_seconds": 0.4274558329998399,
+            "total_seconds": 2.5216658749995986
+          },
+          "model_loading_seconds": 3.435048041996197,
+          "metadata": {
+            "python": "3.14.7",
+            "platform": "Darwin",
+            "architecture": "arm64",
+            "device": "cpu",
+            "threads": 2,
+            "max_input_tokens": 512,
+            "max_new_tokens": 64,
+            "num_beams": 2,
+            "data_sha256": "f25fff6dc3a050300783f04e1a2f3229bcbf004833a7cc69bda9ee676911fe6c",
+            "timing_scope": "tokenization + generation + decoding; no warmup excluded",
+            "package_versions": {
+              "torch": "2.14.1",
+              "transformers": "4.57.6"
+            }
+          },
+          "per_example": [
+            {
+              "document_id": "lexical-school",
+              "category": "lexical",
+              "original_score": 37.08500000000001,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.4274558329998399
+            },
+            {
+              "document_id": "lexical-teachers",
+              "category": "lexical",
+              "original_score": 28.18500000000003,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.1635091249991092
+            },
+            {
+              "document_id": "lexical-tutors",
+              "category": "lexical",
+              "original_score": 45.985000000000014,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.153618208001717
+            },
+            {
+              "document_id": "negation",
+              "category": "negation",
+              "original_score": 46.766250000000014,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.14982524999504676
+            },
+            {
+              "document_id": "numbers",
+              "category": "numbers",
+              "original_score": 27.297500000000014,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.1513940829972853
+            },
+            {
+              "document_id": "negation-numbers",
+              "category": "negation_numbers",
+              "original_score": 36.54611111111112,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.15261895900039235
+            },
+            {
+              "document_id": "coordination",
+              "category": "syntax",
+              "original_score": 71.65062500000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.20595191699976567
+            },
+            {
+              "document_id": "relative",
+              "category": "syntax",
+              "original_score": 61.0273076923077,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.20129458299925318
+            },
+            {
+              "document_id": "independent-clauses",
+              "category": "syntax",
+              "original_score": 77.80038461538463,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.14855683299538214
+            },
+            {
+              "document_id": "argument-order",
+              "category": "argument_order",
+              "original_score": 50.44750000000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.14958675000525545
+            },
+            {
+              "document_id": "unsupported-vocabulary",
+              "category": "abstention",
+              "original_score": -84.96499999999995,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.15457416699791793
+            },
+            {
+              "document_id": "already-readable-no-rule",
+              "category": "abstention",
+              "original_score": 88.55318181818183,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.15056962500239024
+            },
+            {
+              "document_id": "maintenance",
+              "category": "maintenance",
+              "original_score": 140.53500000000003,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.14599220899981447
+            },
+            {
+              "document_id": "maintenance-negation",
+              "category": "maintenance",
+              "original_score": 139.53500000000003,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.16671833300642902
+            }
+          ],
+          "hybrid": {
+            "examples": 14,
+            "original_score_all_inputs": 54.746347159784676,
+            "accepted_examples": 10,
+            "acceptance_rate": 0.7142857142857143,
+            "abstention_rate": 0.2857142857142857,
+            "strict_double_condition_rate_all_inputs": 0.5714285714285714,
+            "strict_compliance_nonmaintenance_accepted": 1.0,
+            "maintenance_accepted_examples": 2,
+            "gate_and_lexical_guard_compliance_accepted": 1.0,
+            "model_generation_calls": 14,
+            "engine_policy": "deterministic candidate first; then mT5 + refinement; bounded retries; chunk/document gates",
+            "timing": {
+              "count": 14,
+              "mean_seconds": 0.2060488808575818,
+              "median_seconds": 0.005003708000003826,
+              "min_seconds": 0.0011112079955637455,
+              "max_seconds": 0.7740730000004987,
+              "p95_seconds": 0.7740730000004987,
+              "first_seconds": 0.006469457999628503,
+              "total_seconds": 2.8846843320061453
+            },
+            "accepted_only_metrics": {
+              "examples": 10,
+              "valid_predictions": 10,
+              "original_score": 65.77627938034189,
+              "score_delta": 24.316847643607446,
+              "adapted_score": 90.09312702394935,
+              "acceptance_rate": 1.0,
+              "strict_double_condition_rate": 0.8,
+              "maintenance_eligible_rate": 0.2,
+              "lexical_fidelity_guard_rate": 1.0,
+              "strict_and_fidelity_rate": 0.8,
+              "reference_unigram_f1": 0.8270068445068445
+            },
+            "method_counts": {
+              "rules": 10,
+              "rejected": 4
+            },
+            "outcomes": [
+              {
+                "document_id": "lexical-school",
+                "category": "lexical",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 37.08500000000001,
+                "adapted_szigriszt_score": 77.135,
+                "score_delta": 40.05,
+                "original_word_count": 42,
+                "adapted_word_count": 42,
+                "original_syllable_count": 105,
+                "original_sentence_count": 3,
+                "syllable_count": 78,
+                "sentence_count": 3,
+                "maintenance_exception": false,
+                "inference_seconds": 0.006469457999628503,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "lexical-teachers",
+                "category": "lexical",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 28.18500000000003,
+                "adapted_szigriszt_score": 68.23500000000001,
+                "score_delta": 40.04999999999998,
+                "original_word_count": 28,
+                "adapted_word_count": 28,
+                "original_syllable_count": 74,
+                "original_sentence_count": 2,
+                "syllable_count": 56,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0029825000019627623,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "lexical-tutors",
+                "category": "lexical",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 45.985000000000014,
+                "adapted_szigriszt_score": 86.03500000000003,
+                "score_delta": 40.05000000000001,
+                "original_word_count": 28,
+                "adapted_word_count": 28,
+                "original_syllable_count": 66,
+                "original_sentence_count": 2,
+                "syllable_count": 48,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.002659666999534238,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "negation",
+                "category": "negation",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 46.766250000000014,
+                "adapted_szigriszt_score": 81.81000000000002,
+                "score_delta": 35.04375,
+                "original_word_count": 32,
+                "adapted_word_count": 32,
+                "original_syllable_count": 74,
+                "original_sentence_count": 2,
+                "syllable_count": 56,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.002727958002651576,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "numbers",
+                "category": "numbers",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.7740730000004987,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "negation-numbers",
+                "category": "negation_numbers",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 36.54611111111112,
+                "adapted_szigriszt_score": 66.17710526315793,
+                "score_delta": 29.63099415204681,
+                "original_word_count": 36,
+                "adapted_word_count": 38,
+                "original_syllable_count": 88,
+                "original_sentence_count": 2,
+                "syllable_count": 80,
+                "sentence_count": 4,
+                "maintenance_exception": false,
+                "inference_seconds": 0.15994845800014446,
+                "model_generation_calls": 1
+              },
+              {
+                "document_id": "coordination",
+                "category": "syntax",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 71.65062500000002,
+                "adapted_szigriszt_score": 87.39284313725491,
+                "score_delta": 15.742218137254895,
+                "original_word_count": 32,
+                "adapted_word_count": 34,
+                "original_syllable_count": 53,
+                "original_sentence_count": 1,
+                "syllable_count": 59,
+                "sentence_count": 3,
+                "maintenance_exception": false,
+                "inference_seconds": 0.003537958000379149,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "relative",
+                "category": "syntax",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 61.0273076923077,
+                "adapted_szigriszt_score": 85.45798850574714,
+                "score_delta": 24.430680813439437,
+                "original_word_count": 26,
+                "adapted_word_count": 29,
+                "original_syllable_count": 50,
+                "original_sentence_count": 1,
+                "syllable_count": 52,
+                "sentence_count": 3,
+                "maintenance_exception": false,
+                "inference_seconds": 0.20308320799813373,
+                "model_generation_calls": 1
+              },
+              {
+                "document_id": "independent-clauses",
+                "category": "syntax",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.5694938330052537,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "argument-order",
+                "category": "argument_order",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 50.44750000000002,
+                "adapted_szigriszt_score": 68.61833333333335,
+                "score_delta": 18.170833333333334,
+                "original_word_count": 24,
+                "adapted_word_count": 24,
+                "original_syllable_count": 51,
+                "original_sentence_count": 1,
+                "syllable_count": 44,
+                "sentence_count": 1,
+                "maintenance_exception": false,
+                "inference_seconds": 0.002671916998224333,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "unsupported-vocabulary",
+                "category": "abstention",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.5639566669997294,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "already-readable-no-rule",
+                "category": "abstention",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.5908115830025054,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "maintenance",
+                "category": "maintenance",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 140.53500000000003,
+                "adapted_szigriszt_score": 140.53500000000003,
+                "score_delta": 0.0,
+                "original_word_count": 20,
+                "adapted_word_count": 20,
+                "original_syllable_count": 20,
+                "original_sentence_count": 5,
+                "syllable_count": 20,
+                "sentence_count": 5,
+                "maintenance_exception": true,
+                "inference_seconds": 0.0011569170019356534,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "maintenance-negation",
+                "category": "maintenance",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 139.53500000000003,
+                "adapted_szigriszt_score": 139.53500000000003,
+                "score_delta": 0.0,
+                "original_word_count": 25,
+                "adapted_word_count": 25,
+                "original_syllable_count": 25,
+                "original_sentence_count": 5,
+                "syllable_count": 25,
+                "sentence_count": 5,
+                "maintenance_exception": true,
+                "inference_seconds": 0.0011112079955637455,
+                "model_generation_calls": 0
+              }
+            ],
+            "paired_nonmaintenance_accepted_derived": {
+              "examples": 8,
+              "original_szigriszt_score": 47.21159922542736,
+              "adapted_szigriszt_score": 77.60765877993667,
+              "score_delta": 30.396059554509307,
+              "original_word_count": 31,
+              "adapted_word_count": 31.875
+            }
+          }
+        },
+        "tuned": {
+          "examples": 14,
+          "valid_predictions": 0,
+          "original_score": 54.746347159784676,
+          "score_delta": null,
+          "adapted_score": null,
+          "acceptance_rate": 0.0,
+          "strict_double_condition_rate": 0.0,
+          "maintenance_eligible_rate": 0.14285714285714285,
+          "lexical_fidelity_guard_rate": 0.0,
+          "strict_and_fidelity_rate": 0.0,
+          "reference_unigram_f1": 0.1728167252453738,
+          "timing": {
+            "count": 14,
+            "mean_seconds": 1.6203643720005598,
+            "median_seconds": 1.0375685629987856,
+            "min_seconds": 0.3707640420034295,
+            "max_seconds": 5.6017784159994335,
+            "p95_seconds": 5.6017784159994335,
+            "first_seconds": 5.6017784159994335,
+            "total_seconds": 22.685101208007836
+          },
+          "model_loading_seconds": 0.8201358750011423,
+          "metadata": {
+            "python": "3.14.7",
+            "platform": "Darwin",
+            "architecture": "arm64",
+            "device": "cpu",
+            "threads": 2,
+            "max_input_tokens": 512,
+            "max_new_tokens": 64,
+            "num_beams": 2,
+            "data_sha256": "f25fff6dc3a050300783f04e1a2f3229bcbf004833a7cc69bda9ee676911fe6c",
+            "timing_scope": "tokenization + generation + decoding; no warmup excluded",
+            "package_versions": {
+              "torch": "2.14.1",
+              "transformers": "4.57.6"
+            }
+          },
+          "per_example": [
+            {
+              "document_id": "lexical-school",
+              "category": "lexical",
+              "original_score": 37.08500000000001,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 5.6017784159994335
+            },
+            {
+              "document_id": "lexical-teachers",
+              "category": "lexical",
+              "original_score": 28.18500000000003,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 2.1466343749998487
+            },
+            {
+              "document_id": "lexical-tutors",
+              "category": "lexical",
+              "original_score": 45.985000000000014,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.48546408399852226
+            },
+            {
+              "document_id": "negation",
+              "category": "negation",
+              "original_score": 46.766250000000014,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.6177196249991539
+            },
+            {
+              "document_id": "numbers",
+              "category": "numbers",
+              "original_score": 27.297500000000014,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.6188917920007952
+            },
+            {
+              "document_id": "negation-numbers",
+              "category": "negation_numbers",
+              "original_score": 36.54611111111112,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.8435045410005841
+            },
+            {
+              "document_id": "coordination",
+              "category": "syntax",
+              "original_score": 71.65062500000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 3.0349519580049673
+            },
+            {
+              "document_id": "relative",
+              "category": "syntax",
+              "original_score": 61.0273076923077,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 2.1574619580060244
+            },
+            {
+              "document_id": "independent-clauses",
+              "category": "syntax",
+              "original_score": 77.80038461538463,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.1626250420013093
+            },
+            {
+              "document_id": "argument-order",
+              "category": "argument_order",
+              "original_score": 50.44750000000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.9125120839962619
+            },
+            {
+              "document_id": "unsupported-vocabulary",
+              "category": "abstention",
+              "original_score": -84.96499999999995,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.6449608749971958
+            },
+            {
+              "document_id": "already-readable-no-rule",
+              "category": "abstention",
+              "original_score": 88.55318181818183,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 2.0115349580009934
+            },
+            {
+              "document_id": "maintenance",
+              "category": "maintenance",
+              "original_score": 140.53500000000003,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.3707640420034295
+            },
+            {
+              "document_id": "maintenance-negation",
+              "category": "maintenance",
+              "original_score": 139.53500000000003,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 2.076297457999317
+            }
+          ],
+          "hybrid": {
+            "examples": 14,
+            "original_score_all_inputs": 54.746347159784676,
+            "accepted_examples": 10,
+            "acceptance_rate": 0.7142857142857143,
+            "abstention_rate": 0.2857142857142857,
+            "strict_double_condition_rate_all_inputs": 0.5714285714285714,
+            "strict_compliance_nonmaintenance_accepted": 1.0,
+            "maintenance_accepted_examples": 2,
+            "gate_and_lexical_guard_compliance_accepted": 1.0,
+            "model_generation_calls": 14,
+            "engine_policy": "deterministic candidate first; then mT5 + refinement; bounded retries; chunk/document gates",
+            "timing": {
+              "count": 14,
+              "mean_seconds": 1.294376196356877,
+              "median_seconds": 0.005283229002088774,
+              "min_seconds": 0.0012640409986488521,
+              "max_seconds": 8.350230667005235,
+              "p95_seconds": 8.350230667005235,
+              "first_seconds": 0.00620800000615418,
+              "total_seconds": 18.121266748996277
+            },
+            "accepted_only_metrics": {
+              "examples": 10,
+              "valid_predictions": 10,
+              "original_score": 65.77627938034189,
+              "score_delta": 24.316847643607446,
+              "adapted_score": 90.09312702394935,
+              "acceptance_rate": 1.0,
+              "strict_double_condition_rate": 0.8,
+              "maintenance_eligible_rate": 0.2,
+              "lexical_fidelity_guard_rate": 1.0,
+              "strict_and_fidelity_rate": 0.8,
+              "reference_unigram_f1": 0.8270068445068445
+            },
+            "method_counts": {
+              "rules": 10,
+              "rejected": 4
+            },
+            "outcomes": [
+              {
+                "document_id": "lexical-school",
+                "category": "lexical",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 37.08500000000001,
+                "adapted_szigriszt_score": 77.135,
+                "score_delta": 40.05,
+                "original_word_count": 42,
+                "adapted_word_count": 42,
+                "original_syllable_count": 105,
+                "original_sentence_count": 3,
+                "syllable_count": 78,
+                "sentence_count": 3,
+                "maintenance_exception": false,
+                "inference_seconds": 0.00620800000615418,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "lexical-teachers",
+                "category": "lexical",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 28.18500000000003,
+                "adapted_szigriszt_score": 68.23500000000001,
+                "score_delta": 40.04999999999998,
+                "original_word_count": 28,
+                "adapted_word_count": 28,
+                "original_syllable_count": 74,
+                "original_sentence_count": 2,
+                "syllable_count": 56,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0029424169988487847,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "lexical-tutors",
+                "category": "lexical",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 45.985000000000014,
+                "adapted_szigriszt_score": 86.03500000000003,
+                "score_delta": 40.05000000000001,
+                "original_word_count": 28,
+                "adapted_word_count": 28,
+                "original_syllable_count": 66,
+                "original_sentence_count": 2,
+                "syllable_count": 48,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0028765419992851093,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "negation",
+                "category": "negation",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 46.766250000000014,
+                "adapted_szigriszt_score": 81.81000000000002,
+                "score_delta": 35.04375,
+                "original_word_count": 32,
+                "adapted_word_count": 32,
+                "original_syllable_count": 74,
+                "original_sentence_count": 2,
+                "syllable_count": 56,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0028733329963870347,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "numbers",
+                "category": "numbers",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 2.3485794580046786,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "negation-numbers",
+                "category": "negation_numbers",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 36.54611111111112,
+                "adapted_szigriszt_score": 66.17710526315793,
+                "score_delta": 29.63099415204681,
+                "original_word_count": 36,
+                "adapted_word_count": 38,
+                "original_syllable_count": 88,
+                "original_sentence_count": 2,
+                "syllable_count": 80,
+                "sentence_count": 4,
+                "maintenance_exception": false,
+                "inference_seconds": 0.8526410839986056,
+                "model_generation_calls": 1
+              },
+              {
+                "document_id": "coordination",
+                "category": "syntax",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 71.65062500000002,
+                "adapted_szigriszt_score": 87.39284313725491,
+                "score_delta": 15.742218137254895,
+                "original_word_count": 32,
+                "adapted_word_count": 34,
+                "original_syllable_count": 53,
+                "original_sentence_count": 1,
+                "syllable_count": 59,
+                "sentence_count": 3,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0033711249998304993,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "relative",
+                "category": "syntax",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 61.0273076923077,
+                "adapted_szigriszt_score": 85.45798850574714,
+                "score_delta": 24.430680813439437,
+                "original_word_count": 26,
+                "adapted_word_count": 29,
+                "original_syllable_count": 50,
+                "original_sentence_count": 1,
+                "syllable_count": 52,
+                "sentence_count": 3,
+                "maintenance_exception": false,
+                "inference_seconds": 1.3902376659971196,
+                "model_generation_calls": 1
+              },
+              {
+                "document_id": "independent-clauses",
+                "category": "syntax",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 3.7803497499990044,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "argument-order",
+                "category": "argument_order",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 50.44750000000002,
+                "adapted_szigriszt_score": 68.61833333333335,
+                "score_delta": 18.170833333333334,
+                "original_word_count": 24,
+                "adapted_word_count": 24,
+                "original_syllable_count": 51,
+                "original_sentence_count": 1,
+                "syllable_count": 44,
+                "sentence_count": 1,
+                "maintenance_exception": false,
+                "inference_seconds": 0.004358457998023368,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "unsupported-vocabulary",
+                "category": "abstention",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 1.3740007499945932,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "already-readable-no-rule",
+                "category": "abstention",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 8.350230667005235,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "maintenance",
+                "category": "maintenance",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 140.53500000000003,
+                "adapted_szigriszt_score": 140.53500000000003,
+                "score_delta": 0.0,
+                "original_word_count": 20,
+                "adapted_word_count": 20,
+                "original_syllable_count": 20,
+                "original_sentence_count": 5,
+                "syllable_count": 20,
+                "sentence_count": 5,
+                "maintenance_exception": true,
+                "inference_seconds": 0.0012640409986488521,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "maintenance-negation",
+                "category": "maintenance",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 139.53500000000003,
+                "adapted_szigriszt_score": 139.53500000000003,
+                "score_delta": 0.0,
+                "original_word_count": 25,
+                "adapted_word_count": 25,
+                "original_syllable_count": 25,
+                "original_sentence_count": 5,
+                "syllable_count": 25,
+                "sentence_count": 5,
+                "maintenance_exception": true,
+                "inference_seconds": 0.0013334579998627305,
+                "model_generation_calls": 0
+              }
+            ],
+            "paired_nonmaintenance_accepted_derived": {
+              "examples": 8,
+              "original_szigriszt_score": 47.21159922542736,
+              "adapted_szigriszt_score": 77.60765877993667,
+              "score_delta": 30.396059554509307,
+              "original_word_count": 31,
+              "adapted_word_count": 31.875
+            }
+          }
+        }
+      }
+    },
+    "audit": {
+      "examples": 12,
+      "scope": "New internally selected document-disjoint sample; no rules added from these sources",
+      "runs": {
+        "base": {
+          "examples": 12,
+          "valid_predictions": 0,
+          "original_score": 38.05449619827339,
+          "score_delta": null,
+          "adapted_score": null,
+          "acceptance_rate": 0.0,
+          "strict_double_condition_rate": 0.0,
+          "maintenance_eligible_rate": 0.0,
+          "lexical_fidelity_guard_rate": 0.0,
+          "strict_and_fidelity_rate": 0.0,
+          "reference_unigram_f1": 0.0,
+          "timing": {
+            "count": 12,
+            "mean_seconds": 0.22605596166795294,
+            "median_seconds": 0.22558335350186098,
+            "min_seconds": 0.15468658399913693,
+            "max_seconds": 0.3401860840021982,
+            "p95_seconds": 0.3401860840021982,
+            "first_seconds": 0.3401860840021982,
+            "total_seconds": 2.7126715400154353
+          },
+          "model_loading_seconds": 4.971080791001441,
+          "metadata": {
+            "python": "3.14.7",
+            "platform": "Darwin",
+            "architecture": "arm64",
+            "device": "cpu",
+            "threads": 2,
+            "max_input_tokens": 96,
+            "max_new_tokens": 64,
+            "num_beams": 2,
+            "data_sha256": "1ea48bf42bb429bdb5a5f86f9d6c004a26ebde4bc6d55889022b2915985ac4b6",
+            "timing_scope": "tokenization + generation + decoding; no warmup excluded",
+            "package_versions": {
+              "torch": "2.14.1",
+              "transformers": "4.57.6"
+            }
+          },
+          "per_example": [
+            {
+              "document_id": "225",
+              "category": null,
+              "original_score": 0.835000000000008,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.3401860840021982
+            },
+            {
+              "document_id": "147",
+              "category": null,
+              "original_score": 21.893333333333345,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.28355754099902697
+            },
+            {
+              "document_id": "42",
+              "category": null,
+              "original_score": 43.244090909090914,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.23857016600231873
+            },
+            {
+              "document_id": "218",
+              "category": null,
+              "original_score": 66.02250000000001,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.27812400000402704
+            },
+            {
+              "document_id": "124",
+              "category": null,
+              "original_score": 29.439347826086987,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.15612729099666467
+            },
+            {
+              "document_id": "210",
+              "category": null,
+              "original_score": 25.40166666666667,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.21259654100140324
+            },
+            {
+              "document_id": "93",
+              "category": null,
+              "original_score": 49.69611111111112,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.15698862499993993
+            },
+            {
+              "document_id": "260",
+              "category": null,
+              "original_score": 65.35000000000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.2448995000013383
+            },
+            {
+              "document_id": "257",
+              "category": null,
+              "original_score": 39.795606060606076,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.19714362500235438
+            },
+            {
+              "document_id": "238",
+              "category": null,
+              "original_score": 29.76000000000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.2449884580055368
+            },
+            {
+              "document_id": "156",
+              "category": null,
+              "original_score": 36.81608108108111,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.20480312500149012
+            },
+            {
+              "document_id": "215",
+              "category": null,
+              "original_score": 48.40021739130438,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.15468658399913693
+            }
+          ],
+          "hybrid": {
+            "examples": 12,
+            "original_score_all_inputs": 38.05449619827339,
+            "accepted_examples": 0,
+            "acceptance_rate": 0.0,
+            "abstention_rate": 1.0,
+            "strict_double_condition_rate_all_inputs": 0.0,
+            "strict_compliance_nonmaintenance_accepted": null,
+            "maintenance_accepted_examples": 0,
+            "gate_and_lexical_guard_compliance_accepted": null,
+            "model_generation_calls": 36,
+            "engine_policy": "deterministic candidate first; then mT5 + refinement; bounded retries; chunk/document gates",
+            "timing": {
+              "count": 12,
+              "mean_seconds": 0.7016196216682147,
+              "median_seconds": 0.6752371250004217,
+              "min_seconds": 0.5722224170021946,
+              "max_seconds": 0.9348747920012102,
+              "p95_seconds": 0.9348747920012102,
+              "first_seconds": 0.7336263750039507,
+              "total_seconds": 8.419435460018576
+            },
+            "accepted_only_metrics": null,
+            "method_counts": {
+              "rejected": 12
+            },
+            "outcomes": [
+              {
+                "document_id": "225",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.7336263750039507,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "147",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.6258378750062548,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "42",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.6273143330035964,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "218",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.7619017920005717,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "124",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.5722224170021946,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "210",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.6324420419987291,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "93",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.6713510410045274,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "260",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.7578027499985183,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "257",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.679123208996316,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "238",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.7806682500013267,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "156",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.6422705840013805,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "215",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.9348747920012102,
+                "model_generation_calls": 3
+              }
+            ],
+            "paired_nonmaintenance_accepted_derived": null
+          }
+        },
+        "tuned": {
+          "examples": 12,
+          "valid_predictions": 0,
+          "original_score": 38.05449619827339,
+          "score_delta": null,
+          "adapted_score": null,
+          "acceptance_rate": 0.0,
+          "strict_double_condition_rate": 0.0,
+          "maintenance_eligible_rate": 0.0,
+          "lexical_fidelity_guard_rate": 0.0,
+          "strict_and_fidelity_rate": 0.0,
+          "reference_unigram_f1": 0.2950961025168768,
+          "timing": {
+            "count": 12,
+            "mean_seconds": 2.2000743229164073,
+            "median_seconds": 2.1521087499968417,
+            "min_seconds": 0.685867625004903,
+            "max_seconds": 4.4350353750051,
+            "p95_seconds": 4.4350353750051,
+            "first_seconds": 4.4350353750051,
+            "total_seconds": 26.400891874996887
+          },
+          "model_loading_seconds": 0.7240646669961279,
+          "metadata": {
+            "python": "3.14.7",
+            "platform": "Darwin",
+            "architecture": "arm64",
+            "device": "cpu",
+            "threads": 2,
+            "max_input_tokens": 96,
+            "max_new_tokens": 64,
+            "num_beams": 2,
+            "data_sha256": "1ea48bf42bb429bdb5a5f86f9d6c004a26ebde4bc6d55889022b2915985ac4b6",
+            "timing_scope": "tokenization + generation + decoding; no warmup excluded",
+            "package_versions": {
+              "torch": "2.14.1",
+              "transformers": "4.57.6"
+            }
+          },
+          "per_example": [
+            {
+              "document_id": "225",
+              "category": null,
+              "original_score": 0.835000000000008,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 4.4350353750051
+            },
+            {
+              "document_id": "147",
+              "category": null,
+              "original_score": 21.893333333333345,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 2.9241771250017337
+            },
+            {
+              "document_id": "42",
+              "category": null,
+              "original_score": 43.244090909090914,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 2.941488666998339
+            },
+            {
+              "document_id": "218",
+              "category": null,
+              "original_score": 66.02250000000001,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.685867625004903
+            },
+            {
+              "document_id": "124",
+              "category": null,
+              "original_score": 29.439347826086987,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 2.656000832997961
+            },
+            {
+              "document_id": "210",
+              "category": null,
+              "original_score": 25.40166666666667,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.5221149999997579
+            },
+            {
+              "document_id": "93",
+              "category": null,
+              "original_score": 49.69611111111112,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 2.8958301249949727
+            },
+            {
+              "document_id": "260",
+              "category": null,
+              "original_score": 65.35000000000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.1467328329963493
+            },
+            {
+              "document_id": "257",
+              "category": null,
+              "original_score": 39.795606060606076,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 2.8950224590007565
+            },
+            {
+              "document_id": "238",
+              "category": null,
+              "original_score": 29.76000000000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.6482166669957223
+            },
+            {
+              "document_id": "156",
+              "category": null,
+              "original_score": 36.81608108108111,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.2194787910048035
+            },
+            {
+              "document_id": "215",
+              "category": null,
+              "original_score": 48.40021739130438,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.4309263749964884
+            }
+          ],
+          "hybrid": {
+            "examples": 12,
+            "original_score_all_inputs": 38.05449619827339,
+            "accepted_examples": 0,
+            "acceptance_rate": 0.0,
+            "abstention_rate": 1.0,
+            "strict_double_condition_rate_all_inputs": 0.0,
+            "strict_compliance_nonmaintenance_accepted": null,
+            "maintenance_accepted_examples": 0,
+            "gate_and_lexical_guard_compliance_accepted": null,
+            "model_generation_calls": 36,
+            "engine_policy": "deterministic candidate first; then mT5 + refinement; bounded retries; chunk/document gates",
+            "timing": {
+              "count": 12,
+              "mean_seconds": 6.619282024333491,
+              "median_seconds": 6.363976353997714,
+              "min_seconds": 2.73104370800138,
+              "max_seconds": 10.965354875006597,
+              "p95_seconds": 10.965354875006597,
+              "first_seconds": 5.583319332996325,
+              "total_seconds": 79.4313842920019
+            },
+            "accepted_only_metrics": null,
+            "method_counts": {
+              "rejected": 12
+            },
+            "outcomes": [
+              {
+                "document_id": "225",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 5.583319332996325,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "147",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 9.301145458994142,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "42",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 8.545105666999007,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "218",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 2.73104370800138,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "124",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 6.408591457999137,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "210",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 6.319361249996291,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "93",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 9.331356125003367,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "260",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 5.712153167005454,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "257",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 10.965354875006597,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "238",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 6.758687417001056,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "156",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 3.1119140419978066,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "215",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 4.6633517910013325,
+                "model_generation_calls": 3
+              }
+            ],
+            "paired_nonmaintenance_accepted_derived": null
+          }
+        }
+      },
+      "selection_manifest": {
+        "seed": 314159,
+        "examples": 12,
+        "excluded_calibration_documents": [
+          "120",
+          "200",
+          "276",
+          "30",
+          "68",
+          "84"
+        ],
+        "selected_documents": [
+          "225",
+          "147",
+          "42",
+          "218",
+          "124",
+          "210",
+          "93",
+          "260",
+          "257",
+          "238",
+          "156",
+          "215"
+        ],
+        "data_sha256": "1ea48bf42bb429bdb5a5f86f9d6c004a26ebde4bc6d55889022b2915985ac4b6",
+        "word_range": [
+          20,
+          45
+        ],
+        "max_tokens": 96,
+        "scope": "Not inspected while selecting rules; evaluated once after calibration was frozen"
+      }
+    }
+  }
+}

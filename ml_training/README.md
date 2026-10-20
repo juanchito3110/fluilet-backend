@@ -74,7 +74,8 @@ expert attribution: a result produced by rules is never credited to mT5. The
 production policy tries a deterministic candidate first, then mT5 and refinement.
 Readability/fidelity gates still apply at both chunk and document level.
 
-The frozen six-example EASIER set is retained. The separately reported
+The six-example EASIER set is retained and now explicitly informs rule calibration;
+it is no longer a holdout. The separately reported
 `fixtures/hybrid_es.json` contains 14 synthetic developer diagnostic cases,
 including unsupported inputs, negation, numbers, syntax and maintenance. It is
 not EASIER, a blind holdout or clinical evidence. Its reference is the original
@@ -91,3 +92,14 @@ to obtain the full comparison. See `docs/ml-evaluation.md` and
 `docs/hybrid-evaluation-results.json` for the actual observations. The mathematical
 gate guarantees compliance of returned adaptations (with the declared maintenance
 exception); it cannot guarantee acceptance of every input or semantic equivalence.
+
+
+Calibration on 2026-10-20 used short contextual lexical pairs plus bounded clause,
+goal and explicit-gloss templates. EASIER calibration improved from 0/6 to 5/6;
+the synthetic developer diagnostic improved from 8/14 to 10/14. No model weights
+or mathematical thresholds changed. The separate 12-document internal audit
+(seed 314159; exclude six calibration documents; reuse select_rows with 96-token
+budget and 20–45 words) remains 0/12. Do not present in-sample rule calibration
+as generalization or human semantic validation. Exact selection commands and
+six real base/checkpoint comparisons are recorded in docs/ml-evaluation.md and
+docs/easier-calibration-results.json. Previous numeric evidence remains unchanged.

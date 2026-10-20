@@ -1,26 +1,28 @@
 # Evaluación técnica de mT5 + EASIER
 
-**Fluilet · 19 de octubre de 2026 · Entregable para el asesor Aldo Maciel**
+**Fluilet · 20 de octubre de 2026 (entrenamiento: 19 de octubre) · Entregable para el asesor Aldo Maciel**
 
-Se ejecutaron preparación del corpus real, fine-tuning LoRA de `google/mt5-small`,
-guardado y recarga del checkpoint e inferencia con el sistema híbrido completo.
-La calibración actual conserva los pesos del ensayo de 120 pasos y cambia la
-orquestación: evalúa primero un candidato determinista; si no pasa la puerta,
-ejecuta mT5 y refinamiento con reintentos acotados. No modifica los umbrales.
+La calibración solicitada incorpora pares léxicos EASIER y plantillas sintácticas
+con restricciones de contexto. El sistema completo mejora de **0/6 a 5/6 (83,33 %)**
+en los seis casos EASIER usados para diseñar estas reglas. En las cinco entradas
+aceptadas, el promedio pareado pasa de **29,608420 a 76,135673**, delta **46,527253**.
+Las cinco cumplen las dos condiciones sin redondear y el filtro automático.
 
-**Resultado:** el sistema aceptó 8/14 casos sintéticos de diagnóstico. Las seis
-adaptaciones sin excepción pasaron, en promedio pareado, de **46,686563 a
-78,204363** (delta **31,517800**), con 6/6 cumpliendo ambas condiciones. Las otras
-dos salidas aplicaron la excepción explícita de mantenimiento. Las seis entradas
-EASIER originales siguen con 0/6 aceptaciones: la batería sintética no las sustituye.
-Las ocho salidas aceptadas fueron producidas por reglas, sin atribuir ese mérito
-a mT5. El checkpoint aislado continúa sin estar listo para uso clínico.
+En el diagnóstico sintético mejora de **8/14 a 10/14 (71,43 %)**: ocho adaptaciones
+ordinarias y dos mantenimientos. Los cuatro rechazos se conservan. Los modelos
+puros base y ajustado siguen sin producir salidas válidas. Las adaptaciones
+aceptadas se atribuyen a reglas, no al entrenamiento de mT5.
 
-La evidencia actual está en [hybrid-evaluation-results.json](hybrid-evaluation-results.json).
-La primera corrida y el entrenamiento permanecen documentados en
-[ml-evaluation-results.json](ml-evaluation-results.json). Ambos contienen métricas
-numéricas y procedencia, sin textos del corpus. Ninguna corrida constituye una
-validación humana de significado, comprensión o eficacia clínica.
+**Alcance:** los seis casos EASIER ahora son calibración, no prueba independiente.
+En una muestra adicional de 12 documentos no usados para definir estas reglas,
+la aceptación sigue en **0/12**. La mejora no demuestra generalización ni
+preservación semántica validada por humanos. El checkpoint aislado no está listo
+para uso clínico. No se modificaron pesos, umbrales ni excepciones en esta fase.
+
+La evidencia actual está en [easier-calibration-results.json](easier-calibration-results.json).
+Los registros anteriores permanecen en [hybrid-evaluation-results.json](hybrid-evaluation-results.json)
+y [ml-evaluation-results.json](ml-evaluation-results.json). Se publican datos
+numéricos, hashes y configuración, sin redistribuir textos EASIER ni pesos.
 
 ## Datos y trazabilidad
 
@@ -99,136 +101,119 @@ El checkpoint fusionado se recargó desde disco para evaluar, sin reutilizar pes
 de un modelo simulado. Permanece en `checkpoints/easier-smoke/merged`, excluido de
 Git. La carga opcional del modelo permanece separada del entorno ligero de la API.
 
-## Evaluación formal del sistema completo
+## Calibración y evaluación del sistema completo
 
-Se ejecutó `evaluate.py --hybrid` cuatro veces: base y checkpoint ajustado, cada
-uno sobre EASIER (6 casos) y sobre una batería sintética (14 casos). Cada ejecución
-mide generación pura y el `AdaptationPipeline` real sobre exactamente las mismas
-entradas. El modelo se recarga desde disco; no se simulan predicciones. El hash del
-checkpoint fusionado coincide con el publicado en la corrida inicial. No hubo
-nuevo entrenamiento de pesos en esta calibración.
+Se ejecutaron seis comparaciones reales con `evaluate.py --hybrid`: modelo base y
+checkpoint ajustado sobre tres conjuntos. Cada ejecución mide mT5 puro y el
+pipeline de producción con las mismas entradas. Se mantienen las revisiones,
+checkpoint, prefijo, semilla y límites de generación del ensayo anterior.
 
-La batería [hybrid_es.json](../ml_training/fixtures/hybrid_es.json) es un conjunto
-fijo de diagnóstico creado durante desarrollo, con léxico cubierto, coordinación,
-relativas, negaciones, números, vocabulario no cubierto y mantenimiento. Contiene
-éxitos y rechazos; no se filtraron casos según su resultado. Es distinta de EASIER
-y no es un conjunto clínico o ciego. Su referencia textual es el original, por lo
-que su F1 léxico mide solapamiento, no calidad frente a una simplificación humana.
-No se mezclan ambos conjuntos en una tasa global.
+### Cambios léxicos y sintácticos
 
-### Qué garantiza la puerta
+Los pares cortos `aroma → olor`, `paulatina → gradual`, `homogéneo → similar` e
+`involucración → compromiso` se incorporan con restricciones y frases contextuales.
+La conjunción `e` se corrige a `y` ante `compromiso`. Otros cambios se restringen al
+contexto: `envergadura` se expresa como importancia en un problema sociosanitario,
+no en una nave; `detectar/localizar` se acota a nuevos casos en una población.
+No se copian automáticamente todas las anotaciones: algunas sustituciones aisladas
+producen errores gramaticales o cambian el sentido. Las siglas y los nombres que
+no se sustituyen conservan sus mayúsculas; los espacios múltiples no bloquean reglas.
 
-Se aplica sin redondear:
+Las plantillas separan medidas y su finalidad/prioridad, expresan nominalizaciones
+como subobjetivos explícitos, separan una causa ya declarada y convierten glosas
+nominales existentes en frases explicativas. La coordinación temporal puede repetir
+el sujeto conservando la negación de cada predicado. Las relativas restrictivas,
+condicionales y concesivas no se convierten en hechos independientes. Las listas
+con calificadores desconocidos no se expanden mediante la plantilla de subobjetivos.
 
-`Szigriszt = 206.835 − 62.3 × (sílabas / palabras) − (palabras / oraciones)`.
+La expansión explicativa aumenta la longitud: en los cinco casos EASIER aceptados
+se pasa de **33 a 49,6 palabras** en promedio. Parte de la ganancia proviene de
+explicitar objetivos/glosas y reducir longitud por oración, no de resumir contenido.
+La repetición de referentes es deliberada para hacer explícitas las cláusulas;
+fluidez, carga de lectura y comprensión requieren evaluación humana.
 
-Una salida ordinaria solo se devuelve si **adaptado − original ≥15,0** y
-**adaptado ≥65,0**, tanto por chunk como por documento. Si original >128,535, la
-excepción requiere adaptado ≥85,0 y se informa separadamente. No se recortan los
-índices a 0–100. El redondeo de las tablas ocurre después de decidir.
+La puerta mantiene delta ≥15 y adaptado ≥65 sin redondear, por chunk y por documento.
+Solo original >128,535 admite mantenimiento ≥85. Números y negaciones se conservan;
+el orden/cobertura se verifica frente al original canónico y sus transformaciones
+estructurales acotadas. Este último control comprueba consistencia con las reglas,
+no una validación semántica independiente de ellas. Candidatos fuera de la puerta
+terminan en 422, sin contenido ni adaptación parcial. No se bajó ningún umbral.
 
-También se exige el control automático de fidelidad: conservar números,
-negaciones, cobertura y orden léxico canónico; las divisiones sintácticas se
-restringen a patrones reconocidos con sujeto explícito. Marcadores internos de
-mT5 como `<extra_id_0>` son inválidos aunque sobrevivan al decodificador.
+### Original vs. mT5 puro vs. híbrido
 
-**La garantía matemática es condicional a devolver una adaptación.** No garantiza
-que toda entrada sea aceptada ni demuestra equivalencia semántica universal. La
-preservación semántica se protege con reglas conservadoras y el filtro automático;
-requiere revisión humana independiente para validarla. Cuando no hay candidato
-válido se devuelve HTTP 422, sin texto ni resultados parciales. Un rechazo correcto
-no se contabiliza como una simplificación exitosa.
+Las cifras de cada fila son iguales con base y checkpoint ajustado para el híbrido.
+Los modelos puros tienen 0 salidas válidas en los tres conjuntos. N/E indica que
+no hay salidas válidas/aceptadas para calcular un promedio; las salidas inválidas
+sí cuentan como fracasos en la cobertura. Los conjuntos no se mezclan.
 
-### EASIER: conjunto original conservado
-
-| Métrica (6 entradas) | Texto original | mT5 puro base | mT5 puro ajustado | Híbrido con base / ajustado |
-|---|---:|---:|---:|---:|
-| Puntaje original promedio | 32,145756 | 32,145756 | 32,145756 | 32,145756 |
-| Salidas válidas / aceptadas | — | 0/6 | 0/6 | 0/6 / 0/6 |
-| Puntaje adaptado promedio | — | N/E | N/E | N/E |
-| Delta promedio | — | N/E | N/E | N/E |
-| Doble condición sobre todas las entradas | — | 0 % | 0 % | 0 % |
-| Cumplimiento entre aceptadas | — | N/E | N/E | N/E |
-
-No hubo entradas elegibles para mantenimiento. El refinador conservador no
-resuelve esta muestra y mT5 no aportó candidatos aceptables. El resultado negativo
-se mantiene visible; no se reemplaza por los casos favorables del diagnóstico.
-
-### Diagnóstico sintético: Original vs. mT5 puro vs. Fluilet
-
-| Métrica (14 entradas) | Texto original | mT5 puro base | mT5 puro ajustado | Sistema híbrido (base y ajustado) |
-|---|---:|---:|---:|---:|
-| Puntaje original, todas las entradas | 54,746347 | 54,746347 | 54,746347 | 54,746347 |
-| Salidas válidas / aceptadas | — | 0/14 | 0/14 | 8/14 (57,14 %) |
-| Original pareado, solo las 8 aceptadas | — | N/E | N/E | 70,023672 |
-| Adaptado promedio, solo las 8 aceptadas | — | N/E | N/E | 93,662022 |
-| Delta promedio, solo las 8 aceptadas | — | N/E | N/E | 23,638350 |
-| Cumplimiento estricto entre aceptadas sin mantenimiento | — | N/E | N/E | 6/6 (100 %) |
-| Doble condición sobre todas las entradas | — | 0/14 | 0/14 | 6/14 (42,86 %) |
-| Excepción de mantenimiento aceptada | 2 elegibles | 0 | 0 | 2/14 |
-| Puerta matemática + filtro léxico entre aceptadas | — | N/E | N/E | 8/8 (100 %) |
-| Rechazos del sistema completo | — | — | — | 6/14 (42,86 %) |
-
-N/E significa no evaluable: no hay salidas válidas/aceptadas para ese promedio o
-denominador. Las salidas inválidas cuentan como fracasos en las tasas sobre todas
-las entradas. No se interpretan marcadores de mT5 como texto español legible.
-Los promedios adaptados y deltas son pareados sobre las mismas entradas aceptadas,
-no sobre las 14 entradas iniciales. Las ocho aceptadas incluyen dos mantenimientos
-con delta cero.
-
-Separando mantenimiento, las **seis adaptaciones ordinarias** tienen promedio
-original **46,686563**, adaptado **78,204363** y delta **31,517800**. Cada una cumple
-los umbrales sin redondear; el 100 % de cumplimiento condicional no equivale al
-100 % de cobertura. Ambos modelos produjeron el mismo resultado híbrido: 8 salidas
-`rules`, 6 rechazos y 18 llamadas a generación en los casos no resueltos. El modelo
-no fue necesario para las ocho salidas aceptadas.
-
-| Caso sintético | Original | mT5 puro base / ajustado | Híbrido: adaptado | Delta | Resultado |
-|---|---:|---|---:|---:|---|
-| lexical-school | 37,085 | N/E / N/E | 77,135 | 40,050 | Doble condición |
-| lexical-teachers | 28,185 | N/E / N/E | 68,235 | 40,050 | Doble condición |
-| lexical-tutors | 45,985 | N/E / N/E | 86,035 | 40,050 | Doble condición |
-| negation | 46,766 | N/E / N/E | 81,810 | 35,044 | Doble condición |
-| numbers | 27,298 | N/E / N/E | N/E | N/E | 422 |
-| negation-numbers | 36,546 | N/E / N/E | N/E | N/E | 422 |
-| coordination | 71,651 | N/E / N/E | 87,393 | 15,742 | Doble condición |
-| relative | 61,027 | N/E / N/E | N/E | N/E | 422 |
-| independent-clauses | 77,800 | N/E / N/E | N/E | N/E | 422 |
-| argument-order | 50,448 | N/E / N/E | 68,618 | 18,171 | Doble condición |
-| unsupported-vocabulary | -84,965 | N/E / N/E | N/E | N/E | 422 |
-| already-readable-no-rule | 88,553 | N/E / N/E | N/E | N/E | 422 |
-| maintenance | 140,535 | N/E / N/E | 140,535 | 0,000 | Mantenimiento |
-| maintenance-negation | 139,535 | N/E / N/E | 139,535 | 0,000 | Mantenimiento |
-
-Los rechazos incluyen `relative` (el candidato determinista mejora solo 14,630769
-puntos), `independent-clauses` (13 puntos) y casos con números cuyo candidato no
-alcanza 65. Esto muestra que el sistema conserva las dos condiciones incluso cuando
-el filtro léxico pasa. Los números y las negaciones no se eliminan para mejorar
-artificialmente el puntaje. Estos candidatos diagnósticos no se devuelven al cliente.
-
-## Tiempos medidos
-
-Se midió tokenización + generación + decodificación de mT5 puro; el híbrido incluye
-refinamiento, reintentos y controles por chunk/documento. Se incluye el primer caso
-sin descartar calentamiento. La carga se mide por separado. No se incluyen descarga,
-HTTP, PostgreSQL o red. Se usaron CPU M1, dos hilos, dos beams para generación pura,
-hasta tres intentos híbridos con beams 2/4/6 y un máximo de 64 tokens generados.
-EASIER conserva su límite de 96 tokens de entrada; el diagnóstico usa 512 para
-incluir las entradas sintácticas y de rechazo completas, sin truncarlas.
-
-| Conjunto / modelo | Media mT5 puro (s) | Media híbrido (s) | Mediana híbrido (s) | p95 híbrido (s) | Carga (s) |
+| Conjunto | Entradas | Original (todas) | mT5 puro base / ajustado válidas | Híbrido aceptadas | Cumplimiento estricto entre aceptadas sin mantenimiento |
 |---|---:|---:|---:|---:|---:|
-| EASIER / base | 0,439 | 2,346 | 2,237 | 3,787 | 6,616 |
-| EASIER / ajustado | 2,931 | 7,989 | 8,214 | 12,441 | 1,457 |
-| Diagnóstico / base | 0,312 | 0,406 | 0,004 | 1,175 | 6,006 |
-| Diagnóstico / ajustado | 2,978 | 2,368 | 0,006 | 10,049 | 1,303 |
+| EASIER calibrado | 6 | 32,145756 | 0 / 0 | 5/6 (83.33 %) | 100 % |
+| Sintético de desarrollo | 14 | 54,746347 | 0 / 0 | 10/14 (71.43 %) | 100 % |
+| Auditoría EASIER nueva | 12 | 38,054496 | 0 / 0 | 0/12 (0.00 %) | N/E |
 
-La política evita generar cuando las reglas ya cumplen. Las entradas rechazadas
-siguen pagando los reintentos de mT5 y pueden aumentar la media. Las diferencias
-entre formatos/caché de carga no son una mejora atribuible al fine-tuning. Con
-n=6/14 el p95 empírico coincide con el máximo; no estima la latencia de producción.
-No son pruebas de concurrencia ni documentos de 500–800 palabras. Los tiempos de
-la corrida inicial siguen disponibles como registro histórico en el JSON anterior.
+| Promedios pareados, solo adaptaciones ordinarias aceptadas | Original | mT5 puro | Híbrido adaptado | Delta híbrido |
+|---|---:|---:|---:|---:|
+| EASIER calibrado (5) | 29,608420 | N/E | 76,135673 | 46,527253 |
+| Sintético (8, excluye 2 mantenimientos) | 47,211599 | N/E | 77,607659 | 30,396060 |
+| Auditoría (ninguna) | N/E | N/E | N/E | N/E |
+
+El cumplimiento matemático entre salidas devueltas es una garantía condicional,
+no una garantía de aceptación de cualquier entrada. En sintéticos, 8/14 cumplen
+la doble condición estricta y 2/14 aplican mantenimiento; 10/10 pasan puerta y
+filtro léxico. En EASIER calibrado, 5/6 cumplen ambas condiciones, sin mantenimiento.
+Los contadores de atribución confirman que todas esas salidas son `rules`.
+
+| Documento EASIER de calibración | Original | mT5 puro base / ajustado | Híbrido | Delta | Resultado |
+|---|---:|---|---:|---:|---|
+| 120 | 58,685000 | N/E / N/E | 85,933000 | 27,248000 | Doble condición |
+| 276 | 27,559390 | N/E / N/E | 71,342843 | 43,783453 | Doble condición |
+| 68 | 44,832436 | N/E / N/E | N/E | N/E | 422 |
+| 30 | 36,606875 | N/E / N/E | 72,564412 | 35,957537 | Doble condición |
+| 200 | 14,105833 | N/E / N/E | 84,772037 | 70,666204 | Doble condición |
+| 84 | 11,085000 | N/E / N/E | 66,066073 | 54,981073 | Doble condición |
+
+El documento 68 conserva su concesión, modalidad y cuantificadores; se rechaza al
+no alcanzar los dos umbrales. No se simplificaron porcentajes o grupos de pacientes
+alterando su alcance para obtener una aceptación.
+
+### Auditoría de generalización
+
+Tras fijar las reglas, se seleccionaron 12 documentos adicionales de la partición
+EASIER de prueba original, excluyendo los seis de calibración. Se usa el selector
+SHA-256 existente, semilla **314159**, un ejemplo por documento, 20–45 palabras y
+máximo 96 tokens con prefijo/destino. No se escogieron por legibilidad ni por éxito.
+Los documentos son `225`, `147`, `42`, `218`, `124`, `210`, `93`, `260`, `257`, `238`,
+`156` y `215`. SHA-256 del JSONL:
+`1ea48bf42bb429bdb5a5f86f9d6c004a26ebde4bc6d55889022b2915985ac4b6`.
+
+El resultado fue 0/12 tanto con base como con checkpoint. No se añadieron reglas
+usando esas fuentes tras observar este resultado. Es una auditoría interna pequeña,
+no un estudio ciego clínico. La diferencia **83,33 % en calibración vs. 0 % en
+esta auditoría** limita expresamente cualquier afirmación de generalización.
+Hacen falta léxico y sintaxis más amplios revisados, además de evaluación humana
+independiente de significado, gramática y comprensión.
+
+## Tiempos medidos después de calibrar
+
+CPU M1, dos hilos, generación pura con dos beams, hasta tres intentos con beams
+2/4/6 y 64 tokens generados. Entrada máxima 96 tokens para EASIER y 512 para los
+sintéticos. Incluye tokenización, generación y decodificación; el híbrido añade
+reglas, controles y reintentos. Incluye el primer caso, excluye carga y descarga,
+HTTP y base de datos. Máquina de desarrollo con carga variable: no es un benchmark
+de producción, concurrencia o documentos de 500–800 palabras.
+
+| Conjunto / modelo | Media mT5 puro (s) | Media híbrido (s) | p95 híbrido (s) |
+|---|---:|---:|---:|
+| Calibración / base | 0,246747 | 0,117977 | 0,686199 |
+| Calibración / tuned | 2,477007 | 1,534379 | 9,184178 |
+| Sintético / base | 0,180119 | 0,206049 | 0,774073 |
+| Sintético / tuned | 1,620364 | 1,294376 | 8,350231 |
+| Auditoría / base | 0,226056 | 0,701620 | 0,934875 |
+| Auditoría / tuned | 2,200074 | 6,619282 | 10,965355 |
+
+Las reglas se prueban antes de generar; los rechazos aún pagan reintentos del
+modelo. Las métricas temporales completas y por caso figuran en el JSON actual.
 
 ## Reproducción
 
@@ -285,23 +270,41 @@ variarán entre ejecuciones. Los hashes de pesos también pueden variar con vers
 o kernels diferentes; los hashes del corpus y de las particiones permiten comprobar
 que los datos coinciden.
 
-### Repetir la comparación actual
+### Repetir la calibración actual y la auditoría
 
-Después de preparar los datos y disponer del snapshot/checkpoint anteriores, cada
-comando con `--hybrid` produce tanto métricas puras como del sistema completo:
+Cada comando `--hybrid` obtiene las métricas puras y del sistema completo. Ejecutar
+para ambos checkpoints, usando `base` o `tuned` como etiqueta de salida:
 
 ```sh
-python -m ml_training.evaluate --data ml_training/data/easier-smoke/test.jsonl --checkpoint "$(cat ml_training/output/base-model-path.txt)" --output ml_training/output/easier-base-hybrid.json --max-input-tokens 96 --max-new-tokens 64 --num-beams 2 --threads 2 --hybrid
-python -m ml_training.evaluate --data ml_training/data/easier-smoke/test.jsonl --checkpoint checkpoints/easier-smoke/merged --output ml_training/output/easier-tuned-hybrid.json --max-input-tokens 96 --max-new-tokens 64 --num-beams 2 --threads 2 --hybrid
-python -m ml_training.evaluate --data ml_training/fixtures/hybrid_es.json --checkpoint "$(cat ml_training/output/base-model-path.txt)" --output ml_training/output/diagnostic-base-hybrid.json --max-input-tokens 512 --max-new-tokens 64 --num-beams 2 --threads 2 --hybrid
-python -m ml_training.evaluate --data ml_training/fixtures/hybrid_es.json --checkpoint checkpoints/easier-smoke/merged --output ml_training/output/diagnostic-tuned-hybrid.json --max-input-tokens 512 --max-new-tokens 64 --num-beams 2 --threads 2 --hybrid
+python -m ml_training.evaluate --data ml_training/data/easier-smoke/test.jsonl --checkpoint checkpoints/easier-smoke/merged --output ml_training/output/calibrated-easier-tuned.json --max-input-tokens 96 --max-new-tokens 64 --num-beams 2 --threads 2 --hybrid
+python -m ml_training.evaluate --data ml_training/fixtures/hybrid_es.json --checkpoint checkpoints/easier-smoke/merged --output ml_training/output/calibrated-diagnostic-tuned.json --max-input-tokens 512 --max-new-tokens 64 --num-beams 2 --threads 2 --hybrid
 ```
 
-El hash de la batería sintética y las cuatro salidas numéricas están en
-`hybrid-evaluation-results.json`. Las tasas globales usan todos los casos; las
-condicionales usan solo las aceptadas, separando mantenimiento. La atribución al
-experto y el contador de llamadas permiten auditar qué parte del sistema produjo
-el resultado.
+Crear la muestra de auditoría con los datos preparados y el tokenizer fijado:
+
+```python
+import json
+from pathlib import Path
+from transformers import AutoTokenizer
+from ml_training.select_subset import select_rows
+
+excluded = set(json.loads(Path("ml_training/data/easier-smoke/manifest.json").read_text())["selected_documents"]["test"])
+rows = [json.loads(line) for line in Path("ml_training/data/easier-full/test.jsonl").read_text(encoding="utf-8").splitlines()]
+rows = [row for row in rows if row["document_id"] not in excluded]
+tokenizer = AutoTokenizer.from_pretrained(Path("ml_training/output/base-model-path.txt").read_text().strip(), local_files_only=True, use_fast=False)
+selected = select_rows(rows, tokenizer, 12, seed=314159, max_tokens=96)
+folder = Path("ml_training/data/easier-audit")
+folder.mkdir(exist_ok=True)
+(folder / "test.jsonl").write_text("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in selected), encoding="utf-8")
+```
+
+```sh
+python -m ml_training.evaluate --data ml_training/data/easier-audit/test.jsonl --checkpoint checkpoints/easier-smoke/merged --output ml_training/output/calibrated-audit-tuned.json --max-input-tokens 96 --max-new-tokens 64 --num-beams 2 --threads 2 --hybrid
+```
+
+Repetir los tres comandos con `--checkpoint "$(cat ml_training/output/base-model-path.txt)"`
+y etiquetas `base`. La evidencia numérica conserva configuración, hashes, resultados
+por documento y atribución. No se vuelve a entrenar para esta comparación.
 
 ## Alcance académico y trabajo pendiente
 
@@ -323,7 +326,7 @@ protocolo apropiado. El resultado entregado aquí es una ejecución técnica
 verificable con controles de rechazo funcionando y evidencia negativa de calidad.
 
 La batería sintética actual comprueba comportamiento conocido del motor, no
-validez externa. El cambio de prioridad de candidatos no convierte los 0/6 de
-EASIER en una validación positiva del modelo. Los resultados justifican mantener
+validez externa. La calibración explícita de reglas sobre seis documentos no convierte su nueva
+aceptación en validación positiva del checkpoint ni en un resultado independiente. Los resultados justifican mantener
 la puerta de rechazo y continuar con supervisión y evaluación humana independientes
 antes de afirmar preservación semántica o eficacia clínica general.

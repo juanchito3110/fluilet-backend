@@ -1,12 +1,12 @@
-# Verification — 2026-10-19
+# Verification — 2026-10-20
 
 Observed locally on macOS arm64, Python 3.14.7 and PostgreSQL 18.6 (Postgres.app).
-The readiness, complete hybrid evaluation and local E2E cleanup phase produced:
+The clean-runner CI repair and contextual EASIER calibration phase produced:
 
 | Check | Observed result |
 |---|---|
-| Full suite with TEST_DATABASE_URL, private schemas | 115 passed in 34.96 s |
-| Default suite without PostgreSQL | 113 passed; 2 PostgreSQL-specific tests skipped, 13.17 s |
+| Full suite with TEST_DATABASE_URL, private schemas | 124 passed in 18.03 s |
+| Default suite without PostgreSQL | 122 passed; 2 PostgreSQL-specific tests skipped, 12.99 s |
 | Adult-owned sessions | Creation, history, progress, completion and immutable score snapshots passed |
 | RBAC/IDOR and input injection | Other users cannot read/update sessions or inject owners/scores |
 | Existing child contracts | Existing suite plus child snapshot compatibility passed |
@@ -15,15 +15,17 @@ The readiness, complete hybrid evaluation and local E2E cleanup phase produced:
 | Alembic drift check against application database | No new upgrade operations detected |
 | Application schema inspection | Adult ownership and numeric acceptance checks present |
 | Python source AST parse, API import and OpenAPI | Passed; 24 OpenAPI paths |
-| Ruff lint and formatting | Passed; 45 Python files formatted |
+| Ruff lint and formatting | Passed; 46 Python files formatted |
 | pip check, lightweight and separate ML environments | No broken requirements |
 | Prior EASIER/mT5 training evidence | 120 real LoRA steps; checkpoint hash rechecked and unchanged in this phase |
-| Base/checkpoint inference and real hybrid pipeline | Four actual runs: EASIER 0/6 accepted; synthetic diagnostic 8/14 accepted for either model |
-| Conditional acceptance compliance | 6/6 strict, 2 maintenance exceptions; 8/8 pass mathematical and lexical gates |
+| Base/checkpoint inference and real hybrid pipeline | Six actual runs: calibrated EASIER 5/6; synthetic 10/14; separate internal audit 0/12, for either model |
+| Conditional acceptance compliance | Calibration: 5/5 strict; synthetic: 8/8 strict + 2 maintenance; automatic guards pass on all accepted outputs |
 | Actual HTTP readiness + application PostgreSQL | 200, engine_mode=deterministic, model=not_loaded; no weight load |
 | Readiness failure paths | Missing database, unavailable configured engine and broken refiner return controlled 503 |
-| Physical E2E cleanup, local application PostgreSQL | Atomic DELETE of 3 inactive test users, 1 child, 2 documents, 2 readings, 1 assignment, 2 chunks, 6 refresh tokens |
+| Previous-phase physical E2E cleanup (2026-10-19) | Atomic DELETE of 3 inactive test users, 1 child, 2 documents, 2 readings, 1 assignment, 2 chunks, 6 refresh tokens |
 | Model control markers | Rejected in runtime fidelity and offline readability evaluation |
+| Tracked-only clean checkout | Ruff lint/format passed with pinned 0.17.1; explicit third-party datasets classification |
+| Current lightweight dependency audit | 48 installed packages, no known advisories returned by OSV |
 
 The numeric evaluation evidence, hashes, reproduction commands, latency and
 limitations are in [ml-evaluation.md](ml-evaluation.md) and its linked evidence JSON files. This
@@ -63,6 +65,26 @@ Not executed: GPU training, clinical/human comprehension studies, production-siz
 document/concurrency benchmarks, Docker image build/start, Windows/Linux runner
 jobs or DigitalOcean provisioning/deployment. Remote CI jobs were not dispatched
 by this local verification. The base and fine-tuned model evaluation was exploratory;
-the small EASIER test set was consulted during diagnostics and is not a blind
-holdout. The 14-case synthetic fixture is also a developer diagnostic, not an
+the six EASIER cases now inform rules directly and are a calibration set, not a
+holdout. The new 12-document internal audit excludes those cases and remains 0/12. The 14-case synthetic fixture is also a developer diagnostic, not an
 independent benchmark or evidence of semantic/clinical efficacy.
+
+
+## CI repair evidence
+
+The [b8360e2 Actions run](https://github.com/juanchito3110/fluilet-backend/actions/runs/39360655050)
+failed Ubuntu portable at Ruff and PostgreSQL at container creation before checkout.
+The matrix then canceled the other portable jobs. A tracked-only checkout reproduced
+I001 in ml_training/train.py: the ignored local datasets/ directory made Ruff treat
+the third-party datasets package as first party. Explicit isort classification and
+a common import block fix this in both environments. Ruff is pinned to 0.17.1.
+
+The service health command now uses double quotes, matching GitHub's documented
+PostgreSQL example, instead of single quotes in Docker options. Ubuntu is pinned
+to 24.04, Actions are updated to checkout 7.0.1/setup-python 7.0.0, portable fail-fast
+is disabled and UTF-8/optional-model configuration is explicit. No lint, test,
+migration, pip check or advisory check was disabled to obtain a passing result.
+
+Local Docker execution is unavailable because its daemon is stopped. The fixed
+service initialization and the Python 3.12 Windows/macOS/Linux jobs must be checked
+in the Actions run triggered by this push; local checks above use Python 3.14.7.
