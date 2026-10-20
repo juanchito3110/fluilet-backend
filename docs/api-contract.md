@@ -34,7 +34,9 @@ All following routes are prefixed `/api/v1`:
 | POST /children/{id}/library | Tutor; document_id from own activity |
 | DELETE /children/{id}/library/{document_id} | Owning tutor |
 | POST /children/{id}/readings | Tutor/that child; assigned document_id |
-| PATCH /readings/{id} | Tutor/that child; monotonic numeric progress |
+| GET, PATCH /readings/{id} | Tutor/that child or independent owner; monotonic numeric progress |
+| POST, GET /readings | Independent adult; start/list own sessions |
+| GET /users/me/progress | Independent adult; Android SessionProgress fields |
 | GET /children/{id}/readings | Tutor/that child |
 | GET /children/{id}/progress | Tutor; Android SessionProgress fields |
 
@@ -64,3 +66,20 @@ API errors never echo rejected field values. 401/403/404 protect identity/owners
 429 rate-limits, 503 rejects worker saturation. All responses use Cache-Control:
 no-store. Use TLS and disable body logging in release and debug workflows involving
 real user documents.
+
+## Independent adult telemetry
+
+`ADULTO_INDEPENDIENTE` uses `POST /api/v1/readings` with `{"document_id":"UUID"}`
+and `GET /api/v1/readings?offset=0&limit=100` for their own history. No child profile,
+birth date, diagnosis, tutor link or library assignment is fabricated. Adaptation
+already accepts this role without child_id. Only owned document metadata can be
+used. Tutor/NINO identities cannot create sessions through this adult endpoint.
+
+`GET /api/v1/readings/{id}` and the existing PATCH authorize the child/tutor or the
+independent owner, respectively. `GET /api/v1/users/me/progress` returns the same
+SessionProgress shape as the tutor dashboard. Child routes retain their contracts.
+ReadingRead adds nullable reader_user_id and numeric score/count snapshots; child_id
+is still populated on every child session, and is null only for independent adults.
+The database requires exactly one identity source per session. API callers cannot
+supply owner IDs or scores. Snapshots survive re-adaptation/deletion of documents;
+legacy sessions receive available document metrics during migration, otherwise NULL.

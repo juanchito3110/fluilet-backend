@@ -240,10 +240,11 @@ class ReadingUpdate(NoNullPatch):
     completed: bool | None = None
 
 
-class ReadingRead(BaseModel):
+class ReadingRead(TelemetryRead):
     model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID
-    child_id: uuid.UUID
+    child_id: uuid.UUID | None
+    reader_user_id: uuid.UUID | None = None
     document_id: uuid.UUID | None
     started_at: datetime
     ended_at: datetime | None

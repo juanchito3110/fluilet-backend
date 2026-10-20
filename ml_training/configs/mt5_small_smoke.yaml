@@ -1,0 +1,21 @@
+model_name: google/mt5-small
+model_revision: 73fb5dbe4756edadc8fbe8c769b0a109493acf7a
+local_files_only: true
+seed: 42
+max_input_tokens: 96
+max_target_tokens: 96
+learning_rate: 0.001
+num_train_epochs: 1
+max_steps: 120
+eval_steps: 30
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+gradient_accumulation_steps: 1
+weight_decay: 0.01
+save_total_limit: 1
+use_cpu: true
+torch_threads: 2
+lora_rank: 4
+lora_alpha: 8
+merge_lora: true
+lora_target_modules: [q, v, lm_head]

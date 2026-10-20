@@ -19,7 +19,7 @@ Syntactic supervision and target-population validation need additional reviewed
 data; do not fabricate either with automatic replacements.
 
 The official file has semicolon-delimited columns document_id, word_id, word,
-sentence and Sinónimos, with legacy CP1252 encoding. The loader supports this and
+sentence and Sinónimos, with mixed UTF-8/legacy CP1252 encoding. The loader supports this and
 UTF-8/TSV, requires an unambiguous single target-word occurrence, keeps all variants
 of a source sentence together and partitions by document. A manifest records input
 SHA-256, seed and counts. Duplicate sources in other documents retain one owner.
@@ -42,3 +42,24 @@ human review of grammar, facts, negation, entities, meaning and comprehension wi
 the intended population before claiming clinical efficacy. A base-model inference
 run is not evidence of a trained or validated simplifier. Complete the runtime
 chunk/document gate even when offline sentence metrics look good.
+
+## Reproducible lightweight run
+
+`configs/mt5_small_smoke.yaml` pins google/mt5-small revision and configures a CPU
+LoRA experiment (rank 4, q/v/lm_head modules, 120 steps). It is a pipeline validation run,
+not a clinical model. Use `python -m ml_training.select_subset --help` to select
+24/4/6 document-disjoint examples (20–45 words, at most 96 tokens) after preparation.
+The loader handles the official file's mixed UTF-8/CP1252 encoding per line; malformed
+annotations are counted/rejected explicitly. We use the slow SentencePiece tokenizer
+to preserve byte fallback and avoid conversion-induced unknown tokens.
+
+Training verifies finite loss/parameters, changed trainable-weight hashes and saves
+adapter plus merged checkpoint. The optional resource/RSS measurement is supported
+on macOS/Linux and omitted on Windows. Evaluation adds original scores, strict
+>=15 AND >=65 rate, maintenance rate, valid-output counts, measured inference times
+and optional --hybrid evaluation through the actual API pipeline. Raw model control
+markers (for example extra_id sentinels) are invalid outputs with no readability
+score; they count as failures in rates. See docs/ml-evaluation.md for the observed
+experiment and exact reproduction commands. The observed checkpoint did not produce
+acceptable simplifications on the six exploratory test cases; it was not activated
+in the API. No API traffic is used for training.

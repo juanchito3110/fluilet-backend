@@ -258,20 +258,28 @@ class ChildLibraryItem(Base):
 # ---------------------------------------------------------------------------
 
 
-class ReadingSession(Base):
+class ReadingSession(AdaptationTelemetry, Base):
     __tablename__ = "reading_sessions"
     __table_args__ = (
         CheckConstraint("completion_percent BETWEEN 0 AND 100", name="ck_progreso_rango"),
         CheckConstraint("reading_time_seconds >= 0", name="ck_reading_time"),
         CheckConstraint("NOT completed OR completion_percent = 100", name="ck_completed_progress"),
+        CheckConstraint(
+            "(child_id IS NOT NULL AND reader_user_id IS NULL) OR (child_id IS NULL AND reader_user_id IS NOT NULL)",
+            name="ck_reading_single_owner",
+        ),
+        CheckConstraint(TELEMETRY_CHECK, name="ck_reading_acceptance"),
     )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
-    child_id: Mapped[uuid.UUID] = mapped_column(
+    child_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("child_profiles.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
         index=True,
+    )
+    reader_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True
     )
     document_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("documents.id", ondelete="SET NULL"), nullable=True
@@ -283,7 +291,7 @@ class ReadingSession(Base):
     completion_percent: Mapped[float] = mapped_column(Numeric(5, 2), default=0, nullable=False)
     completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    child: Mapped["ChildProfile"] = relationship(back_populates="reading_sessions")
+    child: Mapped["ChildProfile | None"] = relationship(back_populates="reading_sessions")
     document: Mapped["Document"] = relationship(back_populates="reading_sessions")
 
 

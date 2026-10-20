@@ -131,6 +131,11 @@ def refine(text: str, attempt: int = 0, level: int = 3) -> str:
     return " ".join(result)
 
 
+def valid_model_output(candidate: str) -> bool:
+    """Control tokens left by decoding never form an acceptable adaptation."""
+    return bool(words(candidate)) and not re.search(r"<(?:extra_id_\d+|pad|unk|s|/s)>", candidate)
+
+
 def fidelity_ok(original: str, candidate: str) -> bool:
     """Conservative lexical coverage guard, not a proof of semantic equivalence.
 
@@ -138,7 +143,7 @@ def fidelity_ok(original: str, candidate: str) -> bool:
     in both directions. Deterministic changes preserve the original token order
     except explicit subject repetition. ML results also need human evaluation.
     """
-    if not candidate.strip():
+    if not valid_model_output(candidate):
         return False
 
     def numbers(text):

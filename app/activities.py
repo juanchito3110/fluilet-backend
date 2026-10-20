@@ -2,7 +2,7 @@
 
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -138,7 +138,7 @@ async def start_reading(
     db: AsyncSession = Depends(get_db),
 ):
     await accessible_child(child_id, user, db)
-    await accessible_document(payload.document_id, user, db)
+    document = await accessible_document(payload.document_id, user, db)
     assigned = await db.scalar(
         select(models.ChildLibraryItem).where(
             models.ChildLibraryItem.child_id == child_id,
@@ -147,10 +147,86 @@ async def start_reading(
     )
     if assigned is None:
         raise HTTPException(404, "Asignación no encontrada.")
-    reading = models.ReadingSession(child_id=child_id, document_id=payload.document_id)
+    reading = reading_snapshot(document, child_id=child_id)
     db.add(reading)
     await db.commit()
     await db.refresh(reading)
+    return reading
+
+
+def reading_snapshot(document, *, child_id=None, reader_user_id=None):
+    # Capture scores at the start of the reading, independently of subsequent
+    # re-adaptations/deletion of the metadata document. Never copy any content.
+    metrics = {name: getattr(document, name) for name in models.AdaptationTelemetry.__annotations__}
+    return models.ReadingSession(
+        child_id=child_id, reader_user_id=reader_user_id, document_id=document.id, **metrics
+    )
+
+
+async def authorize_reading(reading, user, db):
+    if reading.child_id is None:
+        if user.role != models.UserRole.ADULTO_INDEPENDIENTE or reading.reader_user_id != user.id:
+            raise HTTPException(404, "Sesión no encontrada.")
+    else:
+        if user.role == models.UserRole.ADULTO_INDEPENDIENTE:
+            raise HTTPException(404, "Sesión no encontrada.")
+        await accessible_child(reading.child_id, user, db)
+
+
+@router.post("/readings", response_model=schemas.ReadingRead, status_code=201)
+async def start_independent_reading(
+    payload: schemas.ReadingCreate,
+    user: models.User = Depends(auth.require_roles(models.UserRole.ADULTO_INDEPENDIENTE)),
+    db: AsyncSession = Depends(get_db),
+):
+    document = await accessible_document(payload.document_id, user, db)
+    reading = reading_snapshot(document, reader_user_id=user.id)
+    db.add(reading)
+    await db.commit()
+    await db.refresh(reading)
+    return reading
+
+
+@router.get("/readings", response_model=list[schemas.ReadingRead])
+async def independent_readings(
+    user: models.User = Depends(auth.require_roles(models.UserRole.ADULTO_INDEPENDIENTE)),
+    db: AsyncSession = Depends(get_db),
+    offset: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=500),
+):
+    return (
+        await db.scalars(
+            select(models.ReadingSession)
+            .where(
+                models.ReadingSession.reader_user_id == user.id,
+                models.ReadingSession.child_id.is_(None),
+            )
+            .order_by(models.ReadingSession.started_at, models.ReadingSession.id)
+            .offset(offset)
+            .limit(limit)
+        )
+    ).all()
+
+
+@router.get("/users/me/progress", response_model=list[schemas.SessionProgress])
+async def independent_progress(
+    user: models.User = Depends(auth.require_roles(models.UserRole.ADULTO_INDEPENDIENTE)),
+    db: AsyncSession = Depends(get_db),
+):
+    sessions = await independent_readings(user, db, 0, 500)
+    return summarize_progress(sessions)
+
+
+@router.get("/readings/{reading_id}", response_model=schemas.ReadingRead)
+async def get_reading(
+    reading_id: uuid.UUID,
+    user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    reading = await db.get(models.ReadingSession, reading_id)
+    if reading is None:
+        raise HTTPException(404, "Sesión no encontrada.")
+    await authorize_reading(reading, user, db)
     return reading
 
 
@@ -164,7 +240,7 @@ async def update_reading(
     reading = await db.get(models.ReadingSession, reading_id, with_for_update=True)
     if reading is None:
         raise HTTPException(404, "Sesión no encontrada.")
-    await accessible_child(reading.child_id, user, db)
+    await authorize_reading(reading, user, db)
     if reading.document_id:
         await accessible_document(reading.document_id, user, db)
     data = payload.model_dump(exclude_unset=True)
@@ -215,6 +291,10 @@ async def progress(
     db: AsyncSession = Depends(get_db),
 ):
     sessions = await readings(child_id, user, db)
+    return summarize_progress(sessions)
+
+
+def summarize_progress(sessions):
     accumulated = 0
     result = []
     for index, session in enumerate(sessions, 1):

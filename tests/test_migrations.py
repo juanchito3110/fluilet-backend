@@ -65,7 +65,7 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
             version = await connection.scalar(text("SELECT version_num FROM alembic_version"))
             assert version == "0001_baseline"
             await connection.execute(text("UPDATE documents SET file_size_bytes=20"))
-        upgraded = await migrate("upgrade", "head")
+        upgraded = await migrate("upgrade", "0002_zero_retention")
         assert upgraded.returncode == 0, upgraded.stderr
         async with engine.connect() as connection:
             record = (
@@ -91,6 +91,44 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
                 .all()
             )
             assert "storage_path" not in columns and "file_name" not in columns
+        # Exercise the new migration with an existing child's reading, not just
+        # an empty table, and verify exact numerical snapshot backfill.
+        from app.nlp.readability import measure, telemetry
+        from app.nlp.refinement import refine
+        from tests.conftest import SOURCE
+
+        metrics = telemetry(measure(SOURCE), measure(refine(SOURCE)))
+        child_id, reading_id = uuid.uuid4(), uuid.uuid4()
+        async with engine.begin() as connection:
+            await connection.execute(
+                text(
+                    "INSERT INTO child_profiles (id,tutor_id,name,birth_date,tipo_dificultad,nivel_simplificacion_nlp,paleta_visual,tamano_fuente,interlineado,is_active) VALUES (:id,:owner,'Synthetic Child',DATE '2018-01-01','DISLEXIA',3,'ESTANDAR',18,1.5,true)"
+                ),
+                {"id": child_id, "owner": owner_id},
+            )
+            assignments = ", ".join(f"{name} = :{name}" for name in metrics)
+            await connection.execute(text("UPDATE documents SET " + assignments), metrics)
+            await connection.execute(
+                text(
+                    "INSERT INTO reading_sessions (id,child_id,document_id,reading_time_seconds,completion_percent,completed) VALUES (:id,:child,:document,0,0,false)"
+                ),
+                {"id": reading_id, "child": child_id, "document": document_id},
+            )
+        final = await migrate("upgrade", "head")
+        assert final.returncode == 0, final.stderr
+        async with engine.connect() as connection:
+            reading = (
+                await connection.execute(
+                    text(
+                        "SELECT child_id,reader_user_id,score_delta,original_szigriszt_score,adapted_szigriszt_score FROM reading_sessions WHERE id=:id"
+                    ),
+                    {"id": reading_id},
+                )
+            ).one()
+            assert reading.child_id == child_id and reading.reader_user_id is None
+            assert reading.score_delta == metrics["score_delta"]
+            assert reading.original_szigriszt_score == metrics["original_szigriszt_score"]
+            assert reading.adapted_szigriszt_score == metrics["adapted_szigriszt_score"]
         drift = await migrate("check")
         assert drift.returncode == 0, drift.stdout + drift.stderr
     finally:

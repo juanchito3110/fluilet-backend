@@ -1,0 +1,400 @@
+{
+  "date": "2026-10-19",
+  "scope": "Exploratory technical evaluation; no clinical participants; no API traffic",
+  "hardware": {
+    "cpu": "Apple M1",
+    "ram_bytes": 8589934592
+  },
+  "corpus": {
+    "repository": "LURMORENO/EASIER_CORPUS",
+    "revision": "f0b8312d1ded3d674a7d96d0fb2dc00c2052603f",
+    "file": "SGSS.csv",
+    "sha256": "02aeb385fdfa8fd4f9ab3afbc5b0eeac84d514f33c8f20fa387e48068dddab06",
+    "size_bytes": 1368484,
+    "preparation_manifest": {
+      "source_sha256": "02aeb385fdfa8fd4f9ab3afbc5b0eeac84d514f33c8f20fa387e48068dddab06",
+      "seed": 42,
+      "counts": {
+        "train": 6392,
+        "validation": 802,
+        "test": 510
+      },
+      "license_declared_by_source": "CC BY-NC-ND 4.0",
+      "pair_type": "derived_lexical_substitution",
+      "ingestion": {
+        "encoding": "mixed UTF-8/CP1252 per-line; invalid annotations rejected",
+        "utf8_lines": 5153,
+        "cp1252_lines": 1,
+        "rows_read": 5130
+      }
+    }
+  },
+  "training": {
+    "config": {
+      "model_name": "google/mt5-small",
+      "model_revision": "73fb5dbe4756edadc8fbe8c769b0a109493acf7a",
+      "local_files_only": true,
+      "seed": 42,
+      "max_input_tokens": 96,
+      "max_target_tokens": 96,
+      "learning_rate": 0.001,
+      "num_train_epochs": 1,
+      "max_steps": 120,
+      "eval_steps": 30,
+      "per_device_train_batch_size": 1,
+      "per_device_eval_batch_size": 1,
+      "gradient_accumulation_steps": 1,
+      "weight_decay": 0.01,
+      "save_total_limit": 1,
+      "use_cpu": true,
+      "torch_threads": 2,
+      "lora_rank": 4,
+      "lora_alpha": 8,
+      "merge_lora": true,
+      "lora_target_modules": [
+        "q",
+        "v",
+        "lm_head"
+      ]
+    },
+    "global_steps": 120,
+    "device": "cpu",
+    "peak_process_rss_bytes": 1713373184,
+    "trainable_parameters": 1174528,
+    "total_parameters": 301351296,
+    "trainable_sha256_before": "f4849f0eacc11c5b470f0c5d699510619611f743ac41b3d4dca7ad0916af615c",
+    "trainable_sha256_after": "815355895521fe365d11193d6cc9e75d3cad2b3494b623711ec42249eafd50fd",
+    "model_loading_seconds": 6.620611750004173,
+    "training_seconds": 30.896182708005654,
+    "training_metrics": {
+      "train_runtime": 30.5815,
+      "train_samples_per_second": 3.924,
+      "train_steps_per_second": 3.924,
+      "train_loss": 15.78823208808899,
+      "epoch": 5.0
+    },
+    "source_manifest": {
+      "source_sha256": "02aeb385fdfa8fd4f9ab3afbc5b0eeac84d514f33c8f20fa387e48068dddab06",
+      "seed": 42,
+      "counts": {
+        "train": 24,
+        "validation": 4,
+        "test": 6
+      },
+      "license_declared_by_source": "CC BY-NC-ND 4.0",
+      "pair_type": "derived_lexical_substitution",
+      "ingestion": {
+        "encoding": "mixed UTF-8/CP1252 per-line; invalid annotations rejected",
+        "utf8_lines": 5153,
+        "cp1252_lines": 1,
+        "rows_read": 5130
+      },
+      "subset": {
+        "seed": 42,
+        "max_tokens": 96,
+        "min_words": 20,
+        "max_words": 45
+      },
+      "selected_documents": {
+        "train": [
+          "108",
+          "113",
+          "13",
+          "15",
+          "159",
+          "174",
+          "187",
+          "2",
+          "21",
+          "211",
+          "213",
+          "23",
+          "231",
+          "255",
+          "273",
+          "277",
+          "5",
+          "50",
+          "54",
+          "62",
+          "7",
+          "71",
+          "74",
+          "97"
+        ],
+        "validation": [
+          "129",
+          "134",
+          "202",
+          "91"
+        ],
+        "test": [
+          "120",
+          "200",
+          "276",
+          "30",
+          "68",
+          "84"
+        ]
+      },
+      "split_sha256": {
+        "train": "ad3fde163cea90105a197c00538abc7fe31ed8ea4b28e07e7e32fcdca04f0662",
+        "validation": "b15e19a1c5f1ea600963c8b8a53e5c3ddf6653b01d2dab8b9c810b91b1fdeb7d",
+        "test": "0a0150d78fae93d533e60f68dc275efcf43334d9dfe3b9cd4ea363f21483e2f6"
+      }
+    },
+    "config_sha256": "221ddc2fac90669aa60602c61abd6b193719c13f1d5c53d8fecc7afc85ad34be",
+    "package_versions": {
+      "torch": "2.14.1",
+      "transformers": "4.57.6",
+      "datasets": "4.8.5",
+      "accelerate": "1.15.0",
+      "peft": "0.18.1"
+    },
+    "base_model_revision": "73fb5dbe4756edadc8fbe8c769b0a109493acf7a",
+    "evaluation": {
+      "test_loss": 6.2381110191345215,
+      "test_runtime": 0.6715,
+      "test_samples_per_second": 8.935,
+      "test_steps_per_second": 8.935,
+      "epoch": 5.0
+    },
+    "merged_checkpoint": "merged",
+    "final_validation_metrics": {
+      "eval_loss": 7.289077281951904,
+      "eval_runtime": 0.4739,
+      "eval_samples_per_second": 8.441,
+      "eval_steps_per_second": 8.441,
+      "epoch": 5.0
+    }
+  },
+  "artifacts": {
+    "adapter_model.safetensors": {
+      "sha256": "34900008fd1ac48facbce26ff5a070a5818e4a524d383eebbb706917dca20ea1",
+      "size_bytes": 4711456
+    },
+    "merged/model.safetensors": {
+      "sha256": "3b5f44e74c22665dc703f0481f42db7555c4f778ee6a0438e8fc0c36a120afaa",
+      "size_bytes": 1200729512
+    }
+  },
+  "base": {
+    "examples": 6,
+    "valid_predictions": 0,
+    "original_score": 32.14575574577862,
+    "score_delta": null,
+    "adapted_score": null,
+    "acceptance_rate": 0.0,
+    "strict_double_condition_rate": 0.0,
+    "maintenance_eligible_rate": 0.0,
+    "lexical_fidelity_guard_rate": 0.0,
+    "strict_and_fidelity_rate": 0.0,
+    "reference_unigram_f1": 0.0,
+    "timing": {
+      "count": 6,
+      "mean_seconds": 0.25119079183302045,
+      "median_seconds": 0.21105987549890415,
+      "min_seconds": 0.16578479199961293,
+      "max_seconds": 0.41040520800015656,
+      "p95_seconds": 0.41040520800015656,
+      "first_seconds": 0.41040520800015656,
+      "total_seconds": 1.5071447509981226
+    },
+    "model_loading_seconds": 5.697530750003352,
+    "metadata": {
+      "python": "3.14.7",
+      "platform": "Darwin",
+      "architecture": "arm64",
+      "device": "cpu",
+      "threads": 2,
+      "max_input_tokens": 96,
+      "max_new_tokens": 64,
+      "num_beams": 2,
+      "data_sha256": "0a0150d78fae93d533e60f68dc275efcf43334d9dfe3b9cd4ea363f21483e2f6",
+      "timing_scope": "tokenization + generation + decoding; no warmup excluded",
+      "package_versions": {
+        "torch": "2.14.1",
+        "transformers": "4.57.6"
+      }
+    },
+    "per_example": [
+      {
+        "document_id": "120",
+        "original_score": 58.68500000000002,
+        "adapted_score": null,
+        "fidelity_guard": false,
+        "inference_seconds": 0.41040520800015656
+      },
+      {
+        "document_id": "276",
+        "original_score": 27.559390243902442,
+        "adapted_score": null,
+        "fidelity_guard": false,
+        "inference_seconds": 0.20494958399649477
+      },
+      {
+        "document_id": "68",
+        "original_score": 44.8324358974359,
+        "adapted_score": null,
+        "fidelity_guard": false,
+        "inference_seconds": 0.21717016700131353
+      },
+      {
+        "document_id": "30",
+        "original_score": 36.606875,
+        "adapted_score": null,
+        "fidelity_guard": false,
+        "inference_seconds": 0.16578479199961293
+      },
+      {
+        "document_id": "200",
+        "original_score": 14.10583333333335,
+        "adapted_score": null,
+        "fidelity_guard": false,
+        "inference_seconds": 0.20349833300133469
+      },
+      {
+        "document_id": "84",
+        "original_score": 11.085000000000008,
+        "adapted_score": null,
+        "fidelity_guard": false,
+        "inference_seconds": 0.30533666699921014
+      }
+    ]
+  },
+  "fine_tuned": {
+    "examples": 6,
+    "valid_predictions": 0,
+    "original_score": 32.14575574577862,
+    "score_delta": null,
+    "adapted_score": null,
+    "acceptance_rate": 0.0,
+    "strict_double_condition_rate": 0.0,
+    "maintenance_eligible_rate": 0.0,
+    "lexical_fidelity_guard_rate": 0.0,
+    "strict_and_fidelity_rate": 0.0,
+    "reference_unigram_f1": 0.22757286627212017,
+    "timing": {
+      "count": 6,
+      "mean_seconds": 3.0019911598343847,
+      "median_seconds": 3.0600022090002312,
+      "min_seconds": 0.7246905409992905,
+      "max_seconds": 5.747063167000306,
+      "p95_seconds": 5.747063167000306,
+      "first_seconds": 5.747063167000306,
+      "total_seconds": 18.01194695900631
+    },
+    "model_loading_seconds": 0.7028842919971794,
+    "metadata": {
+      "python": "3.14.7",
+      "platform": "Darwin",
+      "architecture": "arm64",
+      "device": "cpu",
+      "threads": 2,
+      "max_input_tokens": 96,
+      "max_new_tokens": 64,
+      "num_beams": 2,
+      "data_sha256": "0a0150d78fae93d533e60f68dc275efcf43334d9dfe3b9cd4ea363f21483e2f6",
+      "timing_scope": "tokenization + generation + decoding; no warmup excluded",
+      "package_versions": {
+        "torch": "2.14.1",
+        "transformers": "4.57.6"
+      }
+    },
+    "per_example": [
+      {
+        "document_id": "120",
+        "original_score": 58.68500000000002,
+        "adapted_score": null,
+        "fidelity_guard": false,
+        "inference_seconds": 5.747063167000306
+      },
+      {
+        "document_id": "276",
+        "original_score": 27.559390243902442,
+        "adapted_score": null,
+        "fidelity_guard": false,
+        "inference_seconds": 1.732010416999401
+      },
+      {
+        "document_id": "68",
+        "original_score": 44.8324358974359,
+        "adapted_score": null,
+        "fidelity_guard": false,
+        "inference_seconds": 3.2949424589969567
+      },
+      {
+        "document_id": "30",
+        "original_score": 36.606875,
+        "adapted_score": null,
+        "fidelity_guard": false,
+        "inference_seconds": 0.7246905409992905
+      },
+      {
+        "document_id": "200",
+        "original_score": 14.10583333333335,
+        "adapted_score": null,
+        "fidelity_guard": false,
+        "inference_seconds": 2.8250619590035058
+      },
+      {
+        "document_id": "84",
+        "original_score": 11.085000000000008,
+        "adapted_score": null,
+        "fidelity_guard": false,
+        "inference_seconds": 3.688178416006849
+      }
+    ],
+    "hybrid": {
+      "examples": 6,
+      "accepted_examples": 0,
+      "acceptance_rate": 0.0,
+      "timing": {
+        "count": 6,
+        "mean_seconds": 7.688732347166176,
+        "median_seconds": 8.538134916499985,
+        "min_seconds": 2.606192374994862,
+        "max_seconds": 10.217316916998243,
+        "p95_seconds": 10.217316916998243,
+        "first_seconds": 10.18592945799901,
+        "total_seconds": 46.13239408299705
+      },
+      "accepted_only_metrics": null,
+      "method_counts": {
+        "rejected": 6
+      },
+      "outcomes": [
+        {
+          "accepted": false,
+          "reason": "acceptance_failed"
+        },
+        {
+          "accepted": false,
+          "reason": "acceptance_failed"
+        },
+        {
+          "accepted": false,
+          "reason": "acceptance_failed"
+        },
+        {
+          "accepted": false,
+          "reason": "acceptance_failed"
+        },
+        {
+          "accepted": false,
+          "reason": "acceptance_failed"
+        },
+        {
+          "accepted": false,
+          "reason": "acceptance_failed"
+        }
+      ]
+    }
+  },
+  "metric_policy": {
+    "invalid_outputs": "No readability score; count as failures in acceptance denominators",
+    "mean_scores": "Valid outputs only, null when none",
+    "strict": "adapted-original >=15.0 AND adapted >=65.0 without rounding",
+    "maintenance": "separately reported; original >128.535 and adapted >=85.0"
+  }
+}

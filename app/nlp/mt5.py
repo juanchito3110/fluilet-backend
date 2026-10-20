@@ -37,7 +37,7 @@ class MT5Runtime:
         checkpoint = settings.MT5_CHECKPOINT
         source = checkpoint if checkpoint and Path(checkpoint).is_dir() else settings.MT5_MODEL
         options = {"local_files_only": settings.MT5_LOCAL_FILES_ONLY, "trust_remote_code": False}
-        tokenizer = AutoTokenizer.from_pretrained(source, **options)
+        tokenizer = AutoTokenizer.from_pretrained(source, use_fast=False, **options)
         model = AutoModelForSeq2SeqLM.from_pretrained(
             source, use_safetensors=None, weights_only=True, **options
         )

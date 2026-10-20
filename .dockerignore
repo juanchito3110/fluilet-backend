@@ -3,10 +3,13 @@
 .env.*
 venv
 .venv
+**/.venv
+**/venv
 __pycache__
 **/__pycache__
 .pytest_cache
 .pytest-tmp
+.pytest-sqlite-tmp
 .ruff_cache
 .test-postgres
 .pip-tmp

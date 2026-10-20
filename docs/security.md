@@ -94,3 +94,8 @@ An unavailable/incomplete service fails the check; it never reports a clean audi
 from missing results. This is a point-in-time known-advisory check, not a proof of
 absence of vulnerabilities. Mako is constrained to patched 1.4.3; the legacy
 1.4.1 installation was covered by GHSA-5639-2j2p-m4mx (Windows traversal).
+
+Migration 0003 adds independent-adult ownership and immutable-at-API numeric reading
+snapshots. It preserves existing child IDs and backfills scores from related
+metadata documents, with no content reconstruction. A database XOR constraint
+requires exactly one child/user owner. Downgrade refuses to erase adult sessions.

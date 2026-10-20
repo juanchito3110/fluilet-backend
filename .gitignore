@@ -24,6 +24,7 @@ ml_training/output/
 *.log
 
 .pytest-tmp/
+.pytest-sqlite-tmp/
 .pip-tmp/
 
 *.ckpt

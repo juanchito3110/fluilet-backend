@@ -76,6 +76,20 @@ Load is lazy; restart the API after installing dependencies/checkpoints to retry
 previously unavailable load. Generation uses deterministic beams; temperature is
 not passed with `do_sample=false` because it would have no effect.
 
+The measured lightweight EASIER experiment and its limitations are documented in
+[ml-evaluation.md](docs/ml-evaluation.md). Its checkpoint failed acceptance on the
+exploratory test sample and remains excluded from the runtime configuration.
+
+## Independent adult readings
+
+An `ADULTO_INDEPENDIENTE` adapts without `child_id`, starts an owned session with
+`POST /api/v1/readings` and `{"document_id":"UUID"}`, and reads their history with
+`GET /api/v1/readings`. The existing `PATCH /api/v1/readings/{id}` records progress;
+`GET /api/v1/users/me/progress` uses the dashboard's existing progress fields.
+Sessions snapshot numeric adaptation metrics without creating a child profile.
+Tutor/NINO routes are preserved. Apply Alembic revision `0003_adult_telemetry`
+before serving; see [api-contract.md](docs/api-contract.md).
+
 ## Tests and deployment
 
 Default tests use in-memory SQLite. To exercise PostgreSQL, set
