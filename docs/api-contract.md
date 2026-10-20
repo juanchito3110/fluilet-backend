@@ -60,7 +60,14 @@ re-adaptation updates that document's latest numerical telemetry/chunks rather
 than duplicating records. Metadata survives content disappearance by design.
 
 `/health/live` and `/health/ready` are intentionally public, content-free operational
-endpoints. Readiness checks PostgreSQL and reports the lazy model state/fallback.
+endpoints. Readiness checks PostgreSQL and a fixed synthetic adaptation probe,
+without loading weights or generating with mT5. An operative deterministic fallback
+is ready even when the optional model is unavailable/not yet loaded. JSON includes
+`database`, `pipeline`, `engine_mode` (`deterministic`, `hybrid`, `mt5_refinement`,
+or `unavailable`), plus the lazy `model` state and `rules_fallback` when checked.
+503 identifies an unavailable database or no operative configured pipeline;
+input-specific 422 rejections and transient inference saturation do not make the
+service globally unready. Readiness is an operational check, not a quality claim.
 API errors never echo rejected field values. 401/403/404 protect identity/ownership;
 413 limits size, 415 rejects format, 422 rejects invalid/unacceptable adaptations,
 429 rate-limits, 503 rejects worker saturation. All responses use Cache-Control:

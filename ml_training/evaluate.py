@@ -95,30 +95,81 @@ async def evaluate_hybrid(rows, model, tokenizer, args):
     from app.nlp.mt5 import MT5Runtime
     from app.nlp.pipeline import AdaptationError, AdaptationPipeline
 
-    settings.MT5_MAX_NEW_TOKENS = args.max_new_tokens
-    settings.MT5_MAX_INPUT_TOKENS = args.max_input_tokens
-    settings.MT5_TIMEOUT_SECONDS = 60
-    settings.ALLOW_RULE_BASED_FALLBACK = True
-    runtime = MT5Runtime()
+    overrides = {
+        "MT5_MAX_NEW_TOKENS": args.max_new_tokens,
+        "MT5_MAX_INPUT_TOKENS": args.max_input_tokens,
+        "MT5_TIMEOUT_SECONDS": 60,
+        "ALLOW_RULE_BASED_FALLBACK": True,
+    }
+    previous = {key: getattr(settings, key) for key in overrides}
+    for key, value in overrides.items():
+        setattr(settings, key, value)
+
+    class MeteredRuntime(MT5Runtime):
+        calls = 0
+
+        async def generate(self, text, attempt):
+            self.calls += 1
+            return await super().generate(text, attempt)
+
+    runtime = MeteredRuntime()
     runtime._model, runtime._tokenizer, runtime.state = model, tokenizer, "loaded"
     pipeline = AdaptationPipeline(runtime)
     durations, outputs, outcomes = [], [], []
-    for row in rows:
-        started = time.perf_counter()
-        try:
-            result = await pipeline.run(row["source"])
-            outcomes.append({"accepted": True, "method": result.method, **result.metrics})
-            outputs.append({**row, "prediction": result.adapted_text})
-        except AdaptationError as error:
-            outcomes.append({"accepted": False, "reason": str(error)})
-        durations.append(time.perf_counter() - started)
-    await runtime.close()
+    try:
+        for row in rows:
+            started, calls_before = time.perf_counter(), runtime.calls
+            outcome = {"document_id": row.get("document_id"), "category": row.get("category")}
+            try:
+                result = await pipeline.run(row["source"])
+                outcome.update({"accepted": True, "method": result.method, **result.metrics})
+                outputs.append({**row, "prediction": result.adapted_text})
+            except AdaptationError as error:
+                outcome.update({"accepted": False, "reason": str(error)})
+            duration = time.perf_counter() - started
+            outcome.update(
+                {
+                    "inference_seconds": duration,
+                    "model_generation_calls": runtime.calls - calls_before,
+                }
+            )
+            outcomes.append(outcome)
+            durations.append(duration)
+    finally:
+        await runtime.close()
+        for key, value in previous.items():
+            setattr(settings, key, value)
+    return summarize_hybrid(rows, outputs, outcomes, durations, runtime.calls)
+
+
+def summarize_hybrid(rows, outputs, outcomes, durations, model_calls):
+    """Separate coverage (all inputs) from gate compliance (accepted outputs)."""
+    metrics = evaluate_rows(outputs) if outputs else None
+    ordinary = [item for item in outcomes if item["accepted"] and not item["maintenance_exception"]]
+    strict = sum(
+        item["score_delta"] >= 15.0 and item["adapted_szigriszt_score"] >= 65.0 for item in ordinary
+    )
+    gate_passes = sum(
+        accepted(measure(row["source"]), measure(row["prediction"]))
+        and fidelity_ok(row["source"], row["prediction"])
+        for row in outputs
+    )
     return {
         "examples": len(rows),
+        "original_score_all_inputs": mean(measure(row["source"]).score for row in rows),
         "accepted_examples": len(outputs),
         "acceptance_rate": len(outputs) / len(rows),
+        "abstention_rate": 1 - len(outputs) / len(rows),
+        "strict_double_condition_rate_all_inputs": strict / len(rows),
+        "strict_compliance_nonmaintenance_accepted": strict / len(ordinary) if ordinary else None,
+        "maintenance_accepted_examples": len(outputs) - len(ordinary),
+        "gate_and_lexical_guard_compliance_accepted": gate_passes / len(outputs)
+        if outputs
+        else None,
+        "model_generation_calls": model_calls,
+        "engine_policy": "deterministic candidate first; then mT5 + refinement; bounded retries; chunk/document gates",
         "timing": timing_summary(durations),
-        "accepted_only_metrics": evaluate_rows(outputs) if outputs else None,
+        "accepted_only_metrics": metrics,
         "method_counts": dict(Counter(item.get("method", "rejected") for item in outcomes)),
         "outcomes": outcomes,
     }
@@ -140,11 +191,14 @@ def main():
         parser.error("--hybrid requires a local checkpoint")
     if min(args.max_input_tokens, args.max_new_tokens, args.num_beams, args.threads) <= 0:
         parser.error("Generation limits must be positive")
-    rows = [
-        json.loads(line)
-        for line in args.data.read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    ]
+    content = args.data.read_text(encoding="utf-8")
+    rows = (
+        json.loads(content)
+        if args.data.suffix == ".json"
+        else [json.loads(line) for line in content.splitlines() if line.strip()]
+    )
+    if not rows:
+        parser.error("Evaluation dataset must be nonempty")
     durations = []
     load_seconds = None
     if args.checkpoint:
@@ -200,6 +254,7 @@ def main():
     result["per_example"] = [
         {
             "document_id": row.get("document_id"),
+            "category": row.get("category"),
             "original_score": measure(row["source"]).score,
             "adapted_score": measure(row["prediction"]).score
             if valid_prediction(row["prediction"])

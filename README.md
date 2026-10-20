@@ -79,6 +79,15 @@ not passed with `do_sample=false` because it would have no effect.
 The measured lightweight EASIER experiment and its limitations are documented in
 [ml-evaluation.md](docs/ml-evaluation.md). Its checkpoint failed acceptance on the
 exploratory test sample and remains excluded from the runtime configuration.
+The complete hybrid system evaluates a deterministic candidate before generating
+with mT5, applies the same fidelity/readability gates, and explicitly abstains on
+unsupported inputs. Its acceptance coverage and conditional compliance are measured
+separately on EASIER and on a disclosed synthetic diagnostic fixture.
+
+`GET /health/ready` returns 200 when PostgreSQL and the configured pipeline are
+operative, including deterministic-only service. It reports `engine_mode` and runs
+a small fixed CPU probe without loading model weights. Database or pipeline failure
+returns 503; document-specific rejection by the gate remains 422.
 
 ## Independent adult readings
 

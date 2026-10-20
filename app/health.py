@@ -5,9 +5,8 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import settings
 from app.database import get_db
-from app.nlp.mt5 import runtime
+from app.nlp.pipeline import pipeline
 
 router = APIRouter(prefix="/health", tags=["health"])
 
@@ -19,17 +18,24 @@ async def live():
 
 @router.get("/ready")
 async def ready(db: AsyncSession = Depends(get_db)):
+    state = {
+        "status": "not_ready",
+        "database": "unavailable",
+        "pipeline": "unchecked",
+        "engine_mode": "unavailable",
+    }
     try:
         async with asyncio.timeout(2):
             await db.execute(text("SELECT 1"))
-        usable = settings.ALLOW_RULE_BASED_FALLBACK or runtime.state == "loaded"
-        return JSONResponse(
-            {
-                "status": "ready" if usable else "not_ready",
-                "model": runtime.state,
-                "rules_fallback": settings.ALLOW_RULE_BASED_FALLBACK,
-            },
-            status_code=200 if usable else 503,
-        )
+        state["database"] = "operational"
     except Exception:
-        return JSONResponse({"status": "not_ready"}, status_code=503)
+        return JSONResponse(state, status_code=503)
+    try:
+        async with asyncio.timeout(2):
+            state.update(await asyncio.to_thread(pipeline.readiness))
+    except Exception:
+        # Never expose exception details or download/load a model in a probe.
+        state["pipeline"] = "unavailable"
+    usable = state["pipeline"] == "operational"
+    state["status"] = "ready" if usable else "not_ready"
+    return JSONResponse(state, status_code=200 if usable else 503)

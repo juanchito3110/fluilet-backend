@@ -26,6 +26,43 @@ async def test_rules_work_without_torch_and_keep_strict_conditions():
     assert fidelity_ok(SOURCE, result.adapted_text)
 
 
+async def test_passing_rules_candidate_avoids_model_generation():
+    class Loaded:
+        async def prepare(self):
+            pass
+
+        count_tokens = staticmethod(conservative_tokens)
+
+        async def generate(self, text, attempt):
+            raise AssertionError("Passing deterministic candidate should short-circuit generation")
+
+    result = await AdaptationPipeline(Loaded()).run(SOURCE)
+    assert result.method == "rules"
+    assert result.metrics["score_delta"] >= 15
+    assert result.metrics["adapted_szigriszt_score"] >= 65
+
+
+async def test_missing_rule_coverage_still_attempts_model_before_abstaining():
+    class Loaded:
+        calls = 0
+
+        async def prepare(self):
+            pass
+
+        count_tokens = staticmethod(conservative_tokens)
+
+        async def generate(self, text, attempt):
+            self.calls += 1
+            return "<extra_id_0>."
+
+    model = Loaded()
+    with pytest.raises(AdaptationError, match="acceptance_failed"):
+        await AdaptationPipeline(model).run(
+            "La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. " * 4
+        )
+    assert model.calls == settings.MAX_GENERATION_ATTEMPTS
+
+
 async def test_extremely_simple_input_maintenance():
     text = "El sol da luz. " * 5
     result = await AdaptationPipeline(Offline()).run(text)

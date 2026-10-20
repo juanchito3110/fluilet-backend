@@ -21,6 +21,10 @@ class MT5Runtime:
         self._jobs = set()
         self.state = "not_loaded"
 
+    @property
+    def is_loaded(self):
+        return self.state == "loaded" and self._model is not None and self._tokenizer is not None
+
     def _load_sync(self):
         if not settings.MT5_ENABLED or any(
             importlib.util.find_spec(name) is None

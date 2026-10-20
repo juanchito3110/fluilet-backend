@@ -1,0 +1,100 @@
+[
+  {
+    "document_id": "lexical-school",
+    "category": "lexical",
+    "source": "Los alumnos utilizan libros y posteriormente realizan actividades con sus amigos en la escuela. Los alumnos utilizan libros y posteriormente realizan actividades con sus amigos en la escuela. Los alumnos utilizan libros y posteriormente realizan actividades con sus amigos en la escuela.",
+    "target": "Los alumnos utilizan libros y posteriormente realizan actividades con sus amigos en la escuela. Los alumnos utilizan libros y posteriormente realizan actividades con sus amigos en la escuela. Los alumnos utilizan libros y posteriormente realizan actividades con sus amigos en la escuela.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "lexical-teachers",
+    "category": "lexical",
+    "source": "Los docentes utilizan materiales y posteriormente realizan actividades con sus alumnos en la escuela. Los docentes utilizan materiales y posteriormente realizan actividades con sus alumnos en la escuela.",
+    "target": "Los docentes utilizan materiales y posteriormente realizan actividades con sus alumnos en la escuela. Los docentes utilizan materiales y posteriormente realizan actividades con sus alumnos en la escuela.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "lexical-tutors",
+    "category": "lexical",
+    "source": "Los tutores utilizan cuentos y posteriormente realizan actividades con sus hijos en la casa. Los tutores utilizan cuentos y posteriormente realizan actividades con sus hijos en la casa.",
+    "target": "Los tutores utilizan cuentos y posteriormente realizan actividades con sus hijos en la casa. Los tutores utilizan cuentos y posteriormente realizan actividades con sus hijos en la casa.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "negation",
+    "category": "negation",
+    "source": "Los alumnos no utilizan libros y posteriormente no realizan actividades con sus amigos en la escuela. Los alumnos no utilizan libros y posteriormente no realizan actividades con sus amigos en la escuela.",
+    "target": "Los alumnos no utilizan libros y posteriormente no realizan actividades con sus amigos en la escuela. Los alumnos no utilizan libros y posteriormente no realizan actividades con sus amigos en la escuela.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "numbers",
+    "category": "numbers",
+    "source": "Los alumnos utilizan 20 libros y posteriormente realizan 10 actividades con sus amigos en la escuela. Los alumnos utilizan 20 libros y posteriormente realizan 10 actividades con sus amigos en la escuela.",
+    "target": "Los alumnos utilizan 20 libros y posteriormente realizan 10 actividades con sus amigos en la escuela. Los alumnos utilizan 20 libros y posteriormente realizan 10 actividades con sus amigos en la escuela.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "negation-numbers",
+    "category": "negation_numbers",
+    "source": "Los alumnos no utilizan 20 libros y posteriormente no realizan 10 actividades con sus amigos en la escuela. Los alumnos no utilizan 20 libros y posteriormente no realizan 10 actividades con sus amigos en la escuela.",
+    "target": "Los alumnos no utilizan 20 libros y posteriormente no realizan 10 actividades con sus amigos en la escuela. Los alumnos no utilizan 20 libros y posteriormente no realizan 10 actividades con sus amigos en la escuela.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "coordination",
+    "category": "syntax",
+    "source": "El alumno lee los libros de cuentos con sus amigos en la escuela y busca las hojas de su cuaderno para la clase y recibe la ayuda de su madre en casa.",
+    "target": "El alumno lee los libros de cuentos con sus amigos en la escuela y busca las hojas de su cuaderno para la clase y recibe la ayuda de su madre en casa.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "relative",
+    "category": "syntax",
+    "source": "El alumno, que utiliza muchos libros de cuentos para estudiar con sus amigos cada tarde en la escuela, aprende cosas nuevas para su clase de ciencias.",
+    "target": "El alumno, que utiliza muchos libros de cuentos para estudiar con sus amigos cada tarde en la escuela, aprende cosas nuevas para su clase de ciencias.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "independent-clauses",
+    "category": "syntax",
+    "source": "El alumno lee los libros de cuentos con sus amigos en la escuela; la madre busca las hojas de su cuaderno para la clase en casa.",
+    "target": "El alumno lee los libros de cuentos con sus amigos en la escuela; la madre busca las hojas de su cuaderno para la clase en casa.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "argument-order",
+    "category": "argument_order",
+    "source": "La madre utiliza libros para estudiar en casa y posteriormente realiza actividades con el niño mientras el padre lee los cuentos de la escuela.",
+    "target": "La madre utiliza libros para estudiar en casa y posteriormente realiza actividades con el niño mientras el padre lee los cuentos de la escuela.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "unsupported-vocabulary",
+    "category": "abstention",
+    "source": "La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados.",
+    "target": "La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "already-readable-no-rule",
+    "category": "abstention",
+    "source": "La niña lee los cuentos de la casa con su madre y su padre escucha el relato al final de la tarde. La niña lee los cuentos de la casa con su madre y su padre escucha el relato al final de la tarde.",
+    "target": "La niña lee los cuentos de la casa con su madre y su padre escucha el relato al final de la tarde. La niña lee los cuentos de la casa con su madre y su padre escucha el relato al final de la tarde.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "maintenance",
+    "category": "maintenance",
+    "source": "El sol da luz. El sol da luz. El sol da luz. El sol da luz. El sol da luz.",
+    "target": "El sol da luz. El sol da luz. El sol da luz. El sol da luz. El sol da luz.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  },
+  {
+    "document_id": "maintenance-negation",
+    "category": "maintenance",
+    "source": "El sol no da luz. El sol no da luz. El sol no da luz. El sol no da luz. El sol no da luz.",
+    "target": "El sol no da luz. El sol no da luz. El sol no da luz. El sol no da luz. El sol no da luz.",
+    "annotation": "synthetic_engine_diagnostic_original_reference"
+  }
+]

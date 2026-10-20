@@ -1,0 +1,1154 @@
+{
+  "date": "2026-10-19",
+  "phase": "Complete-system calibration: deterministic candidates before generation, unchanged trained weights",
+  "training_evidence": "ml-evaluation-results.json",
+  "base_model_revision": "73fb5dbe4756edadc8fbe8c769b0a109493acf7a",
+  "merged_checkpoint_sha256": "3b5f44e74c22665dc703f0481f42db7555c4f778ee6a0438e8fc0c36a120afaa",
+  "hardware": {
+    "cpu": "Apple M1",
+    "ram_bytes": 8589934592
+  },
+  "semantic_validation": "Automated conservative lexical guard only; no human semantic or clinical validation",
+  "cohorts": {
+    "easier": {
+      "kind": "derived EASIER lexical pairs, reused exploratory test set",
+      "examples": 6,
+      "source_revision": "f0b8312d1ded3d674a7d96d0fb2dc00c2052603f",
+      "runs": {
+        "base": {
+          "examples": 6,
+          "valid_predictions": 0,
+          "original_score": 32.14575574577862,
+          "score_delta": null,
+          "adapted_score": null,
+          "acceptance_rate": 0.0,
+          "strict_double_condition_rate": 0.0,
+          "maintenance_eligible_rate": 0.0,
+          "lexical_fidelity_guard_rate": 0.0,
+          "strict_and_fidelity_rate": 0.0,
+          "reference_unigram_f1": 0.0,
+          "timing": {
+            "count": 6,
+            "mean_seconds": 0.43926750700120465,
+            "median_seconds": 0.4312534790005884,
+            "min_seconds": 0.2612234170010197,
+            "max_seconds": 0.623973792004108,
+            "p95_seconds": 0.623973792004108,
+            "first_seconds": 0.623973792004108,
+            "total_seconds": 2.635605042007228
+          },
+          "model_loading_seconds": 6.616347999995924,
+          "metadata": {
+            "python": "3.14.7",
+            "platform": "Darwin",
+            "architecture": "arm64",
+            "device": "cpu",
+            "threads": 2,
+            "max_input_tokens": 96,
+            "max_new_tokens": 64,
+            "num_beams": 2,
+            "data_sha256": "0a0150d78fae93d533e60f68dc275efcf43334d9dfe3b9cd4ea363f21483e2f6",
+            "timing_scope": "tokenization + generation + decoding; no warmup excluded",
+            "package_versions": {
+              "torch": "2.14.1",
+              "transformers": "4.57.6"
+            }
+          },
+          "per_example": [
+            {
+              "document_id": "120",
+              "category": null,
+              "original_score": 58.68500000000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.623973792004108
+            },
+            {
+              "document_id": "276",
+              "category": null,
+              "original_score": 27.559390243902442,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.450983125003404
+            },
+            {
+              "document_id": "68",
+              "category": null,
+              "original_score": 44.8324358974359,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.41152383299777284
+            },
+            {
+              "document_id": "30",
+              "category": null,
+              "original_score": 36.606875,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.2612234170010197
+            },
+            {
+              "document_id": "200",
+              "category": null,
+              "original_score": 14.10583333333335,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.35140695799782407
+            },
+            {
+              "document_id": "84",
+              "category": null,
+              "original_score": 11.085000000000008,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.5364939170030993
+            }
+          ],
+          "hybrid": {
+            "examples": 6,
+            "original_score_all_inputs": 32.14575574577862,
+            "accepted_examples": 0,
+            "acceptance_rate": 0.0,
+            "abstention_rate": 1.0,
+            "strict_double_condition_rate_all_inputs": 0.0,
+            "strict_compliance_nonmaintenance_accepted": null,
+            "maintenance_accepted_examples": 0,
+            "gate_and_lexical_guard_compliance_accepted": null,
+            "model_generation_calls": 18,
+            "engine_policy": "deterministic candidate first; then mT5 + refinement; bounded retries; chunk/document gates",
+            "timing": {
+              "count": 6,
+              "mean_seconds": 2.3463464166682875,
+              "median_seconds": 2.2366037290012173,
+              "min_seconds": 1.355636833999597,
+              "max_seconds": 3.787309000006644,
+              "p95_seconds": 3.787309000006644,
+              "first_seconds": 1.6523758330004057,
+              "total_seconds": 14.078078500009724
+            },
+            "accepted_only_metrics": null,
+            "method_counts": {
+              "rejected": 6
+            },
+            "outcomes": [
+              {
+                "document_id": "120",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 1.6523758330004057,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "276",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 1.355636833999597,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "68",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 2.8095493750006426,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "30",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 3.787309000006644,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "200",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 1.846623958001146,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "84",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 2.6265835000012885,
+                "model_generation_calls": 3
+              }
+            ],
+            "paired_nonmaintenance_accepted_derived": null
+          }
+        },
+        "fine_tuned": {
+          "examples": 6,
+          "valid_predictions": 0,
+          "original_score": 32.14575574577862,
+          "score_delta": null,
+          "adapted_score": null,
+          "acceptance_rate": 0.0,
+          "strict_double_condition_rate": 0.0,
+          "maintenance_eligible_rate": 0.0,
+          "lexical_fidelity_guard_rate": 0.0,
+          "strict_and_fidelity_rate": 0.0,
+          "reference_unigram_f1": 0.22757286627212017,
+          "timing": {
+            "count": 6,
+            "mean_seconds": 2.9310976874997627,
+            "median_seconds": 2.4359218744975806,
+            "min_seconds": 0.7096712920028949,
+            "max_seconds": 7.168361542004277,
+            "p95_seconds": 7.168361542004277,
+            "first_seconds": 7.168361542004277,
+            "total_seconds": 17.586586124998576
+          },
+          "model_loading_seconds": 1.4570394159964053,
+          "metadata": {
+            "python": "3.14.7",
+            "platform": "Darwin",
+            "architecture": "arm64",
+            "device": "cpu",
+            "threads": 2,
+            "max_input_tokens": 96,
+            "max_new_tokens": 64,
+            "num_beams": 2,
+            "data_sha256": "0a0150d78fae93d533e60f68dc275efcf43334d9dfe3b9cd4ea363f21483e2f6",
+            "timing_scope": "tokenization + generation + decoding; no warmup excluded",
+            "package_versions": {
+              "torch": "2.14.1",
+              "transformers": "4.57.6"
+            }
+          },
+          "per_example": [
+            {
+              "document_id": "120",
+              "category": null,
+              "original_score": 58.68500000000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 7.168361542004277
+            },
+            {
+              "document_id": "276",
+              "category": null,
+              "original_score": 27.559390243902442,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.5534565409980132
+            },
+            {
+              "document_id": "68",
+              "category": null,
+              "original_score": 44.8324358974359,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 3.446906917000888
+            },
+            {
+              "document_id": "30",
+              "category": null,
+              "original_score": 36.606875,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.7096712920028949
+            },
+            {
+              "document_id": "200",
+              "category": null,
+              "original_score": 14.10583333333335,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.3898026249953546
+            },
+            {
+              "document_id": "84",
+              "category": null,
+              "original_score": 11.085000000000008,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 3.318387207997148
+            }
+          ],
+          "hybrid": {
+            "examples": 6,
+            "original_score_all_inputs": 32.14575574577862,
+            "accepted_examples": 0,
+            "acceptance_rate": 0.0,
+            "abstention_rate": 1.0,
+            "strict_double_condition_rate_all_inputs": 0.0,
+            "strict_compliance_nonmaintenance_accepted": null,
+            "maintenance_accepted_examples": 0,
+            "gate_and_lexical_guard_compliance_accepted": null,
+            "model_generation_calls": 18,
+            "engine_policy": "deterministic candidate first; then mT5 + refinement; bounded retries; chunk/document gates",
+            "timing": {
+              "count": 6,
+              "mean_seconds": 7.989268499998919,
+              "median_seconds": 8.213602021001861,
+              "min_seconds": 2.364557041997614,
+              "max_seconds": 12.44109770799696,
+              "p95_seconds": 12.44109770799696,
+              "first_seconds": 12.44109770799696,
+              "total_seconds": 47.935610999993514
+            },
+            "accepted_only_metrics": null,
+            "method_counts": {
+              "rejected": 6
+            },
+            "outcomes": [
+              {
+                "document_id": "120",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 12.44109770799696,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "276",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 6.012944249996508,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "68",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 10.114503417004016,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "30",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 2.364557041997614,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "200",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 6.312700624999707,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "84",
+                "category": null,
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 10.68980795799871,
+                "model_generation_calls": 3
+              }
+            ],
+            "paired_nonmaintenance_accepted_derived": null
+          }
+        }
+      }
+    },
+    "diagnostic": {
+      "kind": "synthetic developer diagnostic, no blind holdout or clinical participants",
+      "examples": 14,
+      "fixture": "ml_training/fixtures/hybrid_es.json",
+      "fixture_sha256": "f25fff6dc3a050300783f04e1a2f3229bcbf004833a7cc69bda9ee676911fe6c",
+      "reference": "unchanged original, not human simplified target",
+      "runs": {
+        "base": {
+          "examples": 14,
+          "valid_predictions": 0,
+          "original_score": 54.746347159784676,
+          "score_delta": null,
+          "adapted_score": null,
+          "acceptance_rate": 0.0,
+          "strict_double_condition_rate": 0.0,
+          "maintenance_eligible_rate": 0.14285714285714285,
+          "lexical_fidelity_guard_rate": 0.0,
+          "strict_and_fidelity_rate": 0.0,
+          "reference_unigram_f1": 0.0,
+          "timing": {
+            "count": 14,
+            "mean_seconds": 0.31241594042876386,
+            "median_seconds": 0.253591000000597,
+            "min_seconds": 0.1872266669961391,
+            "max_seconds": 0.6727636669966159,
+            "p95_seconds": 0.6727636669966159,
+            "first_seconds": 0.6727636669966159,
+            "total_seconds": 4.373823166002694
+          },
+          "model_loading_seconds": 6.006241666997084,
+          "metadata": {
+            "python": "3.14.7",
+            "platform": "Darwin",
+            "architecture": "arm64",
+            "device": "cpu",
+            "threads": 2,
+            "max_input_tokens": 512,
+            "max_new_tokens": 64,
+            "num_beams": 2,
+            "data_sha256": "f25fff6dc3a050300783f04e1a2f3229bcbf004833a7cc69bda9ee676911fe6c",
+            "timing_scope": "tokenization + generation + decoding; no warmup excluded",
+            "package_versions": {
+              "torch": "2.14.1",
+              "transformers": "4.57.6"
+            }
+          },
+          "per_example": [
+            {
+              "document_id": "lexical-school",
+              "category": "lexical",
+              "original_score": 37.08500000000001,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.6727636669966159
+            },
+            {
+              "document_id": "lexical-teachers",
+              "category": "lexical",
+              "original_score": 28.18500000000003,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.2043197910024901
+            },
+            {
+              "document_id": "lexical-tutors",
+              "category": "lexical",
+              "original_score": 45.985000000000014,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.45286558299994795
+            },
+            {
+              "document_id": "negation",
+              "category": "negation",
+              "original_score": 46.766250000000014,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.2428222500020638
+            },
+            {
+              "document_id": "numbers",
+              "category": "numbers",
+              "original_score": 27.297500000000014,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.2421416670040344
+            },
+            {
+              "document_id": "negation-numbers",
+              "category": "negation_numbers",
+              "original_score": 36.54611111111112,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.39745462499558926
+            },
+            {
+              "document_id": "coordination",
+              "category": "syntax",
+              "original_score": 71.65062500000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.43255812500137836
+            },
+            {
+              "document_id": "relative",
+              "category": "syntax",
+              "original_score": 61.0273076923077,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.3302700830026879
+            },
+            {
+              "document_id": "independent-clauses",
+              "category": "syntax",
+              "original_score": 77.80038461538463,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.26435974999913014
+            },
+            {
+              "document_id": "argument-order",
+              "category": "argument_order",
+              "original_score": 50.44750000000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.31553749999875436
+            },
+            {
+              "document_id": "unsupported-vocabulary",
+              "category": "abstention",
+              "original_score": -84.96499999999995,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.2225977080015582
+            },
+            {
+              "document_id": "already-readable-no-rule",
+              "category": "abstention",
+              "original_score": 88.55318181818183,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.207121500003268
+            },
+            {
+              "document_id": "maintenance",
+              "category": "maintenance",
+              "original_score": 140.53500000000003,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.20178424999903655
+            },
+            {
+              "document_id": "maintenance-negation",
+              "category": "maintenance",
+              "original_score": 139.53500000000003,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.1872266669961391
+            }
+          ],
+          "hybrid": {
+            "examples": 14,
+            "original_score_all_inputs": 54.746347159784676,
+            "accepted_examples": 8,
+            "acceptance_rate": 0.5714285714285714,
+            "abstention_rate": 0.4285714285714286,
+            "strict_double_condition_rate_all_inputs": 0.42857142857142855,
+            "strict_compliance_nonmaintenance_accepted": 1.0,
+            "maintenance_accepted_examples": 2,
+            "gate_and_lexical_guard_compliance_accepted": 1.0,
+            "model_generation_calls": 18,
+            "engine_policy": "deterministic candidate first; then mT5 + refinement; bounded retries; chunk/document gates",
+            "timing": {
+              "count": 14,
+              "mean_seconds": 0.40561680643025155,
+              "median_seconds": 0.0038209580052352976,
+              "min_seconds": 0.0008347080001840368,
+              "max_seconds": 1.1751771250055754,
+              "p95_seconds": 1.1751771250055754,
+              "first_seconds": 0.004866708004556131,
+              "total_seconds": 5.6786352900235215
+            },
+            "accepted_only_metrics": {
+              "examples": 8,
+              "valid_predictions": 8,
+              "original_score": 70.02367187500002,
+              "score_delta": 23.638350183823526,
+              "adapted_score": 93.66202205882355,
+              "acceptance_rate": 1.0,
+              "strict_double_condition_rate": 0.75,
+              "maintenance_eligible_rate": 0.25,
+              "lexical_fidelity_guard_rate": 1.0,
+              "strict_and_fidelity_rate": 0.75,
+              "reference_unigram_f1": 0.8346185064935066
+            },
+            "method_counts": {
+              "rules": 8,
+              "rejected": 6
+            },
+            "outcomes": [
+              {
+                "document_id": "lexical-school",
+                "category": "lexical",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 37.08500000000001,
+                "adapted_szigriszt_score": 77.135,
+                "score_delta": 40.05,
+                "original_word_count": 42,
+                "adapted_word_count": 42,
+                "original_syllable_count": 105,
+                "original_sentence_count": 3,
+                "syllable_count": 78,
+                "sentence_count": 3,
+                "maintenance_exception": false,
+                "inference_seconds": 0.004866708004556131,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "lexical-teachers",
+                "category": "lexical",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 28.18500000000003,
+                "adapted_szigriszt_score": 68.23500000000001,
+                "score_delta": 40.04999999999998,
+                "original_word_count": 28,
+                "adapted_word_count": 28,
+                "original_syllable_count": 74,
+                "original_sentence_count": 2,
+                "syllable_count": 56,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0018802499980665743,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "lexical-tutors",
+                "category": "lexical",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 45.985000000000014,
+                "adapted_szigriszt_score": 86.03500000000003,
+                "score_delta": 40.05000000000001,
+                "original_word_count": 28,
+                "adapted_word_count": 28,
+                "original_syllable_count": 66,
+                "original_sentence_count": 2,
+                "syllable_count": 48,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.002365624997764826,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "negation",
+                "category": "negation",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 46.766250000000014,
+                "adapted_szigriszt_score": 81.81000000000002,
+                "score_delta": 35.04375,
+                "original_word_count": 32,
+                "adapted_word_count": 32,
+                "original_syllable_count": 74,
+                "original_sentence_count": 2,
+                "syllable_count": 56,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0019290000054752454,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "numbers",
+                "category": "numbers",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.9268787500041071,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "negation-numbers",
+                "category": "negation_numbers",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.8553389169974253,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "coordination",
+                "category": "syntax",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 71.65062500000002,
+                "adapted_szigriszt_score": 87.39284313725491,
+                "score_delta": 15.742218137254895,
+                "original_word_count": 32,
+                "adapted_word_count": 34,
+                "original_syllable_count": 53,
+                "original_sentence_count": 1,
+                "syllable_count": 59,
+                "sentence_count": 3,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0027752080059144646,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "relative",
+                "category": "syntax",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.9300122080021538,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "independent-clauses",
+                "category": "syntax",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 0.771971707996272,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "argument-order",
+                "category": "argument_order",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 50.44750000000002,
+                "adapted_szigriszt_score": 68.61833333333335,
+                "score_delta": 18.170833333333334,
+                "original_word_count": 24,
+                "adapted_word_count": 24,
+                "original_syllable_count": 51,
+                "original_sentence_count": 1,
+                "syllable_count": 44,
+                "sentence_count": 1,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0025748750049388036,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "unsupported-vocabulary",
+                "category": "abstention",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 1.0010960409999825,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "already-readable-no-rule",
+                "category": "abstention",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 1.1751771250055754,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "maintenance",
+                "category": "maintenance",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 140.53500000000003,
+                "adapted_szigriszt_score": 140.53500000000003,
+                "score_delta": 0.0,
+                "original_word_count": 20,
+                "adapted_word_count": 20,
+                "original_syllable_count": 20,
+                "original_sentence_count": 5,
+                "syllable_count": 20,
+                "sentence_count": 5,
+                "maintenance_exception": true,
+                "inference_seconds": 0.0009341670011053793,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "maintenance-negation",
+                "category": "maintenance",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 139.53500000000003,
+                "adapted_szigriszt_score": 139.53500000000003,
+                "score_delta": 0.0,
+                "original_word_count": 25,
+                "adapted_word_count": 25,
+                "original_syllable_count": 25,
+                "original_sentence_count": 5,
+                "syllable_count": 25,
+                "sentence_count": 5,
+                "maintenance_exception": true,
+                "inference_seconds": 0.0008347080001840368,
+                "model_generation_calls": 0
+              }
+            ],
+            "paired_nonmaintenance_accepted_derived": {
+              "examples": 6,
+              "original_szigriszt_score": 46.686562500000015,
+              "adapted_szigriszt_score": 78.20436274509805,
+              "score_delta": 31.517800245098037
+            }
+          }
+        },
+        "fine_tuned": {
+          "examples": 14,
+          "valid_predictions": 0,
+          "original_score": 54.746347159784676,
+          "score_delta": null,
+          "adapted_score": null,
+          "acceptance_rate": 0.0,
+          "strict_double_condition_rate": 0.0,
+          "maintenance_eligible_rate": 0.14285714285714285,
+          "lexical_fidelity_guard_rate": 0.0,
+          "strict_and_fidelity_rate": 0.0,
+          "reference_unigram_f1": 0.1728167252453738,
+          "timing": {
+            "count": 14,
+            "mean_seconds": 2.978310681500651,
+            "median_seconds": 1.6164445210015401,
+            "min_seconds": 0.42831862500315765,
+            "max_seconds": 10.734901791998709,
+            "p95_seconds": 10.734901791998709,
+            "first_seconds": 10.734901791998709,
+            "total_seconds": 41.69634954100911
+          },
+          "model_loading_seconds": 1.3033574590008357,
+          "metadata": {
+            "python": "3.14.7",
+            "platform": "Darwin",
+            "architecture": "arm64",
+            "device": "cpu",
+            "threads": 2,
+            "max_input_tokens": 512,
+            "max_new_tokens": 64,
+            "num_beams": 2,
+            "data_sha256": "f25fff6dc3a050300783f04e1a2f3229bcbf004833a7cc69bda9ee676911fe6c",
+            "timing_scope": "tokenization + generation + decoding; no warmup excluded",
+            "package_versions": {
+              "torch": "2.14.1",
+              "transformers": "4.57.6"
+            }
+          },
+          "per_example": [
+            {
+              "document_id": "lexical-school",
+              "category": "lexical",
+              "original_score": 37.08500000000001,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 10.734901791998709
+            },
+            {
+              "document_id": "lexical-teachers",
+              "category": "lexical",
+              "original_score": 28.18500000000003,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 7.488218583996058
+            },
+            {
+              "document_id": "lexical-tutors",
+              "category": "lexical",
+              "original_score": 45.985000000000014,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.1440035830019042
+            },
+            {
+              "document_id": "negation",
+              "category": "negation",
+              "original_score": 46.766250000000014,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.8996298330021091
+            },
+            {
+              "document_id": "numbers",
+              "category": "numbers",
+              "original_score": 27.297500000000014,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.1303015840021544
+            },
+            {
+              "document_id": "negation-numbers",
+              "category": "negation_numbers",
+              "original_score": 36.54611111111112,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.6143464999986463
+            },
+            {
+              "document_id": "coordination",
+              "category": "syntax",
+              "original_score": 71.65062500000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 5.157155041000806
+            },
+            {
+              "document_id": "relative",
+              "category": "syntax",
+              "original_score": 61.0273076923077,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 2.470442500001809
+            },
+            {
+              "document_id": "independent-clauses",
+              "category": "syntax",
+              "original_score": 77.80038461538463,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.3768355830034125
+            },
+            {
+              "document_id": "argument-order",
+              "category": "argument_order",
+              "original_score": 50.44750000000002,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.618542542004434
+            },
+            {
+              "document_id": "unsupported-vocabulary",
+              "category": "abstention",
+              "original_score": -84.96499999999995,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 1.0613524159998633
+            },
+            {
+              "document_id": "already-readable-no-rule",
+              "category": "abstention",
+              "original_score": 88.55318181818183,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 3.343730249995133
+            },
+            {
+              "document_id": "maintenance",
+              "category": "maintenance",
+              "original_score": 140.53500000000003,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 0.42831862500315765
+            },
+            {
+              "document_id": "maintenance-negation",
+              "category": "maintenance",
+              "original_score": 139.53500000000003,
+              "adapted_score": null,
+              "fidelity_guard": false,
+              "inference_seconds": 3.228570708000916
+            }
+          ],
+          "hybrid": {
+            "examples": 14,
+            "original_score_all_inputs": 54.746347159784676,
+            "accepted_examples": 8,
+            "acceptance_rate": 0.5714285714285714,
+            "abstention_rate": 0.4285714285714286,
+            "strict_double_condition_rate_all_inputs": 0.42857142857142855,
+            "strict_compliance_nonmaintenance_accepted": 1.0,
+            "maintenance_accepted_examples": 2,
+            "gate_and_lexical_guard_compliance_accepted": 1.0,
+            "model_generation_calls": 18,
+            "engine_policy": "deterministic candidate first; then mT5 + refinement; bounded retries; chunk/document gates",
+            "timing": {
+              "count": 14,
+              "mean_seconds": 2.3677059850010016,
+              "median_seconds": 0.005523854499188019,
+              "min_seconds": 0.0010827909936779179,
+              "max_seconds": 10.049358083997504,
+              "p95_seconds": 10.049358083997504,
+              "first_seconds": 0.007894791997387074,
+              "total_seconds": 33.14788379001402
+            },
+            "accepted_only_metrics": {
+              "examples": 8,
+              "valid_predictions": 8,
+              "original_score": 70.02367187500002,
+              "score_delta": 23.638350183823526,
+              "adapted_score": 93.66202205882355,
+              "acceptance_rate": 1.0,
+              "strict_double_condition_rate": 0.75,
+              "maintenance_eligible_rate": 0.25,
+              "lexical_fidelity_guard_rate": 1.0,
+              "strict_and_fidelity_rate": 0.75,
+              "reference_unigram_f1": 0.8346185064935066
+            },
+            "method_counts": {
+              "rules": 8,
+              "rejected": 6
+            },
+            "outcomes": [
+              {
+                "document_id": "lexical-school",
+                "category": "lexical",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 37.08500000000001,
+                "adapted_szigriszt_score": 77.135,
+                "score_delta": 40.05,
+                "original_word_count": 42,
+                "adapted_word_count": 42,
+                "original_syllable_count": 105,
+                "original_sentence_count": 3,
+                "syllable_count": 78,
+                "sentence_count": 3,
+                "maintenance_exception": false,
+                "inference_seconds": 0.007894791997387074,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "lexical-teachers",
+                "category": "lexical",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 28.18500000000003,
+                "adapted_szigriszt_score": 68.23500000000001,
+                "score_delta": 40.04999999999998,
+                "original_word_count": 28,
+                "adapted_word_count": 28,
+                "original_syllable_count": 74,
+                "original_sentence_count": 2,
+                "syllable_count": 56,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0027622920024441555,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "lexical-tutors",
+                "category": "lexical",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 45.985000000000014,
+                "adapted_szigriszt_score": 86.03500000000003,
+                "score_delta": 40.05000000000001,
+                "original_word_count": 28,
+                "adapted_word_count": 28,
+                "original_syllable_count": 66,
+                "original_sentence_count": 2,
+                "syllable_count": 48,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.003152917000988964,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "negation",
+                "category": "negation",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 46.766250000000014,
+                "adapted_szigriszt_score": 81.81000000000002,
+                "score_delta": 35.04375,
+                "original_word_count": 32,
+                "adapted_word_count": 32,
+                "original_syllable_count": 74,
+                "original_sentence_count": 2,
+                "syllable_count": 56,
+                "sentence_count": 2,
+                "maintenance_exception": false,
+                "inference_seconds": 0.001738416001899168,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "numbers",
+                "category": "numbers",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 6.984005125006661,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "negation-numbers",
+                "category": "negation_numbers",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 5.684169750005822,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "coordination",
+                "category": "syntax",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 71.65062500000002,
+                "adapted_szigriszt_score": 87.39284313725491,
+                "score_delta": 15.742218137254895,
+                "original_word_count": 32,
+                "adapted_word_count": 34,
+                "original_syllable_count": 53,
+                "original_sentence_count": 1,
+                "syllable_count": 59,
+                "sentence_count": 3,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0027902910005650483,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "relative",
+                "category": "syntax",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 5.0865927080012625,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "independent-clauses",
+                "category": "syntax",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 3.866715208001551,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "argument-order",
+                "category": "argument_order",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 50.44750000000002,
+                "adapted_szigriszt_score": 68.61833333333335,
+                "score_delta": 18.170833333333334,
+                "original_word_count": 24,
+                "adapted_word_count": 24,
+                "original_syllable_count": 51,
+                "original_sentence_count": 1,
+                "syllable_count": 44,
+                "sentence_count": 1,
+                "maintenance_exception": false,
+                "inference_seconds": 0.0016824159974930808,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "unsupported-vocabulary",
+                "category": "abstention",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 1.4539262500038603,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "already-readable-no-rule",
+                "category": "abstention",
+                "accepted": false,
+                "reason": "acceptance_failed",
+                "inference_seconds": 10.049358083997504,
+                "model_generation_calls": 3
+              },
+              {
+                "document_id": "maintenance",
+                "category": "maintenance",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 140.53500000000003,
+                "adapted_szigriszt_score": 140.53500000000003,
+                "score_delta": 0.0,
+                "original_word_count": 20,
+                "adapted_word_count": 20,
+                "original_syllable_count": 20,
+                "original_sentence_count": 5,
+                "syllable_count": 20,
+                "sentence_count": 5,
+                "maintenance_exception": true,
+                "inference_seconds": 0.002012750002904795,
+                "model_generation_calls": 0
+              },
+              {
+                "document_id": "maintenance-negation",
+                "category": "maintenance",
+                "accepted": true,
+                "method": "rules",
+                "original_szigriszt_score": 139.53500000000003,
+                "adapted_szigriszt_score": 139.53500000000003,
+                "score_delta": 0.0,
+                "original_word_count": 25,
+                "adapted_word_count": 25,
+                "original_syllable_count": 25,
+                "original_sentence_count": 5,
+                "syllable_count": 25,
+                "sentence_count": 5,
+                "maintenance_exception": true,
+                "inference_seconds": 0.0010827909936779179,
+                "model_generation_calls": 0
+              }
+            ],
+            "paired_nonmaintenance_accepted_derived": {
+              "examples": 6,
+              "original_szigriszt_score": 46.686562500000015,
+              "adapted_szigriszt_score": 78.20436274509805,
+              "score_delta": 31.517800245098037
+            }
+          }
+        }
+      }
+    }
+  }
+}

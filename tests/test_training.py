@@ -149,3 +149,68 @@ def test_subset_selection_is_deterministic_unique_and_budgeted():
         select_rows(rows, Tokenizer(), 20, max_tokens=40)
     with pytest.raises(ValueError):
         select_rows(rows, Tokenizer(), 0)
+
+
+def test_hybrid_coverage_is_distinct_from_conditional_compliance():
+    from app.nlp.readability import measure, telemetry
+    from app.nlp.refinement import refine
+    from ml_training.evaluate import summarize_hybrid
+    from tests.conftest import SOURCE
+
+    rows = [
+        {"source": SOURCE, "target": SOURCE},
+        {"source": "El sol da luz. " * 5, "target": "El sol da luz. " * 5},
+        {"source": "La neuropsicología analiza procesos cognitivos sofisticados.", "target": ""},
+    ]
+    outputs = [{**row, "prediction": refine(row["source"])} for row in rows[:2]]
+    outcomes = [
+        {
+            "accepted": True,
+            "method": "rules",
+            **telemetry(measure(row["source"]), measure(row["prediction"])),
+        }
+        for row in outputs
+    ] + [{"accepted": False, "reason": "acceptance_failed"}]
+    result = summarize_hybrid(rows, outputs, outcomes, [0.1, 0.1, 0.2], 3)
+    assert result["acceptance_rate"] == pytest.approx(2 / 3)
+    assert result["strict_double_condition_rate_all_inputs"] == pytest.approx(1 / 3)
+    assert result["strict_compliance_nonmaintenance_accepted"] == 1
+    assert result["gate_and_lexical_guard_compliance_accepted"] == 1
+    assert result["maintenance_accepted_examples"] == 1
+    assert result["model_generation_calls"] == 3
+
+
+def test_no_accepted_examples_never_implies_one_hundred_percent_compliance():
+    from ml_training.evaluate import summarize_hybrid
+
+    rows = [{"source": "El niño lee libros en la escuela.", "target": ""}]
+    result = summarize_hybrid(rows, [], [{"accepted": False}], [0.1], 3)
+    assert result["acceptance_rate"] == 0
+    assert result["strict_compliance_nonmaintenance_accepted"] is None
+    assert result["gate_and_lexical_guard_compliance_accepted"] is None
+
+
+async def test_hybrid_evaluation_restores_settings_and_records_expert_attribution():
+    from types import SimpleNamespace
+
+    from app.config import settings
+    from ml_training.evaluate import evaluate_hybrid
+    from tests.conftest import SOURCE
+
+    keys = [
+        "MT5_MAX_INPUT_TOKENS",
+        "MT5_MAX_NEW_TOKENS",
+        "MT5_TIMEOUT_SECONDS",
+        "ALLOW_RULE_BASED_FALLBACK",
+    ]
+    before = {key: getattr(settings, key) for key in keys}
+    result = await evaluate_hybrid(
+        [{"document_id": "synthetic", "source": SOURCE, "target": SOURCE}],
+        object(),
+        SimpleNamespace(encode=lambda *args, **kwargs: [1] * 40),
+        SimpleNamespace(max_input_tokens=128, max_new_tokens=64),
+    )
+    assert {key: getattr(settings, key) for key in keys} == before
+    assert result["accepted_examples"] == 1 and result["model_generation_calls"] == 0
+    assert result["method_counts"] == {"rules": 1}
+    assert result["strict_compliance_nonmaintenance_accepted"] == 1

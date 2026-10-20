@@ -63,3 +63,31 @@ score; they count as failures in rates. See docs/ml-evaluation.md for the observ
 experiment and exact reproduction commands. The observed checkpoint did not produce
 acceptable simplifications on the six exploratory test cases; it was not activated
 in the API. No API traffic is used for training.
+
+## Complete-system evaluation
+
+`evaluate.py --hybrid` measures raw model generation and the actual complete API
+pipeline on the same inputs, with separately reported acceptance coverage,
+abstention, strict compliance among accepted non-maintenance outputs, maintenance
+counts and lexical-guard compliance. It also records model generation calls and
+expert attribution: a result produced by rules is never credited to mT5. The
+production policy tries a deterministic candidate first, then mT5 and refinement.
+Readability/fidelity gates still apply at both chunk and document level.
+
+The frozen six-example EASIER set is retained. The separately reported
+`fixtures/hybrid_es.json` contains 14 synthetic developer diagnostic cases,
+including unsupported inputs, negation, numbers, syntax and maintenance. It is
+not EASIER, a blind holdout or clinical evidence. Its reference is the original
+text; reference unigram F1 therefore measures overlap rather than quality against
+a human simplification. Never pool it with EASIER to inflate acceptance coverage.
+
+```sh
+python -m ml_training.evaluate --data ml_training/data/easier-smoke/test.jsonl --checkpoint checkpoints/easier-smoke/merged --output ml_training/output/easier-tuned-hybrid.json --max-input-tokens 96 --max-new-tokens 64 --num-beams 2 --threads 2 --hybrid
+python -m ml_training.evaluate --data ml_training/fixtures/hybrid_es.json --checkpoint checkpoints/easier-smoke/merged --output ml_training/output/diagnostic-tuned-hybrid.json --max-input-tokens 512 --max-new-tokens 64 --num-beams 2 --threads 2 --hybrid
+```
+
+Repeat both commands with the pinned local base-model snapshot as `--checkpoint`
+to obtain the full comparison. See `docs/ml-evaluation.md` and
+`docs/hybrid-evaluation-results.json` for the actual observations. The mathematical
+gate guarantees compliance of returned adaptations (with the declared maintenance
+exception); it cannot guarantee acceptance of every input or semantic equivalence.
