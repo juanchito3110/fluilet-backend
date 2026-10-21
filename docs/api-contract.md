@@ -113,3 +113,13 @@ The original is retained if no candidate passes the fidelity guard or improves
 its score. Input/format/authentication/resource limits and ownership checks still
 apply. Apply Alembic revision `0004_best_effort` before serving this version;
 it updates telemetry CHECK constraints without adding text storage or columns.
+
+## Educational extension
+
+[educational-features.md](educational-features.md) documents lesson generation,
+two comprehension questions on all adaptation responses, optional reading practice
+telemetry, progress summaries and five achievements. The new child summary requires
+`?view=educational`; omitting it preserves the Android `SessionProgress[]` response.
+`GET /readings/progress` is the independent adult summary and is registered before
+`/readings/{reading_id}` so the static path is not parsed as a UUID. `/adaptations/document`
+is an additive raw PDF/TXT alias of `/adaptations/file`.

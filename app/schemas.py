@@ -16,6 +16,7 @@ from pydantic import (
     model_validator,
 )
 
+from app.education import category_name
 from app.models import DifficultyType, DocumentStatus, DocumentType, UserRole, VisualPalette
 
 
@@ -211,6 +212,34 @@ class TelemetryRead(BaseModel):
         )
 
 
+class LessonGenerate(InputModel):
+    category: str = Field(max_length=128)
+    topic: str | None = Field(default=None, max_length=120)
+    simplification_level: NlpLevel = 2
+    child_id: uuid.UUID | None = None
+
+    @field_validator("category")
+    @classmethod
+    def normalize_category(cls, value):
+        value = category_name(value)
+        return "ciencia_espacio" if value == "lectura_libre" else value
+
+    @field_validator("topic")
+    @classmethod
+    def clean_topic(cls, value):
+        if value is None:
+            return None
+        value = " ".join("".join(c for c in value if c.isprintable() or c.isspace()).split())
+        return value or None
+
+
+class ComprehensionQuestion(BaseModel):
+    id: Literal["q1", "q2"]
+    question: str
+    options: list[str] = Field(min_length=3, max_length=3)
+    correct_option_index: int = Field(ge=0, le=2)
+
+
 class DocumentRead(TelemetryRead):
     id: uuid.UUID
     content_sha256: str | None
@@ -220,6 +249,8 @@ class DocumentRead(TelemetryRead):
     chunk_count: int
     status: DocumentStatus
     adaptation_method: str | None
+    category: str
+    simplification_level: int
     uploaded_at: datetime
 
 
@@ -240,17 +271,44 @@ class AdaptationRead(BaseModel):
     meets_readability_target: bool
     quality_status: Literal["target_met", "best_effort"]
     warnings: list[str]
+    title: str
+    category: str
+    simplification_level: int
+    comprehension_questions: list[ComprehensionQuestion] = Field(min_length=2, max_length=2)
 
 
 class AssignmentRequest(InputModel):
     document_id: uuid.UUID
 
 
-class ReadingCreate(InputModel):
+class EducationalReadingInput(InputModel):
+    category: str | None = Field(default=None, min_length=1, max_length=64)
+    simplification_level: NlpLevel | None = None
+    comprehension_score: int | None = Field(default=None, ge=0, le=100, strict=True)
+    questions_answered: int | None = Field(default=None, ge=0, le=10000, strict=True)
+    questions_correct: int | None = Field(default=None, ge=0, le=10000, strict=True)
+    tts_speed_used: float | None = Field(default=None, gt=0, le=4, allow_inf_nan=False, strict=True)
+
+    @field_validator("category")
+    @classmethod
+    def normalize_category(cls, value):
+        return category_name(value) if value is not None else value
+
+    @model_validator(mode="before")
+    @classmethod
+    def reject_nonnullable_fields(cls, values):
+        if isinstance(values, dict) and any(
+            value is None for key, value in values.items() if key != "comprehension_score"
+        ):
+            raise ValueError("Omite los campos que no deseas modificar.")
+        return values
+
+
+class ReadingCreate(EducationalReadingInput):
     document_id: uuid.UUID
 
 
-class ReadingUpdate(NoNullPatch):
+class ReadingUpdate(EducationalReadingInput):
     reading_time_seconds: int | None = Field(default=None, ge=0, le=86400 * 30)
     completion_percent: float | None = Field(default=None, ge=0, le=100, allow_inf_nan=False)
     completed: bool | None = None
@@ -267,6 +325,45 @@ class ReadingRead(TelemetryRead):
     reading_time_seconds: int
     completion_percent: float
     completed: bool
+    category: str
+    simplification_level: int
+    comprehension_score: int | None
+    questions_answered: int
+    questions_correct: int
+    tts_speed_used: float
+
+
+class LessonProgress(BaseModel):
+    lesson_number: int
+    reading_id: str
+    recorded_at: str
+    category: str
+    simplification_level: int
+    completed: bool
+    completion_percentage: int
+    comprehension_score: int | None
+    duration_seconds: int
+    original_readability_score: float | None
+    adapted_readability_score: float | None
+
+
+class EducationalBadge(BaseModel):
+    code: str
+    title: str
+    description: str
+    unlocked: bool
+
+
+class EducationalProgress(BaseModel):
+    total_lessons: int
+    completed_lessons: int
+    incomplete_lessons: int
+    completion_rate_percent: float
+    total_reading_seconds: int
+    average_comprehension_score: float
+    current_recommended_level: int
+    level_progression: list[LessonProgress]
+    badges: list[EducationalBadge]
 
 
 class SessionProgress(BaseModel):

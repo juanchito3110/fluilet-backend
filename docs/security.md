@@ -107,3 +107,11 @@ maintenance-exception consistency remain enforced. No text columns are added.
 Downgrade refuses when a best-effort snapshot would violate the previous schema;
 it never deletes readings to force a rollback. Existing qualifying snapshots and
 legacy null snapshots survive an upgrade/downgrade round trip.
+
+Educational progress migration `0004_educational_progress` adds numeric practice
+telemetry and normalized category/level snapshots. Topics, generated titles,
+questions and source/adapted text are not stored. New summaries retain owner/profile
+scoping and derived progress is read-only. Practice counters are client-reported;
+score consistency checks do not prove a learner's answers. Question metadata must
+remain outside external body logs just like the adapted text. Downgrade refuses to
+discard populated educational metadata.

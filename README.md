@@ -136,3 +136,17 @@ unbuffered, with any incidental temporary buffers on RAM tmpfs. The database vol
 contains metadata/accounts only. No Redis/file queue is used.
 
 Observed local verification and remaining operational checks: [verification.md](docs/verification.md).
+
+## Educational lessons and progress
+
+Generate Spanish educational readings with `POST /api/v1/adaptations/generate`:
+six categories, three authored texts each, optional topic, levels 1..5 and exactly
+two text-grounded comprehension questions. Existing adaptation responses gain
+only additive lesson fields. Reading sessions accept category, level, comprehension
+and TTS telemetry and expose five educational achievements.
+
+See [educational-features.md](docs/educational-features.md) for request shapes,
+permissions, scoring and migration details. Adult educational progress uses
+`GET /api/v1/readings/progress`; child educational progress uses
+`GET /api/v1/children/{id}/progress?view=educational`, preserving the existing
+Android list response when no view is requested.

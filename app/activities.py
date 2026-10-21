@@ -1,6 +1,7 @@
 """Only metadata and numeric reading telemetry. Every access is owner-scoped."""
 
 import uuid
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
@@ -9,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import auth, models, schemas
 from app.database import get_db
+from app.educational_progress import EDUCATIONAL_FIELDS, summarize, update_practice
 
 router = APIRouter(prefix="/api/v1", tags=["activities"])
 
@@ -148,6 +150,7 @@ async def start_reading(
     if assigned is None:
         raise HTTPException(404, "Asignación no encontrada.")
     reading = reading_snapshot(document, child_id=child_id)
+    update_practice(reading, payload.model_dump(exclude_unset=True))
     db.add(reading)
     await db.commit()
     await db.refresh(reading)
@@ -159,7 +162,15 @@ def reading_snapshot(document, *, child_id=None, reader_user_id=None):
     # re-adaptations/deletion of the metadata document. Never copy any content.
     metrics = {name: getattr(document, name) for name in models.AdaptationTelemetry.__annotations__}
     return models.ReadingSession(
-        child_id=child_id, reader_user_id=reader_user_id, document_id=document.id, **metrics
+        child_id=child_id,
+        reader_user_id=reader_user_id,
+        document_id=document.id,
+        category=document.category,
+        simplification_level=document.simplification_level,
+        questions_answered=0,
+        questions_correct=0,
+        tts_speed_used=1.0,
+        **metrics,
     )
 
 
@@ -181,6 +192,7 @@ async def start_independent_reading(
 ):
     document = await accessible_document(payload.document_id, user, db)
     reading = reading_snapshot(document, reader_user_id=user.id)
+    update_practice(reading, payload.model_dump(exclude_unset=True))
     db.add(reading)
     await db.commit()
     await db.refresh(reading)
@@ -217,6 +229,24 @@ async def independent_progress(
     return summarize_progress(sessions)
 
 
+@router.get("/readings/progress", response_model=schemas.EducationalProgress)
+async def independent_educational_progress(
+    user: models.User = Depends(auth.require_roles(models.UserRole.ADULTO_INDEPENDIENTE)),
+    db: AsyncSession = Depends(get_db),
+):
+    sessions = (
+        await db.scalars(
+            select(models.ReadingSession)
+            .where(
+                models.ReadingSession.reader_user_id == user.id,
+                models.ReadingSession.child_id.is_(None),
+            )
+            .order_by(models.ReadingSession.started_at, models.ReadingSession.id)
+        )
+    ).all()
+    return summarize(sessions)
+
+
 @router.get("/readings/{reading_id}", response_model=schemas.ReadingRead)
 async def get_reading(
     reading_id: uuid.UUID,
@@ -244,7 +274,7 @@ async def update_reading(
     if reading.document_id:
         await accessible_document(reading.document_id, user, db)
     data = payload.model_dump(exclude_unset=True)
-    if reading.completed:
+    if reading.completed and (not data or set(data) - EDUCATIONAL_FIELDS):
         raise HTTPException(409, "La sesión ya está finalizada.")
     elapsed = max(0, (auth.utcnow() - auth.aware(reading.started_at)).total_seconds())
     if "reading_time_seconds" in data and (
@@ -260,11 +290,33 @@ async def update_reading(
         if data.get("completion_percent", float(reading.completion_percent)) != 100:
             raise HTTPException(422, "La finalización requiere 100 por ciento de avance.")
         reading.ended_at = auth.utcnow()
+    update_practice(reading, data)
     for key, value in data.items():
-        setattr(reading, key, value)
+        if key not in EDUCATIONAL_FIELDS:
+            setattr(reading, key, value)
     await db.commit()
     await db.refresh(reading)
     return reading
+
+
+@router.patch("/children/{child_id}/readings/{reading_id}", response_model=schemas.ReadingRead)
+async def update_child_reading(
+    child_id: uuid.UUID,
+    reading_id: uuid.UUID,
+    payload: schemas.ReadingUpdate,
+    user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    await accessible_child(child_id, user, db)
+    reading = await db.scalar(
+        select(models.ReadingSession).where(
+            models.ReadingSession.id == reading_id,
+            models.ReadingSession.child_id == child_id,
+        )
+    )
+    if reading is None:
+        raise HTTPException(404, "Sesión no encontrada.")
+    return await update_reading(reading_id, payload, user, db)
 
 
 @router.get("/children/{child_id}/readings", response_model=list[schemas.ReadingRead])
@@ -284,14 +336,28 @@ async def readings(
     ).all()
 
 
-@router.get("/children/{child_id}/progress", response_model=list[schemas.SessionProgress])
+@router.get(
+    "/children/{child_id}/progress",
+    response_model=list[schemas.SessionProgress] | schemas.EducationalProgress,
+)
 async def progress(
     child_id: uuid.UUID,
     user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
     db: AsyncSession = Depends(get_db),
+    view: Literal["legacy", "educational"] = Query("legacy"),
 ):
-    sessions = await readings(child_id, user, db)
-    return summarize_progress(sessions)
+    if view == "legacy":
+        sessions = await readings(child_id, user, db)
+        return summarize_progress(sessions)
+    child = await accessible_child(child_id, user, db)
+    sessions = (
+        await db.scalars(
+            select(models.ReadingSession)
+            .where(models.ReadingSession.child_id == child_id)
+            .order_by(models.ReadingSession.started_at, models.ReadingSession.id)
+        )
+    ).all()
+    return summarize(sessions, child.nivel_simplificacion_nlp)
 
 
 def summarize_progress(sessions):

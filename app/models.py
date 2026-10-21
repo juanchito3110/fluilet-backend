@@ -198,6 +198,9 @@ class Document(AdaptationTelemetry, Base):
         ),
         UniqueConstraint("owner_id", "content_sha256", name="uq_owner_content_sha256"),
         CheckConstraint("word_count >= 0 AND chunk_count >= 0", name="ck_document_counts"),
+        CheckConstraint(
+            "simplification_level BETWEEN 1 AND 5", name="ck_document_educational_level"
+        ),
         CheckConstraint(TELEMETRY_CHECK, name="ck_document_acceptance"),
     )
 
@@ -214,6 +217,12 @@ class Document(AdaptationTelemetry, Base):
     word_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     chunk_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0", nullable=False)
     adaptation_method: Mapped[str | None] = mapped_column(String(32))
+    category: Mapped[str] = mapped_column(
+        String(64), default="lectura_libre", server_default="lectura_libre", nullable=False
+    )
+    simplification_level: Mapped[int] = mapped_column(
+        Integer, default=2, server_default="2", nullable=False
+    )
 
     status: Mapped[DocumentStatus] = mapped_column(
         SAEnum(DocumentStatus, name="document_status", native_enum=True),
@@ -269,6 +278,18 @@ class ReadingSession(AdaptationTelemetry, Base):
             name="ck_reading_single_owner",
         ),
         CheckConstraint(TELEMETRY_CHECK, name="ck_reading_acceptance"),
+        CheckConstraint(
+            "simplification_level BETWEEN 1 AND 5", name="ck_reading_educational_level"
+        ),
+        CheckConstraint(
+            "comprehension_score IS NULL OR comprehension_score BETWEEN 0 AND 100",
+            name="ck_reading_comprehension",
+        ),
+        CheckConstraint(
+            "questions_answered BETWEEN 0 AND 10000 AND questions_correct >= 0 AND questions_correct <= questions_answered",
+            name="ck_reading_questions",
+        ),
+        CheckConstraint("tts_speed_used > 0 AND tts_speed_used <= 4", name="ck_reading_tts_speed"),
     )
 
     id: Mapped[uuid.UUID] = _uuid_pk()
@@ -290,6 +311,23 @@ class ReadingSession(AdaptationTelemetry, Base):
     reading_time_seconds: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     completion_percent: Mapped[float] = mapped_column(Numeric(5, 2), default=0, nullable=False)
     completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    category: Mapped[str] = mapped_column(
+        String(64), default="lectura_libre", server_default="lectura_libre", nullable=False
+    )
+    simplification_level: Mapped[int] = mapped_column(
+        Integer, default=2, server_default="2", nullable=False
+    )
+    comprehension_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    questions_answered: Mapped[int] = mapped_column(
+        Integer, default=0, server_default="0", nullable=False
+    )
+    questions_correct: Mapped[int] = mapped_column(
+        Integer, default=0, server_default="0", nullable=False
+    )
+    tts_speed_used: Mapped[float] = mapped_column(
+        Float, default=1.0, server_default="1.0", nullable=False
+    )
 
     child: Mapped["ChildProfile | None"] = relationship(back_populates="reading_sessions")
     document: Mapped["Document"] = relationship(back_populates="reading_sessions")

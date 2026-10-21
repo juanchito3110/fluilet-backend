@@ -129,6 +129,14 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
             assert reading.score_delta == metrics["score_delta"]
             assert reading.original_szigriszt_score == metrics["original_szigriszt_score"]
             assert reading.adapted_szigriszt_score == metrics["adapted_szigriszt_score"]
+            defaults = (
+                await connection.execute(
+                    text(
+                        "SELECT category,simplification_level,comprehension_score,questions_answered,questions_correct,tts_speed_used FROM reading_sessions"
+                    )
+                )
+            ).one()
+            assert tuple(defaults) == ("lectura_libre", 2, None, 0, 0, 1.0)
         # A clean downgrade/upgrade must preserve existing, qualifying snapshots.
         rollback = await migrate("downgrade", "0003_adult_telemetry")
         assert rollback.returncode == 0, rollback.stderr
@@ -155,9 +163,18 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
         async with engine.connect() as connection:
             assert (
                 await connection.scalar(text("SELECT version_num FROM alembic_version"))
-                == "0004_best_effort"
+                == "0004_educational_progress"
             )
             assert await connection.scalar(text("SELECT score_delta FROM reading_sessions")) == 0
+        async with engine.begin() as connection:
+            await connection.execute(
+                text(
+                    "UPDATE reading_sessions SET category='tecnologia', simplification_level=4, comprehension_score=100, questions_answered=2, questions_correct=2, tts_speed_used=1.25"
+                )
+            )
+        educational_rollback = await migrate("downgrade", "0004_best_effort")
+        assert educational_rollback.returncode != 0
+        assert "educational progress requires the current schema" in educational_rollback.stderr
         drift = await migrate("check")
         assert drift.returncode == 0, drift.stdout + drift.stderr
     finally:

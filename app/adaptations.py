@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import auth, models, schemas
+from app import auth, education, models, schemas
 from app.activities import accessible_child
 from app.config import settings
 from app.database import get_db
@@ -19,6 +19,16 @@ from app.nlp.validation import InvalidText, TextTooLarge, validate_text
 router = APIRouter(prefix="/api/v1/adaptations", tags=["adaptations"])
 _slots = asyncio.Semaphore(settings.PROCESSING_CONCURRENCY)
 _adults = auth.require_roles(models.UserRole.TUTOR, models.UserRole.ADULTO_INDEPENDIENTE)
+
+_FILE_BODY = {
+    "requestBody": {
+        "required": True,
+        "content": {
+            "application/pdf": {"schema": {"type": "string", "format": "binary"}},
+            "text/plain": {"schema": {"type": "string", "format": "binary"}},
+        },
+    }
+}
 
 
 async def process(text: str | None, data: bytes | None, media_type: str, level: int):
@@ -47,7 +57,20 @@ async def process(text: str | None, data: bytes | None, media_type: str, level: 
         return result, digest
 
 
-async def persist(result, digest, file_size, file_type, child_id, user, db):
+async def persist(
+    result,
+    digest,
+    file_size,
+    file_type,
+    child_id,
+    user,
+    db,
+    *,
+    category="lectura_libre",
+    level=3,
+    title=None,
+):
+    practice = await asyncio.to_thread(education.questions, result.adapted_text)
     # Serialize metadata upserts per owner, independently of inference execution.
     locked_user = await db.scalar(
         select(models.User)
@@ -80,6 +103,8 @@ async def persist(result, digest, file_size, file_type, child_id, user, db):
     document.word_count = result.metrics["original_word_count"]
     document.chunk_count = len(result.chunks)
     document.adaptation_method = result.method
+    document.category = category
+    document.simplification_level = level
     for key, value in result.metrics.items():
         setattr(document, key, value)
     for chunk in result.chunks:
@@ -103,6 +128,10 @@ async def persist(result, digest, file_size, file_type, child_id, user, db):
         quality_status=result.quality_status,
         warnings=result.warnings
         + ([] if result.meets_readability_target else ["readability_target_not_met"]),
+        title=title or education.title_for(result.adapted_text),
+        category=category,
+        simplification_level=level,
+        comprehension_questions=practice,
     )
 
 
@@ -125,21 +154,15 @@ async def adapt_text(
         payload.child_id,
         user,
         db,
+        level=payload.nivel_simplificacion_nlp,
     )
 
 
+@router.post("/document", response_model=schemas.AdaptationRead, openapi_extra=_FILE_BODY)
 @router.post(
     "/file",
     response_model=schemas.AdaptationRead,
-    openapi_extra={
-        "requestBody": {
-            "required": True,
-            "content": {
-                "application/pdf": {"schema": {"type": "string", "format": "binary"}},
-                "text/plain": {"schema": {"type": "string", "format": "binary"}},
-            },
-        }
-    },
+    openapi_extra=_FILE_BODY,
 )
 async def adapt_file(
     request: Request,
@@ -174,4 +197,29 @@ async def adapt_file(
         child_id,
         user,
         db,
+        level=level,
+    )
+
+
+@router.post("/generate", response_model=schemas.AdaptationRead)
+async def generate_lesson(
+    payload: schemas.LessonGenerate,
+    user: models.User = Depends(_adults),
+    db: AsyncSession = Depends(get_db),
+):
+    if payload.child_id:
+        await accessible_child(payload.child_id, user, db)
+    category, entry = education.lesson(payload.category, payload.topic)
+    result, digest = await process(entry.text, None, "text/plain", payload.simplification_level)
+    return await persist(
+        result,
+        digest,
+        len(entry.text.encode("utf-8")),
+        models.DocumentType.TXT,
+        payload.child_id,
+        user,
+        db,
+        category=category,
+        level=payload.simplification_level,
+        title=entry.title,
     )
