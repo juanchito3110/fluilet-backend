@@ -5,7 +5,7 @@ import pytest
 from app.config import settings
 from app.nlp.chunking import conservative_tokens
 from app.nlp.mt5 import ModelUnavailable, MT5Runtime
-from app.nlp.pipeline import AdaptationError, AdaptationPipeline
+from app.nlp.pipeline import AdaptationPipeline
 from app.nlp.refinement import fidelity_ok, refine
 from tests.conftest import SOURCE
 
@@ -42,7 +42,7 @@ async def test_passing_rules_candidate_avoids_model_generation():
     assert result.metrics["adapted_szigriszt_score"] >= 65
 
 
-async def test_missing_rule_coverage_still_attempts_model_before_abstaining():
+async def test_missing_rule_coverage_attempts_model_before_best_effort():
     class Loaded:
         calls = 0
 
@@ -56,10 +56,10 @@ async def test_missing_rule_coverage_still_attempts_model_before_abstaining():
             return "<extra_id_0>."
 
     model = Loaded()
-    with pytest.raises(AdaptationError, match="acceptance_failed"):
-        await AdaptationPipeline(model).run(
-            "La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. " * 4
-        )
+    result = await AdaptationPipeline(model).run(
+        "La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. " * 4
+    )
+    assert result.quality_status == "best_effort"
     assert model.calls == settings.MAX_GENERATION_ATTEMPTS
 
 
@@ -72,10 +72,12 @@ async def test_extremely_simple_input_maintenance():
 
 
 async def test_no_fabricated_success_when_rules_cannot_improve():
-    with pytest.raises(AdaptationError):
-        await AdaptationPipeline(Offline()).run(
-            "La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. " * 4
-        )
+    text = "La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. " * 4
+    result = await AdaptationPipeline(Offline()).run(text)
+    assert not result.meets_readability_target
+    assert result.metrics["score_delta"] == 0
+    assert result.adapted_text.strip() == text.strip()
+    assert result.method == "original"
 
 
 async def test_bounded_model_attempts_and_fidelity(monkeypatch):
@@ -93,8 +95,10 @@ async def test_bounded_model_attempts_and_fidelity(monkeypatch):
 
     fake = Hallucinating()
     monkeypatch.setattr(settings, "ALLOW_RULE_BASED_FALLBACK", False)
-    with pytest.raises(AdaptationError):
-        await AdaptationPipeline(fake).run(SOURCE)
+    source = "La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. " * 4
+    result = await AdaptationPipeline(fake).run(source)
+    assert result.adapted_text.strip() == source.strip()
+    assert result.quality_status == "best_effort"
     assert fake.calls == settings.MAX_GENERATION_ATTEMPTS
 
 

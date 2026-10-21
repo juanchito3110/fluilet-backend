@@ -40,3 +40,5 @@ ml_training/output/
 *.parquet
 *.arrow
 .cache/huggingface/
+
+.pytest-best-effort-tmp/

@@ -129,6 +129,35 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
             assert reading.score_delta == metrics["score_delta"]
             assert reading.original_szigriszt_score == metrics["original_szigriszt_score"]
             assert reading.adapted_szigriszt_score == metrics["adapted_szigriszt_score"]
+        # A clean downgrade/upgrade must preserve existing, qualifying snapshots.
+        rollback = await migrate("downgrade", "0003_adult_telemetry")
+        assert rollback.returncode == 0, rollback.stderr
+        restored = await migrate("upgrade", "head")
+        assert restored.returncode == 0, restored.stderr
+        # All three constraints must allow below-target but internally consistent
+        # telemetry. A rollback must refuse to erase or invalidate that history.
+        below_target = telemetry(measure(SOURCE), measure(SOURCE))
+        assignments = ", ".join(f"{name} = :{name}" for name in below_target)
+        async with engine.begin() as connection:
+            for table in ("documents", "reading_sessions"):
+                await connection.execute(text(f"UPDATE {table} SET " + assignments), below_target)
+            fields = ", ".join(below_target)
+            values = ", ".join(f":{name}" for name in below_target)
+            await connection.execute(
+                text(
+                    f"INSERT INTO adaptation_chunks (id,document_id,chunk_index,{fields}) VALUES (:id,:document,0,{values})"
+                ),
+                {"id": uuid.uuid4(), "document": document_id, **below_target},
+            )
+        refused = await migrate("downgrade", "0003_adult_telemetry")
+        assert refused.returncode != 0
+        assert "best-effort telemetry requires the current schema" in refused.stderr
+        async with engine.connect() as connection:
+            assert (
+                await connection.scalar(text("SELECT version_num FROM alembic_version"))
+                == "0004_best_effort"
+            )
+            assert await connection.scalar(text("SELECT score_delta FROM reading_sessions")) == 0
         drift = await migrate("check")
         assert drift.returncode == 0, drift.stdout + drift.stderr
     finally:

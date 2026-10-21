@@ -41,22 +41,27 @@ accept multipart. Maximum request size is 5 MiB, checked even without Content-Le
 The file endpoint accepts level/child ID in the query. Use synthetic documents
 when trying requests in Swagger: its browser may retain form contents locally.
 
-A success includes `adapted_text`, `document` metadata and per-chunk numeric
-metrics. Failure returns a controlled 422 without document contents or partial
-adaptations. Busy workers return 503. Never log request/response bodies in clients,
-reverse proxies, APM or application wrappers.
+A success includes `adapted_text`, `document` metadata, per-chunk numeric metrics,
+`meets_readability_target`, `quality_status` (`target_met` or `best_effort`) and
+content-free `warnings`. All valid, in-limit texts at levels 1..5 produce a reading,
+including a single word, long technical sentences and uneven document partitions.
+The safest original is retained when no faithful improvement exists. Below-target
+results are delivered with 200; invalid/empty content returns 422, size violations
+413, and busy workers 503. Never log request/response bodies in clients or proxies.
 
-Both delta >=15 and adapted score >=65 are required, without rounding, for every
-chunk and the whole document. Only originals strictly >128.535 use maintenance
->=85; returning unchanged text then records delta=0 and maintenance_exception=true.
-No score is clamped to 0–100. These are readability criteria, not a clinical
-certification or a guarantee of comprehension or semantic equivalence.
+Delta >=15 and adapted score >=65 remain the unrounded **quality target** for every
+chunk and the whole document, rather than a condition for HTTP success. Originals
+strictly >128.535 use maintenance >=85. Unchanged text records delta=0, without
+claiming an improvement. Scores are not clamped to 0–100. The automatic lexical
+fidelity guard is not a clinical certification or proof of semantic equivalence.
 
-The rule vocabulary includes context-constrained EASIER lexical pairs and bounded
-structural templates; the raw corpus and parallel examples are not redistributed.
-A finite deterministic rewriter cannot guarantee success on every input.
-Unresolvable material returns 422. Relative/coordination rewriting is deliberately
-restricted; ambiguous constructions are preserved.
+The vocabulary includes context-constrained EASIER pairs and bounded structural
+rules. Restrictive relatives, diagnostic populations, numbers and negations are
+preserved. Optional model attempts have a total budget of at most eight seconds;
+missing weights, unsuccessful generation or timeouts cannot discard a safe reading.
+A request processing timeout returns the original with `processing_budget_exceeded`.
+Sentence chunks are grouped linearly; an unsplittable sentence remains intact for
+rules/original delivery and is skipped by mT5 if its token budget is exceeded.
 
 ## Optional local model
 
@@ -65,14 +70,15 @@ requirements in a suitable Python/GPU environment (see `ml_training/README.md`),
 then place the trained model and tokenizer in a local checkpoint directory and set
 `MT5_CHECKPOINT`. Weights are excluded from Git and Docker contexts. Mount the
 checkpoint read-only in production. `MT5_LOCAL_FILES_ONLY=true` prevents downloads;
-missing dependencies/cache use rules if `ALLOW_RULE_BASED_FALLBACK=true`.
+missing dependencies/cache use deterministic rules and the original-text fallback.
+`ALLOW_RULE_BASED_FALLBACK` is retained for configuration compatibility; it cannot
+disable the mandatory safe reading fallback.
 
 Official base mT5 provides .bin weights: loading uses PyTorch >=2.6 with
 weights_only=True and prefers Safetensors when present. Trained checkpoints are
 saved as Safetensors. No remote Python model code is trusted.
 
-Base mT5 is not fine-tuned for simplification. The response records method `rules`
-or `hybrid`; inference never claims a trained checkpoint exists when it does not.
+Base mT5 is not fine-tuned for simplification. The response records method `rules`, `hybrid` or `original`; inference never claims a trained checkpoint exists when it does not.
 Load is lazy; restart the API after installing dependencies/checkpoints to retry a
 previously unavailable load. Generation uses deterministic beams; temperature is
 not passed with `do_sample=false` because it would have no effect.
@@ -81,8 +87,8 @@ The measured lightweight EASIER experiment and its limitations are documented in
 [ml-evaluation.md](docs/ml-evaluation.md). Its checkpoint failed acceptance on the
 exploratory test sample and remains excluded from the runtime configuration.
 The complete hybrid system evaluates a deterministic candidate before generating
-with mT5, applies the same fidelity/readability gates, and explicitly abstains on
-unsupported inputs. Its acceptance coverage and conditional compliance are measured
+with mT5, retains fidelity checks and reports readability targets separately from delivery.
+Its quality coverage and conditional compliance are measured
 separately on EASIER and on a disclosed synthetic diagnostic fixture.
 The six EASIER cases now explicitly inform rule calibration (5/6 accepted); a
 separate 12-document internal audit remains 0/12. See the report for the distinction
@@ -91,7 +97,7 @@ between calibration coverage, generalization and automatic fidelity checks.
 `GET /health/ready` returns 200 when PostgreSQL and the configured pipeline are
 operative, including deterministic-only service. It reports `engine_mode` and runs
 a small fixed CPU probe without loading model weights. Database or pipeline failure
-returns 503; document-specific rejection by the gate remains 422.
+returns 503. A below-target reading remains available with HTTP 200.
 
 ## Independent adult readings
 

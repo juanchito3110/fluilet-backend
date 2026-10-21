@@ -13,7 +13,8 @@ from app.activities import accessible_child
 from app.config import settings
 from app.database import get_db
 from app.ingestion import IngestionError, clean_text, extract_safely, read_stream
-from app.nlp.pipeline import AdaptationError, pipeline
+from app.nlp.pipeline import original_result, pipeline
+from app.nlp.validation import InvalidText, TextTooLarge, validate_text
 
 router = APIRouter(prefix="/api/v1/adaptations", tags=["adaptations"])
 _slots = asyncio.Semaphore(settings.PROCESSING_CONCURRENCY)
@@ -27,23 +28,23 @@ async def process(text: str | None, data: bytes | None, media_type: str, level: 
         )
     async with _slots:
         try:
+            source = (
+                await asyncio.to_thread(clean_text, text)
+                if text is not None
+                else await extract_safely(data, media_type)
+            )
+            await asyncio.to_thread(validate_text, source)
+        except TextTooLarge:
+            raise HTTPException(413, "El documento supera el límite permitido.") from None
+        except (InvalidText, IngestionError):
+            raise HTTPException(422, "El documento no contiene texto válido.") from None
+        try:
             async with asyncio.timeout(settings.PROCESSING_TIMEOUT_SECONDS):
-                source = (
-                    await asyncio.to_thread(clean_text, text)
-                    if text is not None
-                    else await extract_safely(data, media_type)
-                )
                 result = await pipeline.run(source, level)
-                digest = hashlib.sha256(source.encode("utf-8")).hexdigest()
-                return result, digest
-        except (AdaptationError, IngestionError, ValueError):
-            raise HTTPException(
-                422, "No fue posible obtener una adaptación válida para este documento."
-            ) from None
         except TimeoutError:
-            raise HTTPException(
-                422, "No fue posible completar la adaptación dentro del límite de tiempo."
-            ) from None
+            result = await asyncio.to_thread(original_result, source, "processing_budget_exceeded")
+        digest = hashlib.sha256(source.encode("utf-8")).hexdigest()
+        return result, digest
 
 
 async def persist(result, digest, file_size, file_type, child_id, user, db):
@@ -98,6 +99,10 @@ async def persist(result, digest, file_size, file_type, child_id, user, db):
         document=schemas.DocumentRead.model_validate(document),
         adapted_text=result.adapted_text,
         chunks=result.chunks,
+        meets_readability_target=result.meets_readability_target,
+        quality_status=result.quality_status,
+        warnings=result.warnings
+        + ([] if result.meets_readability_target else ["readability_target_not_met"]),
     )
 
 

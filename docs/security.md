@@ -99,3 +99,11 @@ Migration 0003 adds independent-adult ownership and immutable-at-API numeric rea
 snapshots. It preserves existing child IDs and backfills scores from related
 metadata documents, with no content reconstruction. A database XOR constraint
 requires exactly one child/user owner. Downgrade refuses to erase adult sessions.
+
+Migration 0004 separates quality thresholds from telemetry integrity. Documents,
+chunks and sessions may record truthful below-target scores, including delta=0.
+Non-null snapshots, positive counts, finite bounded scores, the exact delta and
+maintenance-exception consistency remain enforced. No text columns are added.
+Downgrade refuses when a best-effort snapshot would violate the previous schema;
+it never deletes readings to force a rollback. Existing qualifying snapshots and
+legacy null snapshots survive an upgrade/downgrade round trip.

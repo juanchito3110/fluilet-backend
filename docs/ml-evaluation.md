@@ -2,6 +2,37 @@
 
 **Fluilet · 20 de octubre de 2026 (entrenamiento: 19 de octubre) · Entregable para el asesor Aldo Maciel**
 
+## Política de entrega vigente desde el 21 de octubre de 2026
+
+Por decisión de producto, la doble condición es ahora un **objetivo de calidad**,
+no una causa de rechazo HTTP. Una entrada válida dentro de límites se entrega
+con 200 como `target_met` o `best_effort`, conservando el original cuando no hay
+mejora fiel. Los puntajes, delta, números y negaciones siguen comprobándose;
+ninguna entrega por debajo del objetivo cuenta como cumplimiento matemático.
+`evaluate.py` informa `delivery_rate` por separado de `acceptance_rate` y conserva
+las métricas de calidad únicamente sobre salidas que cumplen el objetivo.
+
+La regresión del emulador se reproduce con mT5 no disponible y las reglas activas:
+
+| Texto manual | Niveles | Original | Adaptado | Delta | Objetivo | HTTP |
+|---|---|---:|---:|---:|---|---|
+| A: estímulos y comprensión lectora | 1, 2, 3, 4, 5 | -29,152097 | 65,420965 | 94,573062 | Cumple | 200 |
+| B: materiales y herramientas escolares | 1, 2, 3, 4, 5 | -13,586875 | 59,851667 | 73,438542 | Mejor esfuerzo: puntaje <65 | 200 |
+
+Los valores se muestran redondeados solo en esta tabla; las decisiones usan
+flotantes sin redondear. Las frases explicitan el grupo de niños diagnosticados
+y el grupo de alumnos con dificultades, sin convertir relativos restrictivos en
+hechos sobre todos los lectores. Esto es una regresión funcional, no un nuevo
+entrenamiento ni evidencia clínica. Se verifica también texto de una palabra,
+texto técnico sin sustituciones, documentos largos, oraciones sin punto, TXT/PDF,
+los cinco niveles y sesiones infantiles/adultas con métricas por debajo del objetivo.
+Reproducción: `python -m pytest tests/test_best_effort.py -q`.
+
+**Evidencia histórica:** todas las tablas y archivos de métricas que siguen son
+resultados del 19–20 de octubre, bajo la puerta de rechazo anterior. Los valores
+«422» y «rechazo» de esos experimentos describen esa versión, no el comportamiento
+actual. No se han recalculado esas corridas de mT5 en este cambio funcional.
+
 La calibración solicitada incorpora pares léxicos EASIER y plantillas sintácticas
 con restricciones de contexto. El sistema completo mejora de **0/6 a 5/6 (83,33 %)**
 en los seis casos EASIER usados para diseñar estas reglas. En las cinco entradas

@@ -43,7 +43,7 @@ async def test_only_metadata_in_sql_and_duplicate_telemetry_is_upserted(
 
 async def test_failed_adaptation_does_not_persist_or_expose_content(client, db, make_user, caplog):
     _, headers, _ = await make_user()
-    private = "confidential-unprocessable-marker"
+    private = "\x00\x01\x02"
     response = await client.post(
         "/api/v1/adaptations/text", headers=headers, json={"text": private}
     )
@@ -140,7 +140,7 @@ async def test_rate_limit_no_username_bucket(client, make_user, monkeypatch):
     assert response.status_code == 429 and response.headers["retry-after"] == "60"
 
 
-async def test_database_refuses_noncompliant_telemetry(db, make_user):
+async def test_database_refuses_inconsistent_telemetry(db, make_user):
     import pytest
     from sqlalchemy.exc import IntegrityError
 
@@ -151,7 +151,7 @@ async def test_database_refuses_noncompliant_telemetry(db, make_user):
         file_size_bytes=20,
         original_szigriszt_score=60.0,
         adapted_szigriszt_score=65.0,
-        score_delta=5.0,
+        score_delta=99.0,
         original_word_count=20,
         adapted_word_count=20,
         original_syllable_count=30,

@@ -1,17 +1,16 @@
-"""Bounded hybrid inference. Failed documents never return partial adaptations."""
+"""Bounded hybrid inference with faithful best-effort delivery for valid text."""
 
 import asyncio
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from app.config import settings
-from app.nlp.chunking import ChunkingError, chunk_text, conservative_tokens
 from app.nlp.mt5 import ModelUnavailable, runtime
 from app.nlp.readability import Readability, accepted, measure, telemetry
 from app.nlp.refinement import fidelity_ok, refine
+from app.nlp.validation import InvalidText, meets_target, reading_chunks
 
-
-class AdaptationError(ValueError):
-    pass
+# Compatibility import for callers; only invalid inputs are adaptation errors.
+AdaptationError = InvalidText
 
 
 @dataclass
@@ -19,6 +18,7 @@ class ChunkResult:
     adapted_text: str
     original: Readability
     adapted: Readability
+    method: str = "original"
 
 
 @dataclass
@@ -27,6 +27,30 @@ class AdaptationResult:
     metrics: dict
     chunks: list[dict]
     method: str
+    warnings: list[str] = field(default_factory=list)
+
+    @property
+    def meets_readability_target(self) -> bool:
+        return meets_target(self.metrics) and all(meets_target(chunk) for chunk in self.chunks)
+
+    @property
+    def quality_status(self) -> str:
+        return "target_met" if self.meets_readability_target else "best_effort"
+
+
+def original_result(text: str, warning: str | None = None) -> AdaptationResult:
+    chunks = reading_chunks(text)
+    metrics = telemetry(measure(text), measure(text))
+    return AdaptationResult(
+        text,
+        metrics,
+        [
+            {"chunk_index": i, **telemetry(measure(chunk), measure(chunk))}
+            for i, chunk in enumerate(chunks)
+        ],
+        "original",
+        ["original_text_retained"] + ([warning] if warning else []),
+    )
 
 
 class AdaptationPipeline:
@@ -39,107 +63,96 @@ class AdaptationPipeline:
             "Los alumnos utilizan libros y posteriormente realizan actividades con sus amigos "
             "en la escuela. "
         ) * 2
-        chunks = chunk_text(sample, conservative_tokens)
-        candidate = refine(chunks[0])
-        rules_operational = fidelity_ok(sample, candidate) and accepted(
-            measure(sample), measure(candidate)
-        )
-        model_loaded = self.model.is_loaded
-        usable = rules_operational and (settings.ALLOW_RULE_BASED_FALLBACK or model_loaded)
-        mode = (
-            "hybrid"
-            if usable and model_loaded and settings.ALLOW_RULE_BASED_FALLBACK
-            else "mt5_refinement"
-            if usable and model_loaded
-            else "deterministic"
-            if usable
-            else "unavailable"
-        )
+        candidate = refine(sample)
+        usable = fidelity_ok(sample, candidate) and accepted(measure(sample), measure(candidate))
+        loaded = self.model.is_loaded
         return {
             "pipeline": "operational" if usable else "unavailable",
-            "engine_mode": mode,
+            "engine_mode": (
+                "hybrid"
+                if usable and loaded and settings.ALLOW_RULE_BASED_FALLBACK
+                else "mt5_refinement"
+                if usable and loaded
+                else "deterministic"
+                if usable
+                else "unavailable"
+            ),
             "model": self.model.state,
-            "rules_fallback": settings.ALLOW_RULE_BASED_FALLBACK,
+            "rules_fallback": True,
         }
 
     @staticmethod
-    async def accept_candidate(source, original, candidate):
-        if not await asyncio.to_thread(fidelity_ok, source, candidate):
+    async def accept_candidate(source, original, candidate, method="rules"):
+        if candidate != source and not await asyncio.to_thread(fidelity_ok, source, candidate):
             return None
         try:
             adapted = await asyncio.to_thread(measure, candidate)
         except ValueError:
             return None
-        return ChunkResult(candidate, original, adapted) if accepted(original, adapted) else None
+        return ChunkResult(candidate, original, adapted, method)
 
     async def run(self, text: str, level: int = 3) -> AdaptationResult:
-        model_available = True
-        try:
-            await self.model.prepare()
-        except ModelUnavailable:
-            model_available = False
-        if not model_available and not settings.ALLOW_RULE_BASED_FALLBACK:
-            raise AdaptationError("model_unavailable")
-        try:
-            chunks = await asyncio.to_thread(
-                chunk_text,
-                text,
-                self.model.count_tokens,
-                settings.MT5_MAX_INPUT_TOKENS,
-                settings.MAX_DOCUMENT_WORDS,
-            )
-        except ChunkingError:
-            raise AdaptationError("chunking_failed") from None
+        chunks = await asyncio.to_thread(reading_chunks, text)
         results = []
-        used_model = False
+        # First compute a complete safe result. Optional model loading/generation
+        # may exhaust its budget, but cannot remove this reading from the user.
         for chunk in chunks:
             original = await asyncio.to_thread(measure, chunk)
-            if original.score > 128.535:
-                # Explicit CTO exception: unchanged text is the most faithful
-                # maintenance candidate, not a fictitious 15-point improvement.
-                results.append(ChunkResult(chunk, original, original))
-                continue
-            chosen = None
-            for attempt in range(settings.MAX_GENERATION_ATTEMPTS):
-                # A passing deterministic candidate is sufficient: do not spend
-                # model inference or let an invalid generation hide this expert.
-                if settings.ALLOW_RULE_BASED_FALLBACK:
+            chosen = ChunkResult(chunk, original, original)
+            if not accepted(original, original):
+                for attempt in range(settings.MAX_GENERATION_ATTEMPTS):
                     candidate = await asyncio.to_thread(refine, chunk, attempt, level)
-                    chosen = await self.accept_candidate(chunk, original, candidate)
-                    if chosen:
-                        break
-                candidates = []
-                if model_available:
-                    try:
-                        generated = await self.model.generate(chunk, attempt)
-                        candidates.extend(
-                            [
-                                (generated, "mt5"),
-                                (
-                                    await asyncio.to_thread(refine, generated, attempt, level),
-                                    "hybrid",
-                                ),
-                            ]
-                        )
-                    except ModelUnavailable:
-                        model_available = False
-                for candidate, method in candidates:
-                    chosen = await self.accept_candidate(chunk, original, candidate)
-                    if chosen:
-                        used_model |= method in {"mt5", "hybrid"}
-                        break
-                if chosen:
-                    break
-            if chosen is None:
-                raise AdaptationError("acceptance_failed")
+                    checked = await self.accept_candidate(chunk, original, candidate)
+                    if checked and checked.adapted.score > chosen.adapted.score:
+                        chosen = checked
             results.append(chosen)
-        combined = "\n\n".join(item.adapted_text for item in results)
+
+        async def model_pass():
+            await self.model.prepare()
+            for i, chunk in enumerate(chunks):
+                chosen = results[i]
+                if accepted(chosen.original, chosen.adapted):
+                    continue
+                token_count = await asyncio.to_thread(self.model.count_tokens, chunk)
+                if token_count > settings.MT5_MAX_INPUT_TOKENS:
+                    continue
+                for attempt in range(settings.MAX_GENERATION_ATTEMPTS):
+                    generated = await self.model.generate(chunk, attempt)
+                    refined = await asyncio.to_thread(refine, generated, attempt, level)
+                    for candidate, method in [(generated, "mt5"), (refined, "hybrid")]:
+                        checked = await self.accept_candidate(
+                            chunk, chosen.original, candidate, method
+                        )
+                        if checked and checked.adapted.score > chosen.adapted.score:
+                            chosen = checked
+                            results[i] = chosen
+                    if accepted(chosen.original, chosen.adapted):
+                        break
+
+        if any(not accepted(item.original, item.adapted) for item in results):
+            try:
+                async with asyncio.timeout(min(8.0, settings.PROCESSING_TIMEOUT_SECONDS / 2)):
+                    await model_pass()
+            except (ModelUnavailable, TimeoutError):
+                pass
+        if all(item.method == "original" for item in results):
+            return await asyncio.to_thread(original_result, text)
+        # Chunk boundaries are transport boundaries, not new linguistic sentences.
+        combined = " ".join(item.adapted_text for item in results)
         original_total = await asyncio.to_thread(measure, text)
         adapted_total = await asyncio.to_thread(measure, combined)
-        if not accepted(original_total, adapted_total) or not await asyncio.to_thread(
-            fidelity_ok, text, combined
+        if adapted_total.score < original_total.score or (
+            combined != text and not await asyncio.to_thread(fidelity_ok, text, combined)
         ):
-            raise AdaptationError("document_acceptance_failed")
+            return await asyncio.to_thread(original_result, text)
+        methods = {item.method for item in results}
+        method = (
+            "hybrid"
+            if methods & {"mt5", "hybrid"}
+            else "rules"
+            if "rules" in methods
+            else "original"
+        )
         return AdaptationResult(
             combined,
             telemetry(original_total, adapted_total),
@@ -147,7 +160,8 @@ class AdaptationPipeline:
                 {"chunk_index": i, **telemetry(item.original, item.adapted)}
                 for i, item in enumerate(results)
             ],
-            "hybrid" if used_model else "rules",
+            method,
+            ["original_text_retained"] if method == "original" else [],
         )
 
 

@@ -3,7 +3,7 @@
 import re
 import uuid
 from datetime import date, datetime
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import (
     BaseModel,
@@ -11,6 +11,7 @@ from pydantic import (
     ConfigDict,
     EmailStr,
     Field,
+    computed_field,
     field_validator,
     model_validator,
 )
@@ -197,6 +198,18 @@ class TelemetryRead(BaseModel):
     sentence_count: int | None
     maintenance_exception: bool
 
+    @computed_field
+    @property
+    def meets_readability_target(self) -> bool | None:
+        original, adapted = self.original_szigriszt_score, self.adapted_szigriszt_score
+        if original is None or adapted is None:
+            return None
+        return (
+            adapted >= 85.0
+            if original > 128.535
+            else adapted >= 65.0 and adapted - original >= 15.0
+        )
+
 
 class DocumentRead(TelemetryRead):
     id: uuid.UUID
@@ -224,6 +237,9 @@ class AdaptationRead(BaseModel):
     document: DocumentRead
     adapted_text: str
     chunks: list[ChunkRead]
+    meets_readability_target: bool
+    quality_status: Literal["target_met", "best_effort"]
+    warnings: list[str]
 
 
 class AssignmentRequest(InputModel):

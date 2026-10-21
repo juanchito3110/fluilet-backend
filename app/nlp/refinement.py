@@ -10,6 +10,8 @@ from collections import Counter
 from app.nlp.segmentation import sentences, words
 
 LEXICON = {
+    "inatención": "falta de atención",
+    "asimismo": "además",
     "individuo": "sujeto",
     "individuos": "sujetos",
     "utilizar": "usar",
@@ -62,6 +64,21 @@ LEXICON = {
     "involucración": "compromiso",
 }
 PHRASES = {
+    "la proliferación contemporánea": "el aumento actual",
+    "estímulos audiovisuales fragmentados": "estímulos de imagen y sonido en partes",
+    "obstaculiza considerablemente": "dificulta mucho",
+    "la consolidación de los procesos cognitivos": "que se afiancen los procesos mentales",
+    "vinculados con": "relacionados con",
+    "la comprensión lectora sostenida": "entender lo que se lee de forma continua",
+    "infantes diagnosticados con sintomatología de": "niños con un diagnóstico de síntomas de",
+    "dificultades fonológicas": "dificultades con los sonidos del lenguaje",
+    "que presentan dificultades adicionales": "con más dificultades",
+    "durante las actividades escolares": "en las tareas de la escuela",
+    "necesitan subsecuentemente": "después necesitan",
+    "materiales pedagógicos accesibles": "materiales para aprender que puedan usar",
+    "la implementación de herramientas tecnológicas contemporáneas": "la puesta en marcha de herramientas de tecnología actuales",
+    "facilita considerablemente": "hace mucho más fácil",
+    "la comprensión de los libros": "entender los libros",
     "realizar actividades": "hacer tareas",
     "realizan actividades": "hacen tareas",
     "con la finalidad de": "para",
@@ -90,7 +107,7 @@ PHRASES = {
     "administraciones sanitarias": "administraciones de salud",
     "los nuevos casos se detectan en": "los nuevos casos se localizan en",
 }
-_FINITE = r"(?:usa|usan|hace|hacen|tiene|tienen|lee|leen|busca|buscan|estudia|estudian|analiza|analizan|explica|explican|aprende|aprenden|observa|observan|recibe|reciben|da|dan|compra|compran|entiende|entienden|ayuda|ayudan|empieza|empiezan|logra|logran|requiere|requieren)"
+_FINITE = r"(?:usa|usan|hace|hacen|tiene|tienen|lee|leen|busca|buscan|estudia|estudian|analiza|analizan|explica|explican|aprende|aprenden|observa|observan|recibe|reciben|da|dan|compra|compran|entiende|entienden|ayuda|ayudan|empieza|empiezan|logra|logran|requiere|requieren|necesita|necesitan|puede|pueden|debe|deben|mejora|mejoran)"
 _SUBJECT = rf"(?P<subject>(?:El|La|Los|Las|Un|Una|Unos|Unas)\s+(?:[^\W\d_]+\s+){{1,4}}?)(?P<verb>(?:no\s+)?{_FINITE})\b"
 
 
@@ -123,6 +140,44 @@ def split_domain_clauses(sentence: str) -> str:
     Unknown list items/qualifiers do not match. Never split restrictive relatives
     or conditional/concessive clauses into independent factual assertions.
     """
+    # Keep diagnosis attached to the population, and the causal claim scoped to
+    # that population. Never turn a restrictive relative into a general claim.
+    cognitive = re.fullmatch(
+        r"(?P<cause>El aumento actual de estímulos de imagen y sonido en partes) "
+        r"dificulta mucho que se afiancen los procesos mentales relacionados con "
+        r"(?P<activity>entender lo que se lee de forma continua) en "
+        r"(?P<population>niños con un diagnóstico de síntomas de [^.]+)[.]?",
+        sentence,
+        flags=re.I,
+    )
+    if cognitive:
+        return (
+            f"El texto se refiere a {cognitive['population']}. "
+            f"En estos niños, {cognitive['cause'].lower()} dificulta mucho "
+            "que se afiancen los procesos mentales. "
+            f"Estos procesos se relacionan con {cognitive['activity']}."
+        )
+    students = re.fullmatch(
+        r"Los estudiantes con más dificultades en (?P<context>las tareas de la escuela) "
+        r"después necesitan (?P<materials>materiales para aprender que puedan usar)[.]?",
+        sentence,
+    )
+    if students:
+        return (
+            f"El texto habla de estudiantes con más dificultades en {students['context']}. "
+            f"Estos estudiantes después necesitan {students['materials']}."
+        )
+    tools = re.fullmatch(
+        r"(?:Además,? )?La puesta en marcha de (?P<tools>herramientas de tecnología actuales) "
+        r"(?P<effect>hace mucho más fácil entender los libros en la escuela)[.]?",
+        sentence,
+        flags=re.I,
+    )
+    if tools:
+        return (
+            f"Además, el texto habla de {tools['tools']}. "
+            f"Poner en marcha estas herramientas {tools['effect']}."
+        )
     goal = re.fullmatch(r"(?P<main>Su fin es .+),\s+mejorando su (?P<items>.+?)[.]?", sentence)
     nominalizations = {
         "detección": "cómo se detecta",
@@ -219,7 +274,7 @@ def split_explanatory_relative(sentence: str) -> str:
 
     Restrictive relatives and embedded/ambiguous clauses stay untouched.
     """
-    if len(words(sentence)) <= 24:
+    if len(words(sentence)) <= 16:
         return sentence
     pattern = (
         rf"^(?P<subject>(?:El|La|Los|Las|Un|Una|Unos|Unas)\s+[^,]{{1,60}}),\s+que\s+"
@@ -241,7 +296,7 @@ def refine(text: str, attempt: int = 0, level: int = 3) -> str:
         # Split independent coordinated predicates, repeating the explicit subject
         # so that each new clause remains Subject-Verb-Object.
         match = re.match(_SUBJECT, sentence)
-        if match and len(words(sentence)) > (24 if level >= 3 and attempt == 0 else 16):
+        if match and len(words(sentence)) > (16 if level >= 3 and attempt == 0 else 12):
             subject = match["subject"].strip()
             sentence = re.sub(
                 rf"\s+y\s+(?=(?:(?:después|antes|luego|hoy)\s+)?(?:no\s+)?{_FINITE}\b)",

@@ -39,14 +39,16 @@ async def test_ready_reports_loaded_engine_mode(client, monkeypatch, fallback, m
     assert response.status_code == 200 and response.json()["engine_mode"] == mode
 
 
-async def test_ready_requires_real_model_objects_when_rules_disabled(client, monkeypatch):
+async def test_ready_keeps_mandatory_reading_fallback_when_legacy_flag_disabled(
+    client, monkeypatch
+):
     monkeypatch.setattr(settings, "ALLOW_RULE_BASED_FALLBACK", False)
     monkeypatch.setattr(runtime, "state", "loaded")
     monkeypatch.setattr(runtime, "_model", None)
     response = await client.get("/health/ready")
-    assert response.status_code == 503
+    assert response.status_code == 200
     assert response.json()["database"] == "operational"
-    assert response.json()["engine_mode"] == "unavailable"
+    assert response.json()["engine_mode"] == "deterministic"
 
 
 async def test_ready_reports_database_failure_without_exception_details(client, db, monkeypatch):

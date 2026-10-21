@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     MT5_TIMEOUT_SECONDS: float = Field(default=20, gt=0, le=120)
     MT5_MAX_INPUT_TOKENS: int = Field(default=4096, ge=128, le=8192)
     MT5_MAX_NEW_TOKENS: int = Field(default=2048, ge=32, le=4096)
+    # Legacy configuration retained; faithful best-effort delivery is mandatory.
     ALLOW_RULE_BASED_FALLBACK: bool = True
     REQUESTS_PER_MINUTE: int = Field(default=120, ge=1)
     AUTH_REQUESTS_PER_MINUTE: int = Field(default=15, ge=1)

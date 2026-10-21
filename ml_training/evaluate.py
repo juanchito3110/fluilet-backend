@@ -122,8 +122,17 @@ async def evaluate_hybrid(rows, model, tokenizer, args):
             outcome = {"document_id": row.get("document_id"), "category": row.get("category")}
             try:
                 result = await pipeline.run(row["source"])
-                outcome.update({"accepted": True, "method": result.method, **result.metrics})
-                outputs.append({**row, "prediction": result.adapted_text})
+                outcome.update(
+                    {
+                        "delivered": True,
+                        "accepted": result.meets_readability_target,
+                        "quality_status": result.quality_status,
+                        "method": result.method,
+                        **result.metrics,
+                    }
+                )
+                if result.meets_readability_target:
+                    outputs.append({**row, "prediction": result.adapted_text})
             except AdaptationError as error:
                 outcome.update({"accepted": False, "reason": str(error)})
             duration = time.perf_counter() - started
@@ -159,7 +168,9 @@ def summarize_hybrid(rows, outputs, outcomes, durations, model_calls):
         "original_score_all_inputs": mean(measure(row["source"]).score for row in rows),
         "accepted_examples": len(outputs),
         "acceptance_rate": len(outputs) / len(rows),
-        "abstention_rate": 1 - len(outputs) / len(rows),
+        "below_target_rate": 1 - len(outputs) / len(rows),
+        "delivery_rate": sum(item.get("delivered", item["accepted"]) for item in outcomes)
+        / len(rows),
         "strict_double_condition_rate_all_inputs": strict / len(rows),
         "strict_compliance_nonmaintenance_accepted": strict / len(ordinary) if ordinary else None,
         "maintenance_accepted_examples": len(outputs) - len(ordinary),
@@ -167,7 +178,7 @@ def summarize_hybrid(rows, outputs, outcomes, durations, model_calls):
         if outputs
         else None,
         "model_generation_calls": model_calls,
-        "engine_policy": "deterministic candidate first; then mT5 + refinement; bounded retries; chunk/document gates",
+        "engine_policy": "deterministic candidate first; bounded mT5 refinement; faithful best effort; advisory quality targets",
         "timing": timing_summary(durations),
         "accepted_only_metrics": metrics,
         "method_counts": dict(Counter(item.get("method", "rejected") for item in outcomes)),

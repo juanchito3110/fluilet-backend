@@ -69,7 +69,7 @@ or `unavailable`), plus the lazy `model` state and `rules_fallback` when checked
 input-specific 422 rejections and transient inference saturation do not make the
 service globally unready. Readiness is an operational check, not a quality claim.
 API errors never echo rejected field values. 401/403/404 protect identity/ownership;
-413 limits size, 415 rejects format, 422 rejects invalid/unacceptable adaptations,
+413 limits size, 415 rejects format, 422 rejects malformed/empty content or invalid fields,
 429 rate-limits, 503 rejects worker saturation. All responses use Cache-Control:
 no-store. Use TLS and disable body logging in release and debug workflows involving
 real user documents.
@@ -90,3 +90,26 @@ is still populated on every child session, and is null only for independent adul
 The database requires exactly one identity source per session. API callers cannot
 supply owner IDs or scores. Snapshots survive re-adaptation/deletion of documents;
 legacy sessions receive available document metrics during migration, otherwise NULL.
+
+## Best-effort readings (21 October 2026)
+
+Valid text at every NLP level 1..5 is delivered with HTTP 200 even when its
+readability target is unmet. No minimum of 20 words applies to the reading API.
+The existing `adapted_text`, `document` and `chunks` fields remain compatible.
+Additional response fields:
+
+- `quality_status`: `target_met` or `best_effort`.
+- `meets_readability_target`: true only when document **and every chunk** meet
+  the unrounded delta >=15 and score >=65, or the existing maintenance exception.
+- `warnings`: codes such as `readability_target_not_met`, `original_text_retained`,
+  or `processing_budget_exceeded`; these never contain user text.
+
+Document, chunk and reading telemetry also exposes a derived
+`meets_readability_target` (null for legacy scores). A reading snapshot still
+preserves its actual numeric scores if a document is later re-adapted or deleted.
+A 200 response indicates a usable reading response, not a quality certification.
+
+The original is retained if no candidate passes the fidelity guard or improves
+its score. Input/format/authentication/resource limits and ownership checks still
+apply. Apply Alembic revision `0004_best_effort` before serving this version;
+it updates telemetry CHECK constraints without adding text storage or columns.

@@ -214,3 +214,21 @@ async def test_hybrid_evaluation_restores_settings_and_records_expert_attributio
     assert result["accepted_examples"] == 1 and result["model_generation_calls"] == 0
     assert result["method_counts"] == {"rules": 1}
     assert result["strict_compliance_nonmaintenance_accepted"] == 1
+
+
+async def test_hybrid_evaluation_does_not_count_best_effort_as_quality_success():
+    from types import SimpleNamespace
+
+    from ml_training.evaluate import evaluate_hybrid
+    from tests.test_best_effort import TECHNICAL
+
+    result = await evaluate_hybrid(
+        [{"document_id": "unsupported", "source": TECHNICAL, "target": TECHNICAL}],
+        object(),
+        SimpleNamespace(encode=lambda *args, **kwargs: [1] * 200),
+        SimpleNamespace(max_input_tokens=128, max_new_tokens=64),
+    )
+    assert result["delivery_rate"] == 1
+    assert result["acceptance_rate"] == 0
+    assert result["outcomes"][0]["quality_status"] == "best_effort"
+    assert result["accepted_only_metrics"] is None
