@@ -148,5 +148,5 @@ and TTS telemetry and expose five educational achievements.
 See [educational-features.md](docs/educational-features.md) for request shapes,
 permissions, scoring and migration details. Adult educational progress uses
 `GET /api/v1/readings/progress`; child educational progress uses
-`GET /api/v1/children/{id}/progress?view=educational`, preserving the existing
-Android list response when no view is requested.
+`GET /api/v1/children/{id}/progress` and returns the educational JSON by default.
+The previous Android list is available at `/api/v1/children/{id}/progress/legacy`.

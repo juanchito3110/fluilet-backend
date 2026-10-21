@@ -1,7 +1,6 @@
 """Only metadata and numeric reading telemetry. Every access is owner-scoped."""
 
 import uuid
-from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
@@ -338,17 +337,13 @@ async def readings(
 
 @router.get(
     "/children/{child_id}/progress",
-    response_model=list[schemas.SessionProgress] | schemas.EducationalProgress,
+    response_model=schemas.EducationalProgress,
 )
 async def progress(
     child_id: uuid.UUID,
     user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
     db: AsyncSession = Depends(get_db),
-    view: Literal["legacy", "educational"] = Query("legacy"),
 ):
-    if view == "legacy":
-        sessions = await readings(child_id, user, db)
-        return summarize_progress(sessions)
     child = await accessible_child(child_id, user, db)
     sessions = (
         await db.scalars(
@@ -358,6 +353,16 @@ async def progress(
         )
     ).all()
     return summarize(sessions, child.nivel_simplificacion_nlp)
+
+
+@router.get("/children/{child_id}/progress/legacy", response_model=list[schemas.SessionProgress])
+async def legacy_progress(
+    child_id: uuid.UUID,
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
+):
+    sessions = await readings(child_id, user, db)
+    return summarize_progress(sessions)
 
 
 def summarize_progress(sessions):

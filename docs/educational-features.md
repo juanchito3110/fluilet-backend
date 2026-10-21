@@ -102,11 +102,13 @@ el documento asociado.
 El resumen educativo está disponible en:
 
 - Adulto independiente: `GET /api/v1/readings/progress`.
-- Tutor de un perfil: `GET /api/v1/children/{child_id}/progress?view=educational`.
+- Tutor de un perfil: `GET /api/v1/children/{child_id}/progress`.
 
-**Compatibilidad Android:** sin `view=educational`, la ruta infantil sigue
-respondiendo la lista `SessionProgress` anterior. `/api/v1/users/me/progress`
-también mantiene su lista anterior. El objeto educativo contiene exactamente
+**Contrato elegido:** la ruta infantil devuelve el objeto educativo por defecto,
+sin parámetros adicionales. La lista `SessionProgress` anterior se encuentra en
+`GET /api/v1/children/{child_id}/progress/legacy`; los clientes Android que aún
+esperen esa lista deben usar esta ruta. `/api/v1/users/me/progress` mantiene su
+lista anterior para adultos independientes. El objeto educativo contiene exactamente
 `total_lessons`, `completed_lessons`, `incomplete_lessons`,
 `completion_rate_percent`, `total_reading_seconds`, `average_comprehension_score`,
 `current_recommended_level`, `level_progression` y `badges`.

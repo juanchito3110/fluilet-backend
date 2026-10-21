@@ -33,11 +33,7 @@ async def test_complete_educational_flow_and_exact_progress_contract(
         ).json()["id"]
     document_id = await owned_document(client, headers, child_id)
     endpoint = "/api/v1/readings" if adult else f"/api/v1/children/{child_id}/readings"
-    progress_url = (
-        "/api/v1/readings/progress"
-        if adult
-        else f"/api/v1/children/{child_id}/progress?view=educational"
-    )
+    progress_url = "/api/v1/readings/progress" if adult else f"/api/v1/children/{child_id}/progress"
     reading_ids = []
     for index in range(4):
         created = await client.post(
@@ -116,7 +112,9 @@ async def test_complete_educational_flow_and_exact_progress_contract(
         row["category"] in {"deportes", "ciencia_espacio"} for row in history
     )
     if not adult:
-        legacy = (await client.get(f"/api/v1/children/{child_id}/progress", headers=headers)).json()
+        legacy = (
+            await client.get(f"/api/v1/children/{child_id}/progress/legacy", headers=headers)
+        ).json()
         assert isinstance(legacy, list) and legacy[-1]["completionPercent"] == 25
 
 
@@ -236,7 +234,7 @@ async def test_empty_progress_and_ownership(client, db, make_user, child_payload
     _, tutor, _ = await make_user()
     _, outsider, _ = await make_user()
     child = (await client.post("/api/v1/children", headers=tutor, json=child_payload)).json()
-    url = f"/api/v1/children/{child['id']}/progress?view=educational"
+    url = f"/api/v1/children/{child['id']}/progress"
     another_adult, _, _ = await make_user(models.UserRole.ADULTO_INDEPENDIENTE)
     db.add(
         models.ReadingSession(
@@ -262,6 +260,11 @@ async def test_empty_progress_and_ownership(client, db, make_user, child_payload
     ]
     assert (await client.get(url, headers=outsider)).status_code == 404
     assert (await client.get(url, headers=adult)).status_code == 403
+    legacy_url = url + "/legacy"
+    assert (await client.get(legacy_url, headers=tutor)).json() == []
+    assert (await client.get(legacy_url, headers=outsider)).status_code == 404
+    assert (await client.get(legacy_url, headers=adult)).status_code == 403
+    assert (await client.get(legacy_url)).status_code == 401
     assert (await client.get("/api/v1/readings/progress", headers=tutor)).status_code == 403
     assert (await client.get("/api/v1/readings/progress")).status_code == 401
 
@@ -357,7 +360,7 @@ async def test_child_patch_alias_checks_both_profile_and_reading_owner(
     assert response.status_code == 201 and response.json()["comprehension_score"] == 50
     reading_id = response.json()["id"]
     other_profile = await client.get(
-        f"/api/v1/children/{second}/progress?view=educational",
+        f"/api/v1/children/{second}/progress",
         headers=headers,
     )
     assert other_profile.json()["total_lessons"] == 0
@@ -382,3 +385,14 @@ async def test_child_patch_alias_checks_both_profile_and_reading_owner(
             json={"tts_speed_used": 0.9},
         )
     ).status_code == 200
+
+
+async def test_child_progress_openapi_exposes_separate_object_and_legacy_list(client):
+    paths = (await client.get("/openapi.json")).json()["paths"]
+    current = paths["/api/v1/children/{child_id}/progress"]["get"]
+    legacy = paths["/api/v1/children/{child_id}/progress/legacy"]["get"]
+    assert current["responses"]["200"]["content"]["application/json"]["schema"] == {
+        "$ref": "#/components/schemas/EducationalProgress"
+    }
+    assert legacy["responses"]["200"]["content"]["application/json"]["schema"]["type"] == "array"
+    assert all(parameter["name"] != "view" for parameter in current["parameters"])

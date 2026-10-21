@@ -94,13 +94,16 @@ async def test_activity_assignment_reading_and_android_progress(client, make_use
         json={"reading_time_seconds": 0, "completion_percent": 100, "completed": True},
     )
     assert finished.status_code == 200 and finished.json()["ended_at"]
-    progress = await client.get(f"/api/v1/children/{child_id}/progress", headers=headers)
+    progress = await client.get(f"/api/v1/children/{child_id}/progress/legacy", headers=headers)
     assert progress.status_code == 200
     assert progress.json() == [
         {"sessionLabel": "Sesión 1", "accumulatedMinutes": 0.0, "completionPercent": 100}
     ]
     assert (
         await client.get(f"/api/v1/children/{child_id}/progress", headers=child_headers)
+    ).status_code == 403
+    assert (
+        await client.get(f"/api/v1/children/{child_id}/progress/legacy", headers=child_headers)
     ).status_code == 403
     assert (
         await client.get(f"/api/v1/children/{child_id}/readings", headers=child_headers)

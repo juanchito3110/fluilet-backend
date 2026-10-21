@@ -38,12 +38,13 @@ All following routes are prefixed `/api/v1`:
 | POST, GET /readings | Independent adult; start/list own sessions |
 | GET /users/me/progress | Independent adult; Android SessionProgress fields |
 | GET /children/{id}/readings | Tutor/that child |
-| GET /children/{id}/progress | Tutor; Android SessionProgress fields |
+| GET /children/{id}/progress | Tutor; educational progress object |
+| GET /children/{id}/progress/legacy | Tutor; previous Android SessionProgress list |
 
-Progress uses `sessionLabel`, `accumulatedMinutes`, `completionPercent`. Reading
+Legacy progress uses `sessionLabel`, `accumulatedMinutes`, `completionPercent`. Reading
 updates use `reading_time_seconds`, `completion_percent`, `completed`. The client
 must not report more reading time than elapsed wall time (5-second tolerance).
-Completion requires 100% and is final. Scores/counts cannot be supplied by clients.
+Completion requires 100% and is final. Readability scores/counts cannot be supplied by clients.
 Document telemetry includes scores, delta, original/adapted counts and the exception
 flag. Original filenames, text and storage locations are absent.
 
@@ -84,7 +85,8 @@ used. Tutor/NINO identities cannot create sessions through this adult endpoint.
 
 `GET /api/v1/readings/{id}` and the existing PATCH authorize the child/tutor or the
 independent owner, respectively. `GET /api/v1/users/me/progress` returns the same
-SessionProgress shape as the tutor dashboard. Child routes retain their contracts.
+SessionProgress shape as `/children/{id}/progress/legacy`. Child reading routes retain
+their contracts. The default child progress response is now the educational object.
 ReadingRead adds nullable reader_user_id and numeric score/count snapshots; child_id
 is still populated on every child session, and is null only for independent adults.
 The database requires exactly one identity source per session. API callers cannot
@@ -118,8 +120,9 @@ it updates telemetry CHECK constraints without adding text storage or columns.
 
 [educational-features.md](educational-features.md) documents lesson generation,
 two comprehension questions on all adaptation responses, optional reading practice
-telemetry, progress summaries and five achievements. The new child summary requires
-`?view=educational`; omitting it preserves the Android `SessionProgress[]` response.
+telemetry, progress summaries and five achievements. Child progress now returns
+the educational object by default; the previous Android `SessionProgress[]` response
+is available at `/children/{id}/progress/legacy`.
 `GET /readings/progress` is the independent adult summary and is registered before
 `/readings/{reading_id}` so the static path is not parsed as a UUID. `/adaptations/document`
 is an additive raw PDF/TXT alias of `/adaptations/file`.
