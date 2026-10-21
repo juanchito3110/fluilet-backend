@@ -155,7 +155,11 @@ async def test_model_preparation_timeout_keeps_precomputed_best_candidate(monkey
     assert not result.meets_readability_target
 
 
-@pytest.mark.parametrize("text,status", [("   ", 422), ("...!?", 422), ("palabra " * 20001, 413)])
+@pytest.mark.parametrize(
+    "text,status",
+    [("   ", 422), ("...!?", 422), ("palabra " * 20001, 413)],
+    ids=["blank", "punctuation-only", "word-limit"],
+)
 async def test_invalid_and_oversized_inputs_remain_rejected(client, make_user, text, status):
     _, headers, _ = await make_user()
     response = await client.post("/api/v1/adaptations/text", headers=headers, json={"text": text})
