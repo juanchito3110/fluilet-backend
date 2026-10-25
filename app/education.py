@@ -4,6 +4,7 @@ import re
 import secrets
 import unicodedata
 from dataclasses import dataclass
+from datetime import UTC, date, datetime
 
 from app.nlp.segmentation import WORD_RE, sentences, words
 
@@ -208,7 +209,7 @@ def title_for(text: str) -> str:
     return " ".join(words(text)[:10])[:160] or "Lectura para aprender"
 
 
-def questions(text: str) -> list[dict]:
+def _standard_questions(text: str) -> list[dict]:
     """Two literal cloze tasks, grounded in the actual delivered text.
 
     Never invent an answer. Tiny inputs use two explicit recognition prompts;
@@ -258,7 +259,7 @@ def questions(text: str) -> list[dict]:
             # Distinct invented references remain recognizably Spanish, not tokens.
             number = 1
             while len(distractors) < 2:
-                alternative = f"la página número {number}"
+                alternative = f"lugar {number}"
                 if alternative not in lower_text and alternative != correct.casefold():
                     distractors.append(alternative)
                 number += 1
@@ -280,6 +281,156 @@ def questions(text: str) -> list[dict]:
                 "question": question,
                 "options": options,
                 "correct_option_index": correct_index,
+                "hint": "Pista: Relee esa parte y busca la idea que falta. ¡Tú puedes!",
+                "explanation": f"¡Bien! El texto menciona «{correct}» en esa parte de la lectura.",
             }
         )
+    return result
+
+
+def age_years(birth_date: date, on_date: date | None = None) -> int:
+    today = on_date or datetime.now(UTC).date()
+    return (
+        today.year
+        - birth_date.year
+        - ((today.month, today.day) < (birth_date.month, birth_date.day))
+    )
+
+
+def question_age_group(child_age_years: int | None) -> str:
+    if child_age_years is None or child_age_years >= 12:
+        return "12+"
+    return "6-8" if child_age_years <= 8 else "9-11"
+
+
+def _brief_span(sentence):
+    sentence = " ".join(sentence.split())
+    first_word = WORD_RE.search(sentence)
+    start = first_word.start() if not words(sentence[:480]) else 0
+    span = sentence[start : start + 480]
+    return " ".join(span.split()[:30]).rstrip(".!?…")
+
+
+_VERB = re.compile(
+    r"\b(?:es|son|está|están|tiene|tienen|produce|producen|recibe|reciben|permite|permiten|"
+    r"ayuda|ayudan|usa|usan|vive|viven|hace|hacen|lee|leen|necesita|necesitan|"
+    r"puede|pueden|gira|giran|llueve|crece|crecen|busca|buscan|ocurre|sucede)\b",
+    re.I,
+)
+
+
+def _idea_options(answer, text):
+    vocabulary = {token.casefold() for token in words(text)}
+    candidates = []
+    for group in _GROUPS:
+        for term in group:
+            match = re.search(r"\b" + re.escape(term) + r"\b", answer, flags=re.I)
+            if match:
+                candidates.extend(
+                    answer[: match.start()] + other + answer[match.end() :]
+                    for other in group
+                    if other.casefold() not in vocabulary
+                )
+    verb = _VERB.search(answer)
+    if verb:
+        prefix = answer[: verb.start()]
+        candidates.append(
+            prefix[:-3] + answer[verb.start() :]
+            if prefix.casefold().endswith("no ")
+            else prefix + "no " + answer[verb.start() :]
+        )
+        candidates.append(prefix + "solo " + answer[verb.start() :])
+    for topic in ("una montaña", "un barco", "un jardín", "una estación"):
+        candidates.append(f"La lectura describe {topic}")
+    options, seen = [answer], {answer.casefold()}
+    normalized_text = " ".join(text.casefold().split())
+    for candidate in candidates:
+        if candidate.casefold() not in seen and candidate.casefold() not in normalized_text:
+            options.append(candidate)
+            seen.add(candidate.casefold())
+        if len(options) == 3:
+            break
+    # A valid input may contain every generic alternative. Keep these distractors
+    # explicit practice statements rather than inventing an answer about the text.
+    number = 1
+    while len(options) < 3:
+        candidate = f"La lectura presenta el lugar {number}"
+        if candidate.casefold() not in normalized_text:
+            options.append(candidate)
+        number += 1
+    index = secrets.randbelow(3)
+    options[0], options[index] = options[index], options[0]
+    return options, index
+
+
+def _intermediate_questions(text):
+    spans = [_brief_span(unit) for unit in sentences(text)]
+    answers = [spans[0], spans[1] if len(spans) > 1 else spans[0]]
+    prompts = [
+        "¿Qué idea aparece en esta lectura?",
+        "¿Qué otra idea puedes reconocer en la lectura?",
+    ]
+    hints = [
+        "Pista: Busca la idea de la primera oración. ¡Tú puedes!",
+        "Pista: Relee esa parte y busca qué cuenta el texto.",
+    ]
+    explanations = ["La lectura presenta esta idea", "El texto también incluye esta idea"]
+    for span in spans:
+        cause = re.search(r"\b(?:porque|debido a que)\s+(.+)", span, flags=re.I)
+        result = re.search(r"\b(?:por eso|por lo que)[, ]+(.+)", span, flags=re.I)
+        if cause:
+            answers[1] = cause[1]
+            prompts[1] = "¿Qué causa explica el resultado mencionado en la lectura?"
+            hints[1] = "Pista: Busca la causa después de «porque» o «debido a que»."
+            explanations[1] = "El texto explica que esta es la causa"
+            break
+        if result:
+            answers[1] = result[1]
+            prompts[1] = "¿Qué ocurre como resultado, según la lectura?"
+            hints[1] = "Pista: Busca el resultado junto a «por eso» o «por lo que»."
+            explanations[1] = "La lectura señala este resultado"
+            break
+    else:
+        for span in spans:
+            purpose = re.search(r"\b(?:para|el fin es)\s+(.+)", span, flags=re.I)
+            if purpose:
+                answers[1] = purpose[1]
+                prompts[1] = "¿Qué propósito se explica en la lectura?"
+                hints[1] = "Pista: Busca «para» o «el fin es». ¡Lo encontrarás!"
+                explanations[1] = "El texto explica este propósito"
+                break
+    result = []
+    for index, answer in enumerate(answers):
+        options, correct_index = _idea_options(answer, text)
+        result.append(
+            {
+                "id": f"q{index + 1}",
+                "question": prompts[index],
+                "options": options,
+                "correct_option_index": correct_index,
+                "hint": hints[index],
+                "explanation": f"¡Buen trabajo! {explanations[index]}: «{answer}».",
+            }
+        )
+    return result
+
+
+def questions(text: str, child_age_years: int | None = None) -> list[dict]:
+    group = question_age_group(child_age_years)
+    if group == "9-11":
+        return _intermediate_questions(text)
+    result = _standard_questions(text)
+    if group == "6-8":
+        for index, item in enumerate(result):
+            correct = item["options"][item["correct_option_index"]]
+            item["question"] = (
+                "Vamos, ¿qué palabra aparece en la lectura?"
+                if index == 0
+                else "Ahora, ¿qué palabra encuentras en el texto?"
+            )
+            item["options"] = [f"Dice «{option}»" for option in item["options"]]
+            item["hint"] = "¡Tú puedes! Busca esa palabra en la lectura."
+            item["explanation"] = (
+                f"¡Muy bien! El texto dice «{correct}». Por eso esa opción es correcta."
+            )
     return result

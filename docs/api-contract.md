@@ -126,3 +126,19 @@ is available at `/children/{id}/progress/legacy`.
 `GET /readings/progress` is the independent adult summary and is registered before
 `/readings/{reading_id}` so the static path is not parsed as a UUID. `/adaptations/document`
 is an additive raw PDF/TXT alias of `/adaptations/file`.
+
+## Age-aware questions and FluiBot
+
+All adaptation responses now include `question_age_group` (`6-8`, `9-11`, `12+`)
+and nullable `child_age_years`. The age is calculated from the authorized profile's
+birth date, in completed calendar years on the UTC service date. Without `child_id`,
+the standard `12+` group applies. Questions add `hint` and `explanation`.
+
+Both educational progress responses add `streak_days`, `total_gems`, `total_xp`,
+`total_stars`, `current_rank_title`, `next_rank_stars`, `mascot`, six
+`collectible_cards`, ten `shop_catalog` entries and `pedagogical_summary`.
+The previous educational fields and both legacy list routes retain their behavior.
+Rewards are derived from the authorized history: 30 welcome gems, 50 gems/100 XP
+per completion and 25 gems/50 XP per correct answer. `total_stars` aliases gems;
+rank thresholds refer to XP. Each shop `unlocked` flag expresses affordability.
+See [educational-features.md](educational-features.md) for exact tiers and formulas.

@@ -150,3 +150,10 @@ permissions, scoring and migration details. Adult educational progress uses
 `GET /api/v1/readings/progress`; child educational progress uses
 `GET /api/v1/children/{id}/progress` and returns the educational JSON by default.
 The previous Android list is available at `/api/v1/children/{id}/progress/legacy`.
+
+Questions also adapt to the authorized reader's age (6–8, 9–11 or standard 12+),
+with a hint and educational explanation. Progress includes FluiBot's four stages,
+six collectible cards, ten accessories priced at 15–120 gems, and suggestions for
+the next reading level and voice speed. Rewards include 30 welcome gems and are
+recomputed from the learner's existing sessions. These additions require no new
+columns; the legacy progress lists remain available at their existing routes.

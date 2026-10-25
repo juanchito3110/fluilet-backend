@@ -70,7 +70,6 @@ async def persist(
     level=3,
     title=None,
 ):
-    practice = await asyncio.to_thread(education.questions, result.adapted_text)
     # Serialize metadata upserts per owner, independently of inference execution.
     locked_user = await db.scalar(
         select(models.User)
@@ -79,8 +78,11 @@ async def persist(
         .execution_options(populate_existing=True)
     )
     await auth.validate_identity(locked_user, db)
+    child_age = None
     if child_id is not None:
-        await accessible_child(child_id, user, db)
+        child = await accessible_child(child_id, user, db)
+        child_age = education.age_years(child.birth_date)
+    practice = await asyncio.to_thread(education.questions, result.adapted_text, child_age)
     document = await db.scalar(
         select(models.Document).where(
             models.Document.owner_id == user.id, models.Document.content_sha256 == digest
@@ -132,6 +134,8 @@ async def persist(
         category=category,
         simplification_level=level,
         comprehension_questions=practice,
+        question_age_group=education.question_age_group(child_age),
+        child_age_years=child_age,
     )
 
 

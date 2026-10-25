@@ -115,3 +115,10 @@ scoping and derived progress is read-only. Practice counters are client-reported
 score consistency checks do not prove a learner's answers. Question metadata must
 remain outside external body logs just like the adapted text. Downgrade refuses to
 discard populated educational metadata.
+
+Age-aware questions read birth dates only after the existing active-profile and
+owner checks. Responses expose completed years rather than a birth date. Hints,
+explanations and age-group choices remain response data. FluiBot's counters, cards,
+catalog and practice suggestions are computed from the already owner-scoped
+sessions, with no per-request reward writes or shared learner cache. The game
+metadata uses the same client-reported practice figures as the educational summary.

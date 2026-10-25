@@ -238,6 +238,8 @@ class ComprehensionQuestion(BaseModel):
     question: str
     options: list[str] = Field(min_length=3, max_length=3)
     correct_option_index: int = Field(ge=0, le=2)
+    hint: str
+    explanation: str
 
 
 class DocumentRead(TelemetryRead):
@@ -275,6 +277,8 @@ class AdaptationRead(BaseModel):
     category: str
     simplification_level: int
     comprehension_questions: list[ComprehensionQuestion] = Field(min_length=2, max_length=2)
+    question_age_group: Literal["6-8", "9-11", "12+"]
+    child_age_years: int | None
 
 
 class AssignmentRequest(InputModel):
@@ -354,6 +358,42 @@ class EducationalBadge(BaseModel):
     unlocked: bool
 
 
+class FluiBotState(BaseModel):
+    name: Literal["FluiBot"]
+    species: Literal["robot"]
+    stage: int = Field(ge=1, le=4)
+    stage_name: str
+    stage_description: str
+    current_xp: int = Field(ge=0)
+    next_stage_xp: int
+    progress_percent: float = Field(ge=0, le=100)
+
+
+class CollectibleCard(BaseModel):
+    category: str
+    title: str
+    fun_fact: str
+    rarity: Literal["Bloqueada", "Bronce", "Plata", "Oro"]
+    unlocked: bool
+    lessons_completed_in_category: int = Field(ge=0)
+
+
+class ShopAccessory(BaseModel):
+    item_id: str
+    name: str
+    slot: str
+    description: str
+    cost_gems: int = Field(ge=15, le=120)
+    unlocked: bool
+
+
+class PedagogicalSummary(BaseModel):
+    headline: str
+    strength_area: str
+    focus_area: str
+    recommendation: str
+
+
 class EducationalProgress(BaseModel):
     total_lessons: int
     completed_lessons: int
@@ -364,6 +404,16 @@ class EducationalProgress(BaseModel):
     current_recommended_level: int
     level_progression: list[LessonProgress]
     badges: list[EducationalBadge]
+    streak_days: int = Field(ge=0)
+    total_gems: int = Field(ge=30)
+    total_xp: int = Field(ge=0)
+    total_stars: int = Field(ge=30)
+    current_rank_title: str
+    next_rank_stars: int
+    mascot: FluiBotState
+    collectible_cards: list[CollectibleCard] = Field(min_length=6, max_length=6)
+    shop_catalog: list[ShopAccessory] = Field(min_length=10, max_length=10)
+    pedagogical_summary: PedagogicalSummary
 
 
 class SessionProgress(BaseModel):

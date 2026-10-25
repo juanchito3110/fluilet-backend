@@ -108,10 +108,11 @@ El resumen educativo está disponible en:
 sin parámetros adicionales. La lista `SessionProgress` anterior se encuentra en
 `GET /api/v1/children/{child_id}/progress/legacy`; los clientes Android que aún
 esperen esa lista deben usar esta ruta. `/api/v1/users/me/progress` mantiene su
-lista anterior para adultos independientes. El objeto educativo contiene exactamente
+lista anterior para adultos independientes. El objeto educativo conserva
 `total_lessons`, `completed_lessons`, `incomplete_lessons`,
 `completion_rate_percent`, `total_reading_seconds`, `average_comprehension_score`,
-`current_recommended_level`, `level_progression` y `badges`.
+`current_recommended_level`, `level_progression` y `badges`, y añade los bloques de
+FluiBot descritos más adelante.
 
 El resumen cuenta todo el historial autorizado, sin el límite de paginación de
 los GET de sesiones. Una lección completada es una sesión marcada `completed`;
@@ -148,3 +149,126 @@ Verificación: `python -m pytest tests/test_education.py tests/test_educational_
 Los tests usan SQLite en memoria o esquemas privados de una base PostgreSQL cuyo
 nombre termina en `_test` mediante `TEST_DATABASE_URL`; nunca escriben lecturas de
 prueba en la base de uso manual.
+
+## Preguntas por edad, pistas y explicaciones
+
+Todas las respuestas de `/adaptations/generate`, `/text`, `/document` y `/file`
+añaden `child_age_years` y `question_age_group`. Con `child_id`, el servidor
+consulta el perfil activo que pertenece al tutor y calcula los años cumplidos
+con su `birth_date` y la fecha UTC de la respuesta. El cálculo compara mes y día;
+no divide el número de días entre 365. Sin perfil, la edad es `null` y el grupo
+es `12+`. Los datos de edad proceden del servidor.
+
+| Grupo | Preguntas | Opciones |
+|---|---|---|
+| `6-8` | Dos preguntas cálidas de reconocimiento, de 5–9 palabras | Tres opciones de 2–4 palabras, por ejemplo `Dice «Sol»` |
+| `9-11` | Enunciados de hasta 12 palabras sobre ideas, causas, resultados o propósitos expresados en el texto | Ideas o fragmentos claros de la lectura y dos alternativas |
+| `12+` | Dos preguntas estándar de comprensión literal | Conservan el formato de completar o reconocer fragmentos |
+
+En el grupo intermedio, la segunda pregunta usa relaciones explícitas como
+`porque`, `debido a que`, `por eso` o `por lo que`. Un propósito expresado con
+`para` o `el fin es` también puede ser objeto de una pregunta. Cuando la lectura
+no contiene esas relaciones, las preguntas se centran en sus ideas literales.
+
+Cada pregunta conserva `id`, `question`, `options` y `correct_option_index`, y
+añade `hint` y `explanation`. La pista invita a releer; la explicación cita la
+palabra o idea correcta de la adaptación entregada. La posición de la opción
+correcta sigue variando. Las entradas mínimas conservan una respuesta válida.
+
+El intervalo de alta de perfiles infantiles sigue siendo 6–11 años. Un perfil
+ya existente que cumpla 12 años recibe automáticamente el grupo `12+`.
+La edad, las preguntas, las pistas y las explicaciones se calculan para la
+respuesta y mantienen la política de contenido en memoria.
+
+## FluiBot y recompensas educativas
+
+Los dos resúmenes educativos, `/children/{id}/progress` y `/readings/progress`,
+conservan sus campos y añaden `streak_days`, `total_gems`, `total_xp`,
+`total_stars`, `current_rank_title`, `next_rank_stars`, `mascot`,
+`collectible_cards`, `shop_catalog` y `pedagogical_summary`.
+`/children/{id}/progress/legacy` y `/users/me/progress` conservan sus listas.
+
+Las recompensas se derivan del historial autorizado en cada consulta:
+
+- Gemas: **30 de bienvenida + 50 por sesión completada al 100 % + 25 por respuesta correcta**.
+- XP: **100 por sesión completada + 50 por respuesta correcta**.
+- `total_stars`: el mismo valor que `total_gems`.
+- Las respuestas correctas cuentan también durante una lectura en curso.
+- `streak_days`: número de fechas UTC distintas con una finalización. Se utiliza
+  `ended_at` y, para sesiones anteriores sin fecha de cierre, `started_at`.
+  Las fechas con varias finalizaciones suman un día.
+
+Consultar el progreso repetidamente conserva los mismos totales mientras el
+historial no cambie. Los importes y las etapas se calculan desde las cifras
+registradas; no se añaden escrituras de recompensas por consultar el resumen.
+
+| XP | Rango | Etapa de FluiBot | Siguiente objetivo |
+|---|---|---|---:|
+| 0–149 | Explorador Inicial | 1 · Núcleo de Energía | 150 |
+| 150–349 | Bot Explorador | 2 · Bot Explorador | 350 |
+| 350–699 | Guardián Cyber-Lector | 3 · Guardián Cyber-Lector | 700 |
+| 700+ | Sabio Cuántico | 4 · Sabio Cuántico | 1200 |
+
+`mascot` incluye `name: "FluiBot"`, `species: "robot"`, etapa, nombre,
+descripción motivadora, XP actual, siguiente objetivo y porcentaje dentro del
+intervalo de esa etapa. El porcentaje va de 0 a 100. La cuarta etapa conserva su
+nombre después de 1200 XP y su barra llega al 100 %. `next_rank_stars` mantiene
+el nombre solicitado por compatibilidad y señala el siguiente objetivo de **XP**.
+
+Las seis cartas corresponden a las seis categorías del generador. Una sesión
+completada en una categoría desbloquea su carta: cero finalizaciones muestra
+`Bloqueada`, una `Bronce`, dos `Plata` y tres o más `Oro`. Cada carta añade un
+título y una curiosidad educativa. `lectura_libre` suma recompensas generales;
+las cartas representan las seis categorías del banco de lecciones.
+
+La tienda muestra los diez accesorios de FluiBot:
+
+| Accesorio | Slot | Gemas |
+|---|---|---:|
+| Antena Prisma Neón | antenna | 15 |
+| Visor Holográfico | eyes | 25 |
+| Corbatín LED de Gala | neck | 30 |
+| Auriculares Sónicos | ears | 40 |
+| Emblema Estelar | chest | 50 |
+| Jetpack de Plasma | thrusters | 60 |
+| Mini-Dron Satélite | companion | 75 |
+| Capa Fotónica | back | 90 |
+| Alas Cyber-Halcón | wings | 100 |
+| Corona Cuántica Dorada | crown | 120 |
+
+Cada accesorio conserva su `item_id`, nombre, slot, descripción y precio.
+`unlocked` indica que las gemas acumuladas alcanzan el precio de ese accesorio.
+Las 30 gemas iniciales hacen accesibles los tres primeros. Una primera lectura
+completada con dos aciertos lleva a **130 gemas y 200 XP**.
+
+### Resumen pedagógico
+
+`pedagogical_summary` devuelve `headline`, `strength_area`, `focus_area` y
+`recommendation`. Usa las puntuaciones conocidas, las finalizaciones, la variedad
+de categorías y los días de práctica para ofrecer mensajes positivos y una
+siguiente actividad concreta.
+
+La recomendación incluye el nivel de `current_recommended_level` y uno de estos
+ritmos de voz:
+
+- **0.8x** con comprensión conocida inferior al 50 % o menos de la mitad de
+  lecturas finalizadas cuando existe práctica.
+- **1.2x** con promedio conocido de al menos 85 %, tres finalizaciones y una
+  tasa de finalización de al menos 75 %.
+- **1.0x** en los demás casos, incluido el inicio sin sesiones.
+
+Los puntajes desconocidos conservan su carácter de dato pendiente. Las sugerencias
+son reglas educativas basadas en la telemetría existente. La selección de edad,
+las cartas y FluiBot conservan la autorización de cada perfil o adulto.
+
+Estas ampliaciones usan columnas existentes y se verifican con `alembic check`.
+Pruebas: `python -m pytest tests/test_age_questions.py tests/test_fluibot.py -q`,
+con `TEST_DATABASE_URL` configurada para ejecutarlas en PostgreSQL.
+
+### Referencias de las curiosidades
+
+Los datos de las cartas se contrastaron con fuentes educativas primarias:
+[NASA: distancia en minutos luz](https://science.nasa.gov/exoplanets/what-is-a-light-year/),
+[NC State Extension: comunicación de las abejas](https://content.ces.ncsu.edu/honey-bee-dance-language),
+[British Museum: las tres escrituras de la piedra de Rosetta](https://www.britishmuseum.org/sites/default/files/2020-03/10010%20Hamlyn%206%2B%20Ancient%20Egypt%20PDF.pdf)
+y [Springfield College: origen del baloncesto](https://springfield.edu/about/birthplace-of-basketball).

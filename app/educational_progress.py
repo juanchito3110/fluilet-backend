@@ -6,6 +6,7 @@ from statistics import mean
 from fastapi import HTTPException
 
 from app import auth, schemas
+from app.gamification import progress_rewards
 
 EDUCATIONAL_FIELDS = frozenset(
     {
@@ -113,4 +114,5 @@ def summarize(sessions, baseline=2):
             )
             for (code, title, description), earned in zip(BADGES, unlocked, strict=True)
         ],
+        **progress_rewards(sessions, max(1, min(5, recommended))),
     )
