@@ -37,8 +37,8 @@ Usan POST y `User-Agent: FluiletEdTech/1.0`; los temas no se incluyen en las URL
 petición. El resumen conserva fechas y cifras con contexto y elimina referencias,
 pronunciaciones fonéticas y líneas de fechas aisladas.
 
-Cuando Wikipedia no responde, el banco local contiene **29 artículos originales
-con fuentes**: tres opciones por categoría y once temas específicos adicionales.
+Cuando Wikipedia no responde, el banco local contiene **31 artículos originales
+con fuentes**: tres opciones por categoría y trece temas específicos adicionales.
 Incluye fútbol, Real Madrid, biología marina, tiburones, dinosaurios, sistema solar,
 agujeros negros, volcanes, Antiguo Egipto, robots e inteligencia artificial. La
 categoría literaria explica obras y autores reales y distingue sus personajes de
@@ -186,10 +186,12 @@ reconstruye contenido. Usa el hash documental si existe y, en su ausencia, una c
 por documento o categoría. Un downgrade con actividad nueva observada se rechaza
 para no borrar premios ganados.
 
-Los títulos, temas libres, textos y preguntas solo viven en la respuesta y durante
-el procesamiento en memoria. La base de datos conserva el hash, categorías
-normalizadas, niveles y cifras; no se añaden columnas de contenido ni registros
-de cuerpos HTTP. Se mantiene `Cache-Control: no-store`.
+Desde la autorización del 26 de octubre, `0006_academic_review` conserva originales,
+adaptaciones y respuestas educativas en una tabla protegida por propietario y
+perfil. Documentos, sesiones y actividad diaria conservan sus metadatos y cifras;
+no se registran cuerpos HTTP ni parámetros SQL en logs. Se mantiene
+`Cache-Control: no-store`. La política anterior de Cero Retención queda sustituida
+por esta conservación explícitamente autorizada.
 
 Verificación: `python -m pytest tests/test_education.py tests/test_educational_progress.py tests/test_migrations.py -q`.
 Los tests usan SQLite en memoria o esquemas privados de una base PostgreSQL cuyo
@@ -224,7 +226,7 @@ correcta sigue variando. Las entradas mínimas conservan una respuesta válida.
 El intervalo de alta de perfiles infantiles sigue siendo 6–11 años. Un perfil
 ya existente que cumpla 12 años recibe automáticamente el grupo `12+`.
 La edad, las preguntas, las pistas y las explicaciones se calculan para la
-respuesta y mantienen la política de contenido en memoria.
+respuesta y se conservan en su versión de adaptación autorizada.
 
 ## FluiBot y recompensas educativas
 
@@ -349,3 +351,34 @@ ni contabilidad de compras en este endpoint.
 
 Pruebas específicas: `tests/test_encyclopedic_sources.py` y
 `tests/test_daily_missions.py`, además de la suite completa y migraciones en PostgreSQL.
+
+
+## Comparación y demostración académica
+
+`original_text` conserva el texto completo y limpio anterior a NLP. Los puntajes
+raíz `original_readability_score` y `readability_score` y el objeto `metrics`
+comparan los textos entregados sin redondear: puntajes, delta, conteos y palabras
+por oración. El identificador raíz `id` recupera esa versión mediante
+`GET /api/v1/adaptations/{id}`, incluso tras reiniciar. `document.id` conserva su
+uso anterior en biblioteca y sesiones. `POST /api/v1/adaptations` es alias de
+`/text`. `target_level` y `age_group` son aditivos; el cumpleaños del perfil prevalece.
+
+El tutor puede POST `/api/v1/profiles/{id}/seed-demo`. La respuesta contiene el
+progreso completo y seis `demo_lessons`, con siete sesiones en siete fechas UTC,
+comprensión sintética ascendente, niveles 1..4, racha activa, etapa 4 de FluiBot y
+más de 260 gemas. Las cifras de legibilidad proceden de los textos reales; la
+comprensión se marca como simulada (`demo_data`/`is_demo`). El Viaje del Pequeño
+Faro es un cuento original identificado como ficción, con datos reales sobre
+señales luminosas. No se atribuye a una obra histórica inexistente.
+
+Repetir o ejecutar en paralelo el seed no duplica sesiones ni premios; tampoco
+mueve sus fechas ni modifica la práctica real. Las misiones añaden `claimed`,
+igual a `completed` porque sus gemas ya se abonan automáticamente. El endpoint
+`POST /profiles/{id}/daily-missions/{mission_id}/claim` confirma ese abono con 200,
+sin volver a sumar; una misión pendiente devuelve 409. La racha consecutiva se
+expone como `current_streak_days`, conservando el campo anterior `streak_days`.
+
+El contrato exacto y las limitaciones del cliente Android `b822b85` se documentan
+en [api-contract.md](api-contract.md). Ese commit ignora `original_text` y `claimed`
+y conserva premios locales; requiere consumir los campos nuevos para mostrar el
+original y evitar un segundo abono local. El repositorio Android no se modifica.

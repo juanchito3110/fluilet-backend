@@ -1,7 +1,8 @@
 # Fluilet Backend
 
 FastAPI + async SQLAlchemy/psycopg. Local Spanish mT5 and deterministic refinement.
-Only accounts, relationships, activity metadata and numeric telemetry are persisted.
+Original/adapted lesson pairs and their educational response are retained in the
+owner-scoped database, as explicitly authorized on 26 October 2026.
 No commercial inference service is used. Android remains a separate repository.
 
 ## Local setup
@@ -133,14 +134,14 @@ docker compose up -d
 Disable host swap, core dumps and body capture before processing real documents;
 read the exact scope/limits in `docs/security.md`. Proxy uploads and responses are
 unbuffered, with any incidental temporary buffers on RAM tmpfs. The database volume
-contains metadata/accounts only. No Redis/file queue is used.
+contains accounts, metadata and retained lesson content. No Redis/file queue is used.
 
 Observed local verification and remaining operational checks: [verification.md](docs/verification.md).
 
 ## Educational lessons and progress
 
 Generate Spanish educational readings with `POST /api/v1/adaptations/generate`:
-six categories, contextual Spanish Wikipedia retrieval, 29 factual offline articles,
+six categories, contextual Spanish Wikipedia retrieval, 31 factual offline articles,
 optional `custom_topic`/`topic`, levels 1..5 and exactly two text-grounded comprehension
 questions. Responses include source attribution, a fact and an interactive glossary. Existing adaptation responses gain
 only additive lesson fields. Reading sessions accept category, level, comprehension
@@ -163,3 +164,28 @@ content-free daily activity journal; previous legacy progress list routes remain
 available. Mission goals reset at UTC midnight while historical bonuses remain.
 Unknown topics without an online or local source return a controlled 503 rather
 than fabricated lessons. `WIKIPEDIA_ENABLED=false` selects offline operation.
+
+
+## Academic comparison and demonstration
+
+Apply `0006_academic_review`. All adaptation responses include `original_text`,
+`original_readability_score`, `readability_score`, exact `metrics`, `age_group` and
+`target_level`, alongside existing Android fields. `POST /api/v1/adaptations`
+aliases `/text`; `GET /api/v1/adaptations/{id}` retrieves a retained version across
+server restarts. The root `id` identifies an adaptation; `document.id` still
+identifies its document. Existing document UUIDs also retrieve a latest version.
+
+An owning tutor can POST `/api/v1/profiles/{id}/seed-demo` to ensure six authored
+lessons and seven consecutive days of **explicitly synthetic** practice. NLP scores
+are measured from actual text pairs; comprehension history is demo data, not a
+learner assessment. The response includes full progress and `demo_lessons`.
+Repeated/concurrent calls do not create another cohort or double rewards. The
+first seed anchors the dates and preserves genuine sessions and preferences.
+
+Daily missions expose `claimed`; completed mission rewards are already included
+once in `total_gems`. The optional POST `/api/v1/profiles/{id}/daily-missions/{mission_id}/claim`
+acknowledges that credit without adding it again. Android `b822b85` parses the
+existing glossary/fact/mission field names, but does not yet parse `original_text`
+or `claimed`, call claim/seed/retrieval, or suppress local mission payouts. Its
+source was inspected without modification; backend compatibility alone does not
+change that client behavior. See [the exact contract](docs/api-contract.md) and [academic demo guide](docs/academic-demo.md).

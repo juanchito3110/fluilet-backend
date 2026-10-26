@@ -7,6 +7,9 @@ from app.nlp.segmentation import WORD_RE, sentences, words
 
 # Definitions are authored independently; examples always come from the reading.
 _ENTRIES = (
+    ("Hola", "Una palabra que usamos para saludar."),
+    ("Sol", "La estrella que proporciona luz y calor a la Tierra."),
+    ("luz", "Radiación que permite ver los objetos cuando llega a nuestros ojos."),
     ("biología", "La ciencia que estudia los seres vivos."),
     ("fauna", "El conjunto de animales de un lugar."),
     ("océano|océanos", "Una enorme extensión de agua salada."),

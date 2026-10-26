@@ -18,6 +18,8 @@ LEXICON = {
     "utiliza": "usa",
     "utilizan": "usan",
     "utilizando": "usando",
+    "utilizaban": "usaban",
+    "proporcionaba": "daba",
     "utilizamos": "usamos",
     "realizar": "hacer",
     "realiza": "hace",

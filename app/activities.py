@@ -432,3 +432,24 @@ async def delete_document(
     document = await accessible_document(document_id, user, db)
     await db.delete(document)
     await db.commit()
+
+
+@router.post(
+    "/profiles/{profile_id}/daily-missions/{mission_id}/claim",
+    response_model=schemas.EducationalProgress,
+)
+async def claim_daily_mission(
+    profile_id: uuid.UUID,
+    mission_id: str,
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await progress(profile_id, user, db)
+    mission = next((item for item in result.daily_missions if item.id == mission_id), None)
+    if mission is None:
+        raise HTTPException(404, "Misión no encontrada.")
+    if not mission.completed:
+        raise HTTPException(409, "La misión aún no está completada.")
+    # Rewards are already derived once per mission/day. Claim is an acknowledgement,
+    # never a second credit on top of automatic completion rewards.
+    return result

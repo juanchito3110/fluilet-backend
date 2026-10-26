@@ -65,6 +65,8 @@ _ALIASES = {
     "robot": "robots",
     "robots": "robots",
     "robotica": "robots",
+    "robots e inteligencia artificial": "robots inteligencia artificial",
+    "el viaje del pequeno faro": "pequeno faro",
     "inteligencia artificial": "inteligencia artificial",
     "artificial": "inteligencia artificial",
     "robots del oceano": "robots submarinos",

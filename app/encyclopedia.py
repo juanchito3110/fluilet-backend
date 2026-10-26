@@ -52,7 +52,7 @@ ARTICLES = {
     ),
     "agua": Article(
         "El ciclo del agua",
-        "El agua se evapora cuando pasa del estado líquido al gaseoso. En la atmósfera, el vapor puede enfriarse y formar gotas o cristales de hielo. Estos constituyen las nubes y pueden caer como precipitación. Parte del agua se infiltra en el suelo y otra parte circula por ríos hasta los mares. La energía solar y la gravedad impulsan distintos procesos de este ciclo.",
+        "El agua se evapora cuando pasa del estado líquido al gaseoso. En la atmósfera, el vapor puede enfriarse y formar gotas o cristales de hielo. Estos constituyen las nubes y pueden caer como precipitación. Parte del agua se infiltra en el suelo y posteriormente circula por acuíferos; otra parte circula por ríos hasta los mares. La energía solar y la gravedad impulsan distintos procesos de este ciclo.",
         "animales_naturaleza",
         "https://www.usgs.gov/special-topics/water-science-school/science/water-cycle",
         "gravedad",
@@ -73,7 +73,7 @@ ARTICLES = {
     ),
     "mapas": Article(
         "Los mapas y la cartografía",
-        "Un mapa representa un territorio mediante símbolos y una escala. La escala relaciona las distancias del mapa con las del terreno. La leyenda explica el significado de colores y señales. Los mapas pueden mostrar relieve, ríos, ciudades o rutas de transporte. Un globo terráqueo representa la Tierra sobre una esfera, mientras que un mapa plano necesita una proyección y puede deformar formas o tamaños.",
+        "Un mapa representa un territorio mediante símbolos y una escala. La escala relaciona las distancias del mapa con las del terreno. La leyenda proporciona una explicación del significado de colores y señales. Los mapas pueden mostrar relieve, ríos, ciudades o rutas de transporte. Un globo terráqueo representa la Tierra sobre una esfera, mientras que un mapa plano necesita una proyección y puede deformar formas o tamaños.",
         "historia_misterios",
         "https://education.nationalgeographic.org/resource/map/",
         "escala",
@@ -87,7 +87,7 @@ ARTICLES = {
     ),
     "atletismo": Article(
         "Las carreras de relevos",
-        "Una carrera de relevos distribuye el recorrido entre varios integrantes de un equipo. En las pruebas de pista se transporta un testigo y se entrega al siguiente corredor dentro de una zona señalada. Los relevos de cuatro por cien metros combinan velocidad y coordinación. Una entrega fuera de la zona puede causar la descalificación del equipo. El resultado depende del conjunto de corredores y de sus intercambios.",
+        "Una carrera de relevos distribuye el recorrido entre varios integrantes de un equipo que realizan tramos sucesivos. En las pruebas de pista se transporta un testigo y se entrega al siguiente corredor dentro de una zona señalada. Los relevos de cuatro por cien metros combinan velocidad y coordinación. Una entrega fuera de la zona puede causar la descalificación del equipo. El resultado depende del conjunto de corredores y de sus intercambios.",
         "deportes",
         "https://worldathletics.org/disciplines/relays/4x100-metres-relay",
         "testigo",
@@ -122,7 +122,7 @@ ARTICLES = {
     ),
     "julio verne": Article(
         "Julio Verne y sus aventuras",
-        "Julio Verne fue un escritor francés nacido en 1828. Sus novelas de aventuras incorporan viajes, inventos y conocimientos científicos de su época. Entre sus obras están Viaje al centro de la Tierra y Veinte mil leguas de viaje submarino. El capitán Nemo es un personaje de esta última novela y dirige el submarino ficticio Nautilus. Los relatos de Verne mezclan imaginación literaria y explicaciones sobre el mundo.",
+        "Julio Verne fue un escritor francés nacido en 1828. Sus novelas de aventuras incorporan viajes, inventos y conocimientos científicos de su época. Entre sus obras están Viaje al centro de la Tierra y Veinte mil leguas de viaje submarino. El capitán Nemo es un personaje de esta última novela y dirige el submarino ficticio Nautilus. Numerosos relatos de Verne mezclan imaginación literaria y explicaciones sobre el mundo.",
         "cuentos_aventuras",
         "https://www.britannica.com/biography/Jules-Verne",
         "Nautilus",
@@ -136,7 +136,7 @@ ARTICLES = {
     ),
     "isla tesoro": Article(
         "La isla del tesoro",
-        "La isla del tesoro es una novela de aventuras de Robert Louis Stevenson publicada como libro en 1883. Jim Hawkins es el joven protagonista del relato. Un mapa desencadena una expedición en busca de un tesoro y aparecen personajes como Long John Silver. La historia combina navegación, decisiones y conflictos entre sus personajes. El mapa y los piratas forman parte de la ficción de esta novela.",
+        "La isla del tesoro es una novela de aventuras de Robert Louis Stevenson publicada como libro en 1883. Jim Hawkins es el joven protagonista del relato. Un mapa inicia una expedición en busca de un tesoro y aparecen personajes como Long John Silver. El autor utiliza la navegación, las decisiones y los conflictos entre personajes para construir la historia. El mapa y los piratas forman parte de la ficción de esta novela.",
         "cuentos_aventuras",
         "https://www.gutenberg.org/ebooks/120",
         "1883",
@@ -171,7 +171,7 @@ ARTICLES = {
     ),
     "sistema solar": Article(
         "El sistema solar",
-        "El sistema solar está formado por el Sol y los cuerpos que se mueven bajo su influencia gravitatoria. Tiene ocho planetas: Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano y Neptuno. También incluye planetas enanos, satélites, asteroides y cometas. El Sol es una estrella y concentra la mayor parte de la masa del sistema. Los planetas describen órbitas a su alrededor. Los cuatro planetas más cercanos al Sol tienen superficies rocosas. Más allá de Marte se encuentra el cinturón principal de asteroides.",
+        "El sistema solar está formado por el Sol y los cuerpos que se mueven bajo su influencia gravitatoria. Posee ocho planetas: Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano y Neptuno. También incluye planetas enanos, satélites, asteroides y cometas. El Sol es una estrella y concentra la mayor parte de la masa del sistema. Los planetas describen órbitas a su alrededor. Los cuatro planetas más cercanos al Sol tienen superficies rocosas. Más allá de Marte se encuentra el cinturón principal de asteroides.",
         "ciencia_espacio",
         "https://science.nasa.gov/solar-system/facts/",
         "ocho",
@@ -185,14 +185,14 @@ ARTICLES = {
     ),
     "volcanes": Article(
         "Los volcanes",
-        "Un volcán es una abertura de la corteza terrestre por la que pueden salir materiales del interior del planeta. La roca fundida recibe el nombre de magma dentro de la Tierra y de lava cuando alcanza la superficie. Una erupción puede emitir gases, ceniza y fragmentos de roca. Muchos volcanes aparecen cerca de los límites de placas tectónicas, aunque también existen sobre puntos calientes. Las erupciones pueden construir nuevas formas del relieve, como islas y montañas. No todos los volcanes tienen la misma forma ni presentan erupciones iguales.",
+        "Un volcán es una abertura de la corteza terrestre por la que pueden salir materiales del interior del planeta. La roca fundida recibe el nombre de magma dentro de la Tierra y de lava cuando alcanza la superficie. Una erupción puede emitir gases, ceniza y fragmentos de roca. Numerosos volcanes aparecen cerca de los límites de placas tectónicas, aunque también existen sobre puntos calientes. Las erupciones pueden construir nuevas formas del relieve, como islas y montañas. No todos los volcanes tienen la misma forma ni presentan erupciones iguales.",
         "ciencia_espacio",
         "https://www.usgs.gov/programs/VHP/about-volcanoes",
         "magma",
     ),
     "antiguo egipto": Article(
         "Antiguo Egipto",
-        "El antiguo Egipto fue una civilización que se desarrolló junto al río Nilo, en el noreste de África. Las crecidas del río favorecían la agricultura en terrenos próximos a sus orillas. Los egipcios construyeron pirámides y utilizaron sistemas de escritura como los jeroglíficos. Los faraones gobernaban el territorio y la administración organizaba trabajos y recursos. El papiro se utilizó como soporte para escribir. Las pirámides de Guiza pertenecen al Reino Antiguo y muestran conocimientos de construcción y organización. La historia egipcia abarca muchos siglos y diferentes periodos.",
+        "El antiguo Egipto fue una civilización que se desarrolló junto al río Nilo, en el noreste de África. Las crecidas del río favorecían la agricultura en terrenos próximos a sus orillas. Los egipcios construyeron pirámides y utilizaron sistemas de escritura como los jeroglíficos. Los faraones gobernaban el territorio y la administración organizaba trabajos y recursos. El papiro proporcionaba un soporte para escribir. Las pirámides de Guiza pertenecen al Reino Antiguo y muestran conocimientos de construcción y organización. La historia egipcia abarca muchos siglos y diferentes periodos.",
         "historia_misterios",
         "https://www.britishmuseum.org/collection/egypt",
         "papiro",
@@ -217,6 +217,20 @@ ARTICLES = {
         "deportes",
         "https://olympics.com/ioc/ancient-olympic-games",
         "1896",
+    ),
+    "robots inteligencia artificial": Article(
+        "Robots e Inteligencia Artificial",
+        "Los robots son máquinas que ejecutan instrucciones con la finalidad de realizar tareas físicas. Algunos utilizan sensores que proporcionan información del entorno y motores que producen movimientos. La inteligencia artificial comprende métodos informáticos para reconocer patrones o procesar lenguaje. Un robot puede utilizar un modelo de inteligencia artificial, pero numerosos robots funcionan mediante programas sin aprendizaje automático. El entrenamiento de un modelo utiliza datos y sus resultados pueden contener errores. Por consiguiente, un sistema robótico necesita controles adecuados a la tarea y no posee necesariamente forma humana.",
+        "tecnologia",
+        "https://www.nasa.gov/robotics/",
+        "forma humana",
+    ),
+    "pequeno faro": Article(
+        "El Viaje del Pequeño Faro",
+        "Este cuento original presenta a un pequeño faro imaginario que desea comprender su trabajo junto al mar. Una noche observa las embarcaciones y utiliza su luz con la finalidad de indicar la posición de la costa. Posteriormente descubre que los faros reales proporcionan señales luminosas para ayudar a la navegación. Numerosos faros poseen secuencias de destellos que permiten distinguirlos. El protagonista no navega: su viaje consiste en comprender su función desde la orilla. Los personajes pertenecen a la ficción, mientras que la explicación sobre las señales de los faros describe una característica real.",
+        "cuentos_aventuras",
+        "https://oceanservice.noaa.gov/facts/lighthouse.html",
+        "destellos",
     ),
 }
 

@@ -111,7 +111,7 @@ async def test_topic_is_integrated_in_title_and_body(client, make_user, category
     assert_questions(data)
 
 
-async def test_generated_lesson_assignment_rbac_and_zero_retention(
+async def test_generated_lesson_assignment_rbac_and_authorized_retention(
     client, db, make_user, child_payload, caplog
 ):
     _, tutor, _ = await make_user()
@@ -120,7 +120,8 @@ async def test_generated_lesson_assignment_rbac_and_zero_retention(
     captured = []
 
     def record(connection, cursor, statement, parameters, context, executemany):
-        captured.append(repr(parameters))
+        if "adaptation_contents" not in statement:
+            captured.append(repr(parameters))
 
     event.listen(db.bind.sync_engine, "before_cursor_execute", record)
     try:

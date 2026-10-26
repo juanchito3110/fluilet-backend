@@ -189,7 +189,7 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
         async with engine.connect() as connection:
             assert (
                 await connection.scalar(text("SELECT version_num FROM alembic_version"))
-                == "0005_daily_activity"
+                == "0006_academic_review"
             )
             assert await connection.scalar(text("SELECT score_delta FROM reading_sessions")) == 0
         async with engine.begin() as connection:
@@ -210,8 +210,26 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
             assert await connection.scalar(text("SELECT COUNT(*) FROM reading_activity_days")) == 1
             assert (
                 await connection.scalar(text("SELECT version_num FROM alembic_version"))
-                == "0005_daily_activity"
+                == "0006_academic_review"
             )
+        async with engine.begin() as connection:
+            await connection.execute(text("UPDATE reading_sessions SET demo_slot='academic-v1-0'"))
+        demo_rollback = await migrate("downgrade", "0005_daily_activity")
+        assert demo_rollback.returncode != 0
+        assert "academic demo markers require the current schema" in demo_rollback.stderr
+        async with engine.begin() as connection:
+            await connection.execute(text("UPDATE reading_sessions SET demo_slot=NULL"))
+            await connection.execute(
+                text(
+                    "INSERT INTO adaptation_contents (id,document_id,context_key,target_level,age_group,original_text,adapted_text,response_payload) VALUES (:id,:doc,:key,2,'12+','Synthetic original','Synthetic adapted','{}')"
+                ),
+                {"id": uuid.uuid4(), "doc": document_id, "key": "a" * 64},
+            )
+        content_rollback = await migrate("downgrade", "0005_daily_activity")
+        assert content_rollback.returncode != 0
+        assert "retained adaptations require the current schema" in content_rollback.stderr
+        async with engine.connect() as connection:
+            assert await connection.scalar(text("SELECT COUNT(*) FROM adaptation_contents")) == 1
         drift = await migrate("check")
         assert drift.returncode == 0, drift.stdout + drift.stderr
     finally:

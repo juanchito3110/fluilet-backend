@@ -116,3 +116,35 @@ repeated PATCH/GET and content-hash deduplication after document re-upload.
 Migration tests exercise inferred legacy backfill and refuse destructive downgrade
 when new daily activity exists. These are software correctness checks, not an
 independent factual audit of Wikipedia or a clinical comprehension study.
+
+
+## Academic review contract — 26 October 2026
+
+- Android `b822b85` inspected read-only. Glossary, fact and mission wire names
+  match; original/claimed consumption and client-local reward reconciliation are
+  explicitly identified as remaining Android work in `academic-demo.md`.
+- Explicit owner authorization superseded Zero Retention for originals, adapted
+  readings and their complete educational responses. `adaptation_contents` stores
+  versions by document/profile/level/group. Tests verify database retrieval after
+  ORM identity eviction, isolated versions, deletion cascade, owner/profile/library
+  access, and absence of content in unrelated tables or logs.
+- Full PostgreSQL suite: **420 passed**. SQLite: **417 passed, 3 skipped**
+  (PostgreSQL-only migration, row-lock concurrency and database constraints).
+- Ruff, format checks and `pip check`: passed.
+- Dedicated PostgreSQL test instance used private disposable schemas, never the
+  application profile history. Seed tests verify six retained lessons, seven
+  consecutive dates, real measured NLP scores, explicit demo flags, ascending
+  synthetic comprehension, stage 4, more than 260 gems, idempotent claims, repeated
+  and concurrent seeds, and preservation of genuine readings/preferences.
+- Application schema-only private backup verified; migration
+  **0006_academic_review** applied; `alembic check` reports no drift. No previously
+  discarded source is reconstructed. No application profile was seeded implicitly.
+- API restarted on port **8000**; readiness **200**, PostgreSQL operational and
+  deterministic engine operational. OpenAPI verifies comparison, retrieval,
+  seed-demo and claim endpoints.
+
+See `academic-demo.md` for the actual local score comparison. Those improvements
+remain below the combined readability target and are honestly marked best effort.
+Synthetic comprehension and rewards are demonstration data, not validation of
+educational or clinical efficacy. Full client UI synchronization cannot be claimed
+without consuming the added original/claimed fields in Android.

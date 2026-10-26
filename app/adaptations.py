@@ -1,4 +1,4 @@
-"""Authenticated adaptation; content lives only until this request/work completes."""
+"""Authenticated adaptation and owner-scoped, explicitly authorized lesson retrieval."""
 
 import asyncio
 import hashlib
@@ -9,11 +9,11 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import auth, education, models, schemas, vocabulary
-from app.activities import accessible_child
+from app.activities import accessible_child, accessible_document
 from app.config import settings
 from app.database import get_db
 from app.ingestion import IngestionError, clean_text, extract_safely, read_stream
-from app.lesson_sources import SourceUnavailable, resolve_lesson
+from app.lesson_sources import SourceUnavailable, local_article, resolve_lesson, resolve_topic
 from app.nlp.pipeline import original_result, pipeline
 from app.nlp.validation import InvalidText, TextTooLarge, validate_text
 
@@ -77,6 +77,8 @@ async def persist(
     level=3,
     title=None,
     article=None,
+    age_group=None,
+    commit=True,
 ):
     # Serialize metadata upserts per owner, independently of inference execution.
     locked_user = await db.scalar(
@@ -90,7 +92,8 @@ async def persist(
     if child_id is not None:
         child = await accessible_child(child_id, user, db)
         child_age = education.age_years(child.birth_date)
-    practice = await asyncio.to_thread(education.questions, result.adapted_text, child_age)
+    effective_age = child_age if child_age is not None else {"6-8": 7, "9-11": 10}.get(age_group)
+    practice = await asyncio.to_thread(education.questions, result.adapted_text, effective_age)
     fact, terms = await asyncio.to_thread(
         vocabulary.enrich, result.adapted_text, article.fact_hint if article else ""
     )
@@ -131,9 +134,44 @@ async def persist(
         )
         if existing is None:
             db.add(models.ChildLibraryItem(child_id=child_id, document_id=document.id))
-    await db.commit()
+    await db.flush()
     await db.refresh(document)
-    return schemas.AdaptationRead(
+    metrics = result.metrics
+    group = education.question_age_group(effective_age)
+    context = hashlib.sha256(f"{document.id}:{child_id}:{level}:{group}".encode()).hexdigest()
+    content = await db.scalar(
+        select(models.AdaptationContent).where(models.AdaptationContent.context_key == context)
+    )
+    if content is None:
+        content = models.AdaptationContent(
+            id=uuid.uuid4(),
+            document_id=document.id,
+            child_id=child_id,
+            context_key=context,
+            target_level=level,
+            age_group=group,
+        )
+        db.add(content)
+    response = schemas.AdaptationRead(
+        id=content.id,
+        original_text=result.original_text,
+        original_readability_score=metrics["original_szigriszt_score"],
+        readability_score=metrics["adapted_szigriszt_score"],
+        metrics=schemas.ComparisonMetrics(
+            original_szigriszt_pazos=metrics["original_szigriszt_score"],
+            adapted_szigriszt_pazos=metrics["adapted_szigriszt_score"],
+            score_delta=metrics["score_delta"],
+            original_word_count=metrics["original_word_count"],
+            adapted_word_count=metrics["adapted_word_count"],
+            original_sentence_count=metrics["original_sentence_count"],
+            adapted_sentence_count=metrics["sentence_count"],
+            original_average_words_per_sentence=metrics["original_word_count"]
+            / metrics["original_sentence_count"],
+            adapted_average_words_per_sentence=metrics["adapted_word_count"]
+            / metrics["sentence_count"],
+        ),
+        target_level=level,
+        age_group=education.question_age_group(effective_age),
         document=schemas.DocumentRead.model_validate(document),
         adapted_text=result.adapted_text,
         chunks=result.chunks,
@@ -145,7 +183,7 @@ async def persist(
         category=category,
         simplification_level=level,
         comprehension_questions=practice,
-        question_age_group=education.question_age_group(child_age),
+        question_age_group=education.question_age_group(effective_age),
         child_age_years=child_age,
         fun_fact=fact,
         key_vocabulary=terms,
@@ -163,18 +201,31 @@ async def persist(
         if article
         else None,
     )
+    content.original_text = response.original_text
+    content.adapted_text = response.adapted_text
+    content.response_payload = response.model_dump(
+        mode="json", exclude={"original_text", "adapted_text"}
+    )
+    if commit:
+        await db.commit()
+    else:
+        await db.flush()
+    return response
 
 
+@router.post("", response_model=schemas.AdaptationRead)
 @router.post("/text", response_model=schemas.AdaptationRead)
 async def adapt_text(
     payload: schemas.AdaptTextRequest,
     user: models.User = Depends(_adults),
     db: AsyncSession = Depends(get_db),
 ):
+    child_age = {"6-8": 7, "9-11": 10}.get(payload.age_group)
     if payload.child_id:
-        await accessible_child(payload.child_id, user, db)
+        child = await accessible_child(payload.child_id, user, db)
+        child_age = education.age_years(child.birth_date)
     result, digest = await process(
-        payload.text, None, "text/plain", payload.nivel_simplificacion_nlp
+        payload.text, None, "text/plain", payload.nivel_simplificacion_nlp, child_age=child_age
     )
     return await persist(
         result,
@@ -185,6 +236,7 @@ async def adapt_text(
         user,
         db,
         level=payload.nivel_simplificacion_nlp,
+        age_group=payload.age_group,
     )
 
 
@@ -237,7 +289,7 @@ async def generate_lesson(
     user: models.User = Depends(_adults),
     db: AsyncSession = Depends(get_db),
 ):
-    child_age = None
+    child_age = {"6-8": 7, "9-11": 10}.get(payload.age_group)
     if payload.child_id:
         child = await accessible_child(payload.child_id, user, db)
         child_age = education.age_years(child.birth_date)
@@ -250,6 +302,17 @@ async def generate_lesson(
     result, digest = await process(
         entry.text, None, "text/plain", payload.simplification_level, child_age=child_age
     )
+    if result.adapted_text == result.original_text:
+        fallback = local_article(resolve_topic(payload.category, payload.topic))
+        if fallback is not None and fallback.text != entry.text:
+            entry = fallback
+            result, digest = await process(
+                entry.text, None, "text/plain", payload.simplification_level, child_age=child_age
+            )
+        if result.adapted_text == result.original_text:
+            raise HTTPException(
+                503, "La fuente disponible no permite una simplificación fiel. Prueba otro tema."
+            )
     return await persist(
         result,
         digest,
@@ -262,4 +325,37 @@ async def generate_lesson(
         level=payload.simplification_level,
         title=entry.title,
         article=entry,
+        age_group=payload.age_group,
+    )
+
+
+@router.get("/{adaptation_id}", response_model=schemas.AdaptationRead)
+async def get_adaptation(
+    adaptation_id: uuid.UUID,
+    user: models.User = Depends(auth.get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    content = await db.get(models.AdaptationContent, adaptation_id)
+    if content is None:
+        # Android already knows document.id; support it as a latest-version alias.
+        await accessible_document(adaptation_id, user, db)
+        content = await db.scalar(
+            select(models.AdaptationContent)
+            .where(models.AdaptationContent.document_id == adaptation_id)
+            .order_by(
+                models.AdaptationContent.updated_at.desc(), models.AdaptationContent.id.desc()
+            )
+            .limit(1)
+        )
+    if content is None:
+        raise HTTPException(404, "Adaptación no encontrada.")
+    await accessible_document(content.document_id, user, db)
+    if content.child_id is not None:
+        await accessible_child(content.child_id, user, db)
+    return schemas.AdaptationRead.model_validate(
+        {
+            **content.response_payload,
+            "original_text": content.original_text,
+            "adapted_text": content.adapted_text,
+        }
     )

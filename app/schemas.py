@@ -219,6 +219,7 @@ class LessonGenerate(InputModel):
     child_id: uuid.UUID | None = None
     custom_topic: str | None = Field(default=None, max_length=120)
     target_level: NlpLevel | None = None
+    age_group: Literal["6-8", "9-11", "12+"] | None = None
 
     @model_validator(mode="after")
     def aliases_agree(self):
@@ -277,6 +278,19 @@ class AdaptTextRequest(InputModel):
     text: str = Field(min_length=1, max_length=5 * 1024 * 1024)
     nivel_simplificacion_nlp: NlpLevel = 3
     child_id: uuid.UUID | None = None
+    target_level: NlpLevel | None = None
+    age_group: Literal["6-8", "9-11", "12+"] | None = None
+
+    @model_validator(mode="after")
+    def level_alias_agrees(self):
+        if self.target_level is not None:
+            if (
+                "nivel_simplificacion_nlp" in self.model_fields_set
+                and self.nivel_simplificacion_nlp != self.target_level
+            ):
+                raise ValueError("Los niveles no coinciden.")
+            self.nivel_simplificacion_nlp = self.target_level
+        return self
 
 
 class ChunkRead(TelemetryRead):
@@ -298,7 +312,26 @@ class LessonSource(BaseModel):
     revision_id: int | None = None
 
 
+class ComparisonMetrics(BaseModel):
+    original_szigriszt_pazos: float
+    adapted_szigriszt_pazos: float
+    score_delta: float
+    original_word_count: int
+    adapted_word_count: int
+    original_sentence_count: int
+    adapted_sentence_count: int
+    original_average_words_per_sentence: float
+    adapted_average_words_per_sentence: float
+
+
 class AdaptationRead(BaseModel):
+    id: uuid.UUID
+    original_text: str = Field(min_length=1)
+    original_readability_score: float
+    readability_score: float
+    metrics: ComparisonMetrics
+    target_level: int
+    age_group: Literal["6-8", "9-11", "12+"]
     document: DocumentRead
     adapted_text: str
     chunks: list[ChunkRead]
@@ -355,6 +388,7 @@ class ReadingUpdate(EducationalReadingInput):
 
 
 class ReadingRead(TelemetryRead):
+    is_demo: bool = False
     model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID
     child_id: uuid.UUID | None
@@ -374,6 +408,8 @@ class ReadingRead(TelemetryRead):
 
 
 class LessonProgress(BaseModel):
+    is_demo: bool = False
+    document_id: uuid.UUID | None = None
     lesson_number: int
     reading_id: str
     recorded_at: str
@@ -438,6 +474,7 @@ class DailyMission(BaseModel):
     progress: int = Field(ge=0)
     target: int = Field(ge=1)
     completed: bool
+    claimed: bool
 
 
 class EducationalProgress(BaseModel):
@@ -450,6 +487,9 @@ class EducationalProgress(BaseModel):
     current_recommended_level: int
     level_progression: list[LessonProgress]
     badges: list[EducationalBadge]
+    current_streak_days: int = Field(ge=0)
+    demo_data: bool = False
+    demo_lessons: list[AdaptationRead] = Field(default_factory=list)
     streak_days: int = Field(ge=0)
     total_gems: int = Field(ge=30)
     total_xp: int = Field(ge=0)

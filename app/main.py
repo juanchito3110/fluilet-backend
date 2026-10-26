@@ -1,4 +1,4 @@
-"""Fluilet API: async persistence, scoped identities and zero-retention adaptation."""
+"""Fluilet API: async persistence, scoped identities and authorized retained lessons."""
 
 import uuid
 from contextlib import asynccontextmanager
@@ -13,6 +13,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import auth, models, schemas
+from app.academic_demo import router as academic_demo_router
 from app.activities import router as activities_router
 from app.adaptations import router as adaptations_router
 from app.config import settings
@@ -316,4 +317,5 @@ async def open_child_session(
 
 app.include_router(activities_router)
 app.include_router(adaptations_router)
+app.include_router(academic_demo_router)
 app.include_router(health_router)

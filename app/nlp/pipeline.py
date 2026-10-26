@@ -28,6 +28,7 @@ class AdaptationResult:
     chunks: list[dict]
     method: str
     warnings: list[str] = field(default_factory=list)
+    original_text: str = ""
 
     @property
     def meets_readability_target(self) -> bool:
@@ -50,6 +51,7 @@ def original_result(text: str, warning: str | None = None) -> AdaptationResult:
         ],
         "original",
         ["original_text_retained"] + ([warning] if warning else []),
+        original_text=text,
     )
 
 
@@ -166,6 +168,7 @@ class AdaptationPipeline:
             ],
             method,
             ["original_text_retained"] if method == "original" else [],
+            original_text=text,
         )
 
 

@@ -197,6 +197,7 @@ def mission_summary(sessions, activity_days=None, today=None):
             "progress": value,
             "target": target,
             "completed": value >= target,
+            "claimed": value >= target,
         }
         for value, (code, title, reward, target) in zip(progress(today), MISSIONS, strict=True)
     ]

@@ -17,10 +17,13 @@ Original filename/storage_path columns are removed. Audit/remove any files in
 legacy storage/backups separately; dropping a column cannot delete external files.
 Never run migrations against a database just because its credentials exist in .env.
 
-## Zero retention
+## Authorized content retention (26 October 2026)
 
 Content is received in RAM with bounded streaming, then decoded/extracted and
-processed without file queues or DB text columns. Raw file bodies avoid Starlette's
+processed without file queues. After successful adaptation, the explicitly
+authorized source, output and educational response are stored in
+`adaptation_contents`. This supersedes the earlier Zero Retention policy; it is
+not a metadata-only database anymore. Raw file bodies avoid Starlette's
 multipart spooling entirely; multipart is rejected before parsing. PDF extraction
 uses a killable process, 10-second deadline, page/decoded-text limits and Linux
 CPU/address-space limits. Windows/macOS retain input/page/time limits; Linux is the
@@ -35,8 +38,8 @@ captured by external logging/APM/debug tools. Do not enable SQL echo, HTTP BODY
 logging, profiler-local capture or debug tracebacks for real documents.
 
 Request-local references are released after work completes. Python strings/native
-model buffers are not securely erasable; this is non-persistence, not a claim of
-forensic RAM erasure. A timed-out native inference thread retains its slot and
+model buffers are not securely erasable; there is no claim of forensic RAM erasure.
+Retained versions persist in PostgreSQL and its storage/backups until deleted. A timed-out native inference thread retains its slot and
 input until it actually completes; requests never launch unbounded replacement
 threads. PDF workers are terminated on timeout/cancellation. Serving has no prompt
 cache. Model weights and explicitly licensed offline training data are not user
@@ -44,7 +47,7 @@ uploads and are intentionally separate artifacts.
 
 Host swap/hibernation, crash/core dumps, container checkpoints, snapshots of live
 RAM and monitoring agents can persist process memory. Disable these on the VPS,
-including encrypted swap if the policy literally forbids any content reaching disk.
+where the deployment policy requires limiting incidental memory persistence.
 The provided containers disable core dumps, use a read-only API filesystem and
 RAM tmpfs for incidental proxy/runtime temporaries. The operator must verify host
 settings and monitoring/backups; application code cannot guarantee those settings.
@@ -109,8 +112,8 @@ it never deletes readings to force a rollback. Existing qualifying snapshots and
 legacy null snapshots survive an upgrade/downgrade round trip.
 
 Educational progress migration `0004_educational_progress` adds numeric practice
-telemetry and normalized category/level snapshots. Topics, generated titles,
-questions and source/adapted text are not stored. New summaries retain owner/profile
+telemetry and normalized category/level snapshots. That revision did not store topics, generated titles,
+questions or source/adapted text; revision 0006 now stores authorized lesson content. New summaries retain owner/profile
 scoping and derived progress is read-only. Practice counters are client-reported;
 score consistency checks do not prove a learner's answers. Question metadata must
 remain outside external body logs just like the adapted text. Downgrade refuses to
@@ -118,7 +121,7 @@ discard populated educational metadata.
 
 Age-aware questions read birth dates only after the existing active-profile and
 owner checks. Responses expose completed years rather than a birth date. Hints,
-explanations and age-group choices remain response data. FluiBot's counters, cards,
+explanations and age-group choices are included in retained adaptation responses. FluiBot's counters, cards,
 catalog and practice suggestions are computed from the already owner-scoped
 sessions, with no per-request reward writes or shared learner cache. The game
 metadata uses the same client-reported practice figures as the educational summary.
@@ -132,7 +135,8 @@ no redirects, four concurrent slots and a total 3.5-second deadline. User docume
 and free-text adaptation bodies are never forwarded to Wikipedia. Disable the
 lookup with `WIKIPEDIA_ENABLED=false` where network disclosure of generation topics
 is unsuitable. Do not add HTTP body tracing; standard request URLs contain no topic.
-Extracts and source metadata remain in RAM and in the no-store response only.
+Extracts and source metadata are retained in the authorized lesson record and
+returned with Cache-Control: no-store.
 Source attribution includes the Wikipedia license and revision when available.
 
 Migration `0005_daily_activity` stores session/date activity flags and a content
@@ -143,3 +147,27 @@ session snapshots are explicitly marked. Downgrade refuses to discard newly
 observed activity. Hash matching has the same dictionary-attack limitation as
 existing document hashes and is not an anonymity guarantee. Mission rewards rely
 on client-reported practice; they are not proof of quiz correctness.
+
+
+## Revision 0006: access and synthetic demo scope
+
+`0006_academic_review` adds retained content versions and nullable unique per-child
+demo slots. It does not reconstruct historical uploads. Versions are deduplicated
+by document/profile/level/group context and stored transactionally with document
+metadata. Source and output use dedicated text columns; the JSON payload retains
+questions, definitions, sources and numerical snapshots. GET checks document owner
+or library assignment, then profile identity/activity. UUID secrecy is not used as
+a permission check. Deleting a document or hard-deleting its owner cascades content;
+profile deactivation removes access without claiming physical erasure. Account
+DELETE remains deactivation under the existing contract. Database backups may
+still contain retained content and require an operator-defined retention policy.
+
+The academic seed is authenticated, tutor-owned and explicitly marks synthetic
+comprehension/history. It never silently treats these as measured learner outcomes.
+Row locks and unique slots prevent duplicate cohorts. Its dates are anchored on
+first creation, and it does not change genuine sessions or profile preferences.
+Readability scores are computed from the actual authored lesson pairs. Downgrade
+refuses when retained content or demo markers exist; it does not delete content or
+history to force a schema rollback. Claim acknowledges already-derived rewards and
+has no second payout. No unrelated data or test account is inserted in the manual
+application database during automated tests.

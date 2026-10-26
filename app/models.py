@@ -1,10 +1,11 @@
-"""Accounts, relationships and numerical telemetry only. Never document content."""
+"""Accounts, telemetry and explicitly authorized owner-scoped lesson content."""
 
 import enum
 import uuid
 from datetime import date, datetime
 
 from sqlalchemy import (
+    JSON,
     Boolean,
     CheckConstraint,
     Date,
@@ -14,6 +15,7 @@ from sqlalchemy import (
     Integer,
     Numeric,
     String,
+    Text,
     UniqueConstraint,
     func,
 )
@@ -270,6 +272,7 @@ class ChildLibraryItem(Base):
 class ReadingSession(AdaptationTelemetry, Base):
     __tablename__ = "reading_sessions"
     __table_args__ = (
+        UniqueConstraint("child_id", "demo_slot", name="uq_child_demo_slot"),
         CheckConstraint("completion_percent BETWEEN 0 AND 100", name="ck_progreso_rango"),
         CheckConstraint("reading_time_seconds >= 0", name="ck_reading_time"),
         CheckConstraint("NOT completed OR completion_percent = 100", name="ck_completed_progress"),
@@ -305,6 +308,12 @@ class ReadingSession(AdaptationTelemetry, Base):
     document_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("documents.id", ondelete="SET NULL"), nullable=True
     )
+
+    demo_slot: Mapped[str | None] = mapped_column(String(32), nullable=True)
+
+    @property
+    def is_demo(self):
+        return self.demo_slot is not None
 
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -392,3 +401,36 @@ class ReadingActivityDay(Base):
     inferred: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
+
+
+class AdaptationContent(Base):
+    """Retained source/reading pair, authorized by the owner for academic retrieval."""
+
+    __tablename__ = "adaptation_contents"
+    __table_args__ = (
+        CheckConstraint("target_level BETWEEN 1 AND 5", name="ck_content_level"),
+        CheckConstraint("age_group IN ('6-8','9-11','12+')", name="ck_content_age"),
+        CheckConstraint(
+            "length(original_text)>0 AND length(adapted_text)>0", name="ck_content_nonempty"
+        ),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("documents.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    child_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("child_profiles.id", ondelete="CASCADE"), nullable=True
+    )
+    context_key: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    target_level: Mapped[int] = mapped_column(Integer, nullable=False)
+    age_group: Mapped[str] = mapped_column(String(8), nullable=False)
+    original_text: Mapped[str] = mapped_column(Text, nullable=False)
+    adapted_text: Mapped[str] = mapped_column(Text, nullable=False)
+    response_payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

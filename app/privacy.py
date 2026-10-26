@@ -39,6 +39,7 @@ async def validation_error(request: Request, exc: RequestValidationError):
                             "topic",
                             "custom_topic",
                             "target_level",
+                            "age_group",
                             "simplification_level",
                             "child_id",
                             "comprehension_score",

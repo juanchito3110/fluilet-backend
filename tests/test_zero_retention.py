@@ -8,14 +8,15 @@ from app.config import settings
 from tests.conftest import SOURCE
 
 
-async def test_only_metadata_in_sql_and_duplicate_telemetry_is_upserted(
+async def test_authorized_content_is_scoped_and_duplicate_telemetry_is_upserted(
     client, db, make_user, caplog
 ):
     _, headers, _ = await make_user()
     captured = []
 
     def record(connection, cursor, statement, parameters, context, executemany):
-        captured.append(repr(parameters))
+        if "adaptation_contents" not in statement:
+            captured.append(repr(parameters))
 
     event.listen(db.bind.sync_engine, "before_cursor_execute", record)
     try:
@@ -34,8 +35,15 @@ async def test_only_metadata_in_sql_and_duplicate_telemetry_is_upserted(
         assert first.json()["adapted_text"] not in "\n".join(captured)
         forbidden = {"text", "original_text", "adapted_text", "storage_path", "file_name"}
         assert not any(
-            forbidden & set(table.columns.keys()) for table in models.Base.metadata.tables.values()
+            forbidden & set(table.columns.keys())
+            for table in models.Base.metadata.tables.values()
+            if table.name != "adaptation_contents"
         )
+        content = await db.scalar(select(models.AdaptationContent))
+        assert content.original_text == SOURCE
+        assert content.adapted_text == first.json()["adapted_text"]
+        assert await db.scalar(select(func.count()).select_from(models.AdaptationContent)) == 1
+        assert SOURCE not in caplog.text
         assert first.headers["cache-control"] == "no-store"
     finally:
         event.remove(db.bind.sync_engine, "before_cursor_execute", record)

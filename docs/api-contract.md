@@ -4,7 +4,7 @@ Login is unchanged: `POST /api/v1/auth/login`, form-urlencoded `username` and
 `password`. Response: `access_token`, `refresh_token`, `token_type: bearer`, plus
 additive `role: TUTOR | NINO | ADULTO_INDEPENDIENTE`. `/users/me` returns the trusted
 role too. Android must attach Bearer tokens, retain them securely, refresh them and
-route according to the server role; its current mock repositories do none of this.
+route according to the server role. Android was inspected at commit `b822b85`.
 
 Public registration accepts TUTOR/ADULTO_INDEPENDIENTE (legacy lowercase too).
 NINO registration is forbidden publicly. A tutor creates a child profile, then
@@ -29,7 +29,7 @@ All following routes are prefixed `/api/v1`:
 | POST /adaptations/text | Adult; JSON text, optional child_id and level |
 | POST /adaptations/file | Adult; raw body PDF/TXT, query child_id and level |
 | GET /documents, /documents/{id} | Adult-owned or assigned to authenticated child; metadata only |
-| DELETE /documents/{id} | Adult owner; delete metadata/assignments, detach historical readings |
+| DELETE /documents/{id} | Adult owner; delete metadata/content/assignments, detach historical readings |
 | GET /children/{id}/library | Tutor/that child; assigned metadata |
 | POST /children/{id}/library | Tutor; document_id from own activity |
 | DELETE /children/{id}/library/{document_id} | Owning tutor |
@@ -46,19 +46,19 @@ updates use `reading_time_seconds`, `completion_percent`, `completed`. The clien
 must not report more reading time than elapsed wall time (5-second tolerance).
 Completion requires 100% and is final. Readability scores/counts cannot be supplied by clients.
 Document telemetry includes scores, delta, original/adapted counts and the exception
-flag. Original filenames, text and storage locations are absent.
+flag. Original filenames and storage locations are absent from document metadata. Reading
+content is now retained separately in `adaptation_contents` under the same owner.
 
 NLP input accepts integers 1..5 and BASICO=1, INTERMEDIO=3, AVANZADO=5. The response
 uses the stored integer; values 2/4 remain available without inventing new Android
 enum names. Palette/difficulty strings preserve the original lowercase contract.
-The current Android code has no network DTO for new endpoints: integration is
-still required in its read-only repository. Its 15-second timeout may be too short
-for local inference; benchmark before choosing a client timeout.
-
-No GET endpoint retrieves an earlier document's content. Devices must resend
-content when needed. SHA-256 deduplication is scoped per owner. A successful
-re-adaptation updates that document's latest numerical telemetry/chunks rather
-than duplicating records. Metadata survives content disappearance by design.
+Android `b822b85` uses the existing network DTOs and a 190-second adaptation timeout.
+It continues to use `document.id` for sessions. The new root adaptation `id` is a
+separate UUID. SHA-256 deduplication remains scoped per owner. Re-adaptation updates
+latest document telemetry/chunks but retains distinct content versions per
+(document, child or adult context, target level, age group). A repeat for the same
+context upserts that version. Old pre-retention metadata cannot reconstruct lost
+manual text and returns 404 until adapted again.
 
 `/health/live` and `/health/ready` are intentionally public, content-free operational
 endpoints. Readiness checks PostgreSQL and a fixed synthetic adaptation probe,
@@ -132,7 +132,7 @@ is an additive raw PDF/TXT alias of `/adaptations/file`.
 All adaptation responses now include `question_age_group` (`6-8`, `9-11`, `12+`)
 and nullable `child_age_years`. The age is calculated from the authorized profile's
 birth date, in completed calendar years on the UTC service date. Without `child_id`,
-the standard `12+` group applies. Questions add `hint` and `explanation`.
+the explicit `age_group` applies, defaulting to `12+`. Questions add `hint` and `explanation`.
 
 Both educational progress responses add `streak_days`, `total_gems`, `total_xp`,
 `total_stars`, `current_rank_title`, `next_rank_stars`, `mascot`, six
@@ -148,7 +148,7 @@ See [educational-features.md](educational-features.md) for exact tiers and formu
 `POST /adaptations/generate` accepts `custom_topic` and `target_level` alongside
 `topic` and `simplification_level`; conflicting aliases return 422. Optional topic
 resolution uses category context, five Spanish Wikipedia search candidates and a
-3.5-second total deadline, then a 29-article factual local bank. Unsupported topics
+3.5-second total deadline, then a 31-article factual local bank. Unsupported topics
 without an available source return a sanitized 503. Existing free-text adaptation
 quality thresholds continue to allow best-effort 200 responses.
 
@@ -165,3 +165,71 @@ practice on two distinct readings (40). Items expose `id`, `title`, `description
 `reward_gems`, `progress`, `target`, `completed`. Current goals use UTC dates;
 `total_gems` includes historical completed mission bonuses once per mission/day.
 XP formulas and legacy progress lists remain unchanged. Apply `0005_daily_activity`.
+
+
+## Academic review contract — 26 October 2026
+
+All text/file/generated adaptations return the following additive fields:
+
+| Field | Meaning |
+|---|---|
+| `id` | Retained adaptation UUID; distinct from `document.id` |
+| `original_text` | Complete cleaned source submitted to NLP, nonempty |
+| `adapted_text` | Actual delivered simplification or truthful free-text fallback |
+| `original_readability_score`, `readability_score` | Raw, unrounded Szigriszt-Pazos floats |
+| `metrics.original_szigriszt_pazos`, `metrics.adapted_szigriszt_pazos`, `metrics.score_delta` | Exact comparable scores and difference |
+| `metrics.original_word_count`, `metrics.adapted_word_count` | Counts from each delivered text |
+| `metrics.original_sentence_count`, `metrics.adapted_sentence_count` | Sentence counts |
+| `metrics.original_average_words_per_sentence`, `metrics.adapted_average_words_per_sentence` | Actual word count / sentence count |
+| `target_level`, `age_group` | Requested level and effective `6-8`, `9-11` or `12+` group |
+| `fun_fact`, `key_vocabulary`, `comprehension_questions` | Existing real text-grounded enriched fields |
+
+A profile's trusted birthday overrides `age_group`; without a profile it selects
+the teaching group without fabricating `child_age_years`. `POST /adaptations`
+aliases `/adaptations/text` and accepts `text`, `target_level` or existing
+`nivel_simplificacion_nlp`, optional `child_id` and `age_group`. Conflicting level
+aliases return 422. Generated lessons require a faithful, actually improved pair;
+if Wikipedia's source cannot improve, a known authored local source may replace it
+with accurate source attribution. If neither can improve, generation returns a
+controlled 503; it never changes punctuation solely to claim a numerical gain.
+Free-text best-effort 200 behavior remains unchanged. Tiny free inputs can have
+fewer than three distinct meaningful glossary terms.
+
+`GET /adaptations/{id}` loads the entire retained response from PostgreSQL;
+owner/tutor/active-child/library authorization is checked again. Document UUIDs
+also work as a latest-version alias. Deleted documents cascade-delete content.
+Inactive accounts/profiles cannot use these endpoints. Legacy lost content is not
+invented. Retention is explicitly authorized for manual text as well as public
+lessons; no response/body/SQL parameter logging is enabled.
+
+Daily mission DTO fields exactly match Android's `id`, `title`, `description`,
+`reward_gems`, `progress`, `target`, and add `completed` and `claimed`. Since the
+server automatically credits a completed mission once per date, `claimed` equals
+`completed`. POST `/profiles/{profile_id}/daily-missions/{mission_id}/claim` returns
+the full progress object; completed missions return 200 without a second payout,
+pending missions 409 and unknown missions 404. Existing 25/30/40 rewards and mission
+objectives remain unchanged. `current_streak_days` counts consecutive UTC days
+through today or yesterday; legacy `streak_days` retains its distinct-date count.
+
+POST `/profiles/{profile_id}/seed-demo` is for the owning tutor only. It returns
+`EducationalProgress` plus `demo_lessons` containing six complete retained readings.
+It seeds Real Madrid, Biología Marina, Agujeros Negros, Antiguo Egipto, Robots e
+Inteligencia Artificial and **El Viaje del Pequeño Faro**, an original fictional
+tale that explicitly distinguishes its characters from real lighthouse facts.
+Seven completion dates span the first invocation's last seven UTC dates, levels
+1..4, synthetic comprehension 65/75/80/85/90/100/100, and measured NLP score pairs.
+The repeated football practice on day seven is measured at level 4. `demo_data`
+and each history/session `is_demo` identify synthetic practice; demo slots are
+unique per child. No real session or profile preference is overwritten, and dates
+are not rolled forward on repeat calls. Base rewards alone exceed 260 gems and
+700 XP. Concurrent requests serialize under owner/profile locks. The same version
+is reused for repeated lesson preparation.
+
+**Android scope:** `b822b85` was read only. Its DTO accepts `fun_fact` and
+`key_vocabulary` (`word`, `definition`, `example`) and all existing mission names.
+It does not parse `original_text` or `claimed`, nor call the new endpoints. Its
+local claim logic can add a reward already included by the server. The backend's
+idempotent claim cannot remove that client-local duplicate: the client must consume
+server `claimed` and avoid a local second payout before claiming end-to-end reward
+synchronization. New response fields are additive and ignored by its current Gson
+DTOs. Backend tests cover the wire contract, not an unmodified emulator's new UI.

@@ -1,6 +1,6 @@
 """Owner-scoped educational metrics; recommendations are practice suggestions."""
 
-from datetime import UTC
+from datetime import UTC, timedelta
 from statistics import mean
 
 from fastapi import HTTPException
@@ -87,6 +87,8 @@ def summarize(sessions, baseline=2, activity_days=None):
         any(session.simplification_level >= 3 for session in finished),
     )
     return schemas.EducationalProgress(
+        current_streak_days=current_streak(sessions),
+        demo_data=any(getattr(item, "demo_slot", None) for item in sessions),
         total_lessons=len(sessions),
         completed_lessons=len(finished),
         incomplete_lessons=len(sessions) - len(finished),
@@ -96,6 +98,8 @@ def summarize(sessions, baseline=2, activity_days=None):
         current_recommended_level=max(1, min(5, recommended)),
         level_progression=[
             schemas.LessonProgress(
+                is_demo=bool(getattr(session, "demo_slot", None)),
+                document_id=session.document_id,
                 lesson_number=index,
                 reading_id=str(session.id),
                 recorded_at=auth.aware(session.started_at).astimezone(UTC).isoformat(),
@@ -119,3 +123,19 @@ def summarize(sessions, baseline=2, activity_days=None):
         daily_missions=missions["daily_missions"],
         **progress_rewards(sessions, max(1, min(5, recommended)), missions["mission_bonus_gems"]),
     )
+
+
+def current_streak(sessions):
+    days = {
+        auth.aware(item.ended_at or item.started_at).astimezone(UTC).date()
+        for item in sessions
+        if item.completed
+    }
+    day = auth.utcnow().date()
+    if day not in days:
+        day -= timedelta(days=1)
+    result = 0
+    while day in days:
+        result += 1
+        day -= timedelta(days=1)
+    return result
