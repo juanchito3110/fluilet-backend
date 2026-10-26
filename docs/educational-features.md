@@ -10,8 +10,8 @@ biblioteca. El adulto independiente omite ese identificador.
 ```json
 {
   "category": "ciencia_espacio",
-  "topic": "Agujeros negros",
-  "simplification_level": 2,
+  "custom_topic": "Agujeros negros",
+  "target_level": 2,
   "child_id": null
 }
 ```
@@ -22,14 +22,37 @@ acentos, espacios y guiones; una categoría desconocida o vacía selecciona
 `ciencia_espacio`. `topic` es opcional, de hasta 120 caracteres. El nivel
 predeterminado es 2 y el intervalo permitido es 1..5.
 
-El banco contiene tres textos originales por categoría, de 57–68 palabras,
-seleccionados al azar. Hay material específico para agujeros negros y dinosaurios.
-Otros temas pueden seleccionar una lectura por su título o dar lugar a una
-actividad de investigación sobre el tema escrito por el usuario. Esta última
-explica cómo consultar fuentes, comparar datos y distinguir hechos de opiniones;
-no inventa conocimientos específicos sobre un tema desconocido.
+El resolvedor combina el tema con la categoría antes de buscar. `marina` en
+naturaleza o ciencia se interpreta como biología marina, `egipcia` como Antiguo
+Egipto, `olímpicos` como Juegos Olímpicos y `Real Madrid` como Real Madrid Club de
+Fútbol. Los nombres anteriores `topic` y `simplification_level` siguen funcionando;
+`custom_topic` y `target_level` son equivalentes. Si ambos nombres de un mismo
+campo se envían con valores distintos, la respuesta es 422.
 
-Cada texto pasa por el pipeline existente al nivel solicitado, con entrega de
+La fuente preferente es la API de Wikipedia en español: búsqueda de cinco
+resultados y extracción de introducciones en texto plano. Se puntúan título,
+contenido y palabras de la categoría y se descartan desambiguaciones. Las dos
+consultas comparten un plazo máximo de 3,5 segundos y cuatro plazas de concurrencia.
+Usan POST y `User-Agent: FluiletEdTech/1.0`; los temas no se incluyen en las URL de
+petición. El resumen conserva fechas y cifras con contexto y elimina referencias,
+pronunciaciones fonéticas y líneas de fechas aisladas.
+
+Cuando Wikipedia no responde, el banco local contiene **29 artículos originales
+con fuentes**: tres opciones por categoría y once temas específicos adicionales.
+Incluye fútbol, Real Madrid, biología marina, tiburones, dinosaurios, sistema solar,
+agujeros negros, volcanes, Antiguo Egipto, robots e inteligencia artificial. La
+categoría literaria explica obras y autores reales y distingue sus personajes de
+ficción. No se generan actividades genéricas de investigación ni relleno temático.
+Un tema desconocido sin fuente disponible devuelve **503** con un mensaje genérico,
+sin repetir el tema ni sustituirlo por información inventada. Esto no cambia la
+entrega 200 de mejor esfuerzo de textos válidos en `/adaptations/text`.
+`WIKIPEDIA_ENABLED=false` permite operación local reproducible; pytest lo configura
+por defecto y prueba la red mediante transportes HTTP simulados.
+
+Cada texto pasa por el pipeline existente al nivel solicitado. Con perfil infantil,
+la edad limita a 10 palabras (6–8 años) o 12 (9–11) el umbral para separar cláusulas
+independientes reconocidas, conservando el nivel pedido. No se cortan relaciones
+restrictivas ni se garantiza dividir estructuras ambiguas. Se entrega una adaptación de
 mejor esfuerzo cuando no alcanza el objetivo de legibilidad. La respuesta conserva
 `adapted_text`, `document`, `chunks`, los puntajes y los indicadores de calidad,
 y añade:
@@ -37,6 +60,18 @@ y añade:
 - `title`: título de la lección o resumen breve en lectura libre.
 - `category`: categoría normalizada o `lectura_libre`.
 - `simplification_level`: nivel utilizado.
+- `resolved_topic`: título del artículo seleccionado, solo para generación.
+- `source`: proveedor, título y URL; Wikipedia añade licencia CC BY-SA 4.0,
+  enlace de licencia y revisión cuando está disponible. Se debe conservar esta
+  atribución al presentar o redistribuir la adaptación.
+- `fun_fact`: un dato extraído del texto entregado, con preferencia por cifras o
+  una característica destacada. En textos libres se identifica como dato de la
+  lectura aportada; no equivale a una comprobación externa de sus afirmaciones.
+- `key_vocabulary`: de tres a cuatro palabras presentes en las lecciones, con
+  `word`, `definition` y `example`. Los ejemplos proceden del texto entregado.
+  Las definiciones usan un glosario propio o una definición explícita del artículo;
+  términos desconocidos se identifican mediante su contexto, sin inventar sentidos.
+  Una entrada libre mínima puede producir menos de tres términos distintos.
 - `comprehension_questions`: exactamente dos preguntas, `q1` y `q2`, con tres
   `options` distintas y `correct_option_index` entre 0 y 2.
 
@@ -47,7 +82,7 @@ reconocen. Si no se reconoce vocabulario de apoyo, o la entrada es mínima, se u
 Las opciones correctas cambian de posición y las preguntas no necesitan un modelo
 adicional ni servicios externos.
 
-Estos cuatro campos también aparecen en `/api/v1/adaptations/text`, `/file` y el
+Los campos educativos también aparecen en `/api/v1/adaptations/text`, `/file` y el
 nuevo alias `/document`. Los dos últimos reciben PDF o TXT **como cuerpo binario**
 con `Content-Type: application/pdf` o `text/plain`, conservando los parámetros
 `nivel_simplificacion_nlp` y `child_id` de `/file`. No se usa multipart.
@@ -103,6 +138,8 @@ El resumen educativo está disponible en:
 
 - Adulto independiente: `GET /api/v1/readings/progress`.
 - Tutor de un perfil: `GET /api/v1/children/{child_id}/progress`.
+- Alias del mismo resumen: `GET /api/v1/profiles/{profile_id}/educational-progress`.
+  Aplica la misma autorización de tutor y perfil activo.
 
 **Contrato elegido:** la ruta infantil devuelve el objeto educativo por defecto,
 sin parámetros adicionales. La lista `SessionProgress` anterior se encuentra en
@@ -134,11 +171,20 @@ nivel >=3, respectivamente.
 
 ## Despliegue y privacidad
 
-`python -m alembic upgrade head` aplica `0004_educational_progress`, sucesora de
+`python -m alembic upgrade head` incluye `0004_educational_progress`, sucesora de
 `0004_best_effort`; no se cambia el identificador de una migración ya desplegada.
 Añade los seis campos a sesiones y categoría/nivel al documento para heredar los
 metadatos de una adaptación. PostgreSQL impone los rangos y los contadores válidos.
 El downgrade rehúsa borrar metadatos educativos que ya contengan información.
+
+La revisión siguiente, `0005_daily_activity`, añade `reading_activity_days`, un
+registro numérico de actividad por sesión y fecha UTC. Guarda una clave SHA-256 de
+lectura, finalización, existencia de acierto y si la fecha es inferida. La migración
+reconstruye solo evidencia disponible: para sesiones antiguas utiliza cierre o
+inicio y marca la estimación con `inferred=true`; no inventa fechas intermedias ni
+reconstruye contenido. Usa el hash documental si existe y, en su ausencia, una clave
+por documento o categoría. Un downgrade con actividad nueva observada se rechaza
+para no borrar premios ganados.
 
 Los títulos, temas libres, textos y preguntas solo viven en la respuesta y durante
 el procesamiento en memoria. La base de datos conserva el hash, categorías
@@ -190,7 +236,7 @@ conservan sus campos y añaden `streak_days`, `total_gems`, `total_xp`,
 
 Las recompensas se derivan del historial autorizado en cada consulta:
 
-- Gemas: **30 de bienvenida + 50 por sesión completada al 100 % + 25 por respuesta correcta**.
+- Gemas: **30 de bienvenida + 50 por sesión completada al 100 % + 25 por respuesta correcta + bonos de misiones**.
 - XP: **100 por sesión completada + 50 por respuesta correcta**.
 - `total_stars`: el mismo valor que `total_gems`.
 - Las respuestas correctas cuentan también durante una lectura en curso.
@@ -239,7 +285,7 @@ La tienda muestra los diez accesorios de FluiBot:
 Cada accesorio conserva su `item_id`, nombre, slot, descripción y precio.
 `unlocked` indica que las gemas acumuladas alcanzan el precio de ese accesorio.
 Las 30 gemas iniciales hacen accesibles los tres primeros. Una primera lectura
-completada con dos aciertos lleva a **130 gemas y 200 XP**.
+completada con dos aciertos lleva a **185 gemas y 200 XP** (incluye 55 gemas de las dos primeras misiones).
 
 ### Resumen pedagógico
 
@@ -261,7 +307,7 @@ Los puntajes desconocidos conservan su carácter de dato pendiente. Las sugerenc
 son reglas educativas basadas en la telemetría existente. La selección de edad,
 las cartas y FluiBot conservan la autorización de cada perfil o adulto.
 
-Estas ampliaciones usan columnas existentes y se verifican con `alembic check`.
+Las preguntas y FluiBot usan metadatos existentes; las misiones requieren la revisión `0005_daily_activity`. El esquema se verifica con `alembic check`.
 Pruebas: `python -m pytest tests/test_age_questions.py tests/test_fluibot.py -q`,
 con `TEST_DATABASE_URL` configurada para ejecutarlas en PostgreSQL.
 
@@ -272,3 +318,34 @@ Los datos de las cartas se contrastaron con fuentes educativas primarias:
 [NC State Extension: comunicación de las abejas](https://content.ces.ncsu.edu/honey-bee-dance-language),
 [British Museum: las tres escrituras de la piedra de Rosetta](https://www.britishmuseum.org/sites/default/files/2020-03/10010%20Hamlyn%206%2B%20Ancient%20Egypt%20PDF.pdf)
 y [Springfield College: origen del baloncesto](https://springfield.edu/about/birthplace-of-basketball).
+
+## Misiones diarias
+
+Los resúmenes infantiles y de adulto añaden `daily_missions`, una lista de tres
+objetos con `id`, `title`, `description`, `reward_gems`, `progress`, `target` y
+`completed`:
+
+| Identificador | Objetivo diario | Gemas |
+|---|---|---:|
+| `mission_read_lesson` | Explorador del Día: Completa 1 lectura | 25 |
+| `mission_quiz_master` | Mente Brillante: Logra al menos 1 respuesta correcta en un Mini-Reto | 30 |
+| `mission_category_variety` | Curiosidad Total: Explora 2 lecturas o temas distintos | 40 |
+
+El día se delimita en UTC. Abrir una sesión sin avance, tiempo ni respuestas no
+cuenta como práctica. Dos sesiones del mismo texto no completan variedad, incluso
+si se elimina y vuelve a adaptar el documento: se usa su hash de contenido. En
+sesiones antiguas sin documento solo puede distinguirse la categoría conocida.
+Las actualizaciones de metadatos o velocidad de voz y los PATCH repetidos no
+crean práctica nueva. Un acierto comunicado al día siguiente de terminar una
+lectura puede completar la misión de quiz de ese día, sin premiar otra finalización.
+
+Cada misión otorga su bono una sola vez por fecha. `daily_missions` muestra el día
+actual; `total_gems` y su alias `total_stars` incluyen los bonos de todos los días
+del historial conservado. Al llegar medianoche se reinician los objetivos visibles,
+pero las gemas anteriores permanecen. Los GET no escriben recompensas y los bonos
+no cambian XP, rangos ni requisitos de cartas. La evidencia depende de la telemetría
+del cliente, igual que los contadores existentes; no hay verificación de respuestas
+ni contabilidad de compras en este endpoint.
+
+Pruebas específicas: `tests/test_encyclopedic_sources.py` y
+`tests/test_daily_missions.py`, además de la suite completa y migraciones en PostgreSQL.

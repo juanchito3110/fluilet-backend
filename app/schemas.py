@@ -217,6 +217,23 @@ class LessonGenerate(InputModel):
     topic: str | None = Field(default=None, max_length=120)
     simplification_level: NlpLevel = 2
     child_id: uuid.UUID | None = None
+    custom_topic: str | None = Field(default=None, max_length=120)
+    target_level: NlpLevel | None = None
+
+    @model_validator(mode="after")
+    def aliases_agree(self):
+        if self.custom_topic is not None:
+            if self.topic is not None and self.topic.casefold() != self.custom_topic.casefold():
+                raise ValueError("Los temas no coinciden.")
+            self.topic = self.custom_topic
+        if self.target_level is not None:
+            if (
+                "simplification_level" in self.model_fields_set
+                and self.simplification_level != self.target_level
+            ):
+                raise ValueError("Los niveles no coinciden.")
+            self.simplification_level = self.target_level
+        return self
 
     @field_validator("category")
     @classmethod
@@ -224,7 +241,7 @@ class LessonGenerate(InputModel):
         value = category_name(value)
         return "ciencia_espacio" if value == "lectura_libre" else value
 
-    @field_validator("topic")
+    @field_validator("topic", "custom_topic")
     @classmethod
     def clean_topic(cls, value):
         if value is None:
@@ -266,6 +283,21 @@ class ChunkRead(TelemetryRead):
     chunk_index: int
 
 
+class VocabularyEntry(BaseModel):
+    word: str
+    definition: str
+    example: str
+
+
+class LessonSource(BaseModel):
+    provider: Literal["local", "wikipedia"]
+    title: str
+    url: str
+    license: str | None = None
+    license_url: str | None = None
+    revision_id: int | None = None
+
+
 class AdaptationRead(BaseModel):
     document: DocumentRead
     adapted_text: str
@@ -279,6 +311,10 @@ class AdaptationRead(BaseModel):
     comprehension_questions: list[ComprehensionQuestion] = Field(min_length=2, max_length=2)
     question_age_group: Literal["6-8", "9-11", "12+"]
     child_age_years: int | None
+    fun_fact: str
+    key_vocabulary: list[VocabularyEntry] = Field(max_length=4)
+    source: LessonSource | None = None
+    resolved_topic: str | None = None
 
 
 class AssignmentRequest(InputModel):
@@ -394,6 +430,16 @@ class PedagogicalSummary(BaseModel):
     recommendation: str
 
 
+class DailyMission(BaseModel):
+    id: str
+    title: str
+    description: str
+    reward_gems: int
+    progress: int = Field(ge=0)
+    target: int = Field(ge=1)
+    completed: bool
+
+
 class EducationalProgress(BaseModel):
     total_lessons: int
     completed_lessons: int
@@ -414,6 +460,7 @@ class EducationalProgress(BaseModel):
     collectible_cards: list[CollectibleCard] = Field(min_length=6, max_length=6)
     shop_catalog: list[ShopAccessory] = Field(min_length=10, max_length=10)
     pedagogical_summary: PedagogicalSummary
+    daily_missions: list[DailyMission] = Field(min_length=3, max_length=3)
 
 
 class SessionProgress(BaseModel):

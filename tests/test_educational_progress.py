@@ -86,6 +86,7 @@ async def test_complete_educational_flow_and_exact_progress_contract(
         "collectible_cards",
         "shop_catalog",
         "pedagogical_summary",
+        "daily_missions",
     }
     assert data["total_lessons"] == 4
     assert data["completed_lessons"] == 3 and data["incomplete_lessons"] == 1

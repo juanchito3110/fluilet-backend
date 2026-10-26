@@ -152,7 +152,7 @@ async def test_complete_progress_rewards_cards_and_days_are_owner_scoped(
     assert (
         data["streak_days"] == 3
     )  # Distinct practice dates, including gaps and a legacy end time.
-    assert data["total_gems"] == data["total_stars"] == 30 + 50 * 6 + 25 * 13
+    assert data["total_gems"] == data["total_stars"] == 30 + 50 * 6 + 25 * 13 + 195
     assert data["total_xp"] == 100 * 6 + 50 * 13
     assert data["mascot"]["stage"] == 4 and data["mascot"]["progress_percent"] == 100
     assert data["current_rank_title"] == "Sabio Cuántico"
@@ -215,7 +215,7 @@ async def test_each_card_rarity_follows_completed_category_count(
 
 
 @pytest.mark.parametrize(
-    "correct,gems,available", [(0, 30, 3), (1, 55, 5), (2, 80, 7), (3, 105, 9), (4, 130, 10)]
+    "correct,gems,available", [(0, 30, 3), (1, 85, 7), (2, 110, 9), (3, 135, 10), (4, 160, 10)]
 )
 async def test_economical_shop_thresholds(client, db, make_user, correct, gems, available):
     user, headers, _ = await make_user(models.UserRole.ADULTO_INDEPENDIENTE)
@@ -260,7 +260,7 @@ async def test_finishing_first_lesson_rewards_once_and_makes_full_catalog_afford
     )
     assert response.status_code == 200
     data = (await client.get("/api/v1/readings/progress", headers=headers)).json()
-    assert data["total_gems"] == 130 and data["total_xp"] == 200
+    assert data["total_gems"] == 185 and data["total_xp"] == 200
     assert data["streak_days"] == 1 and data["mascot"]["stage"] == 2
     assert_catalog(data)
     assert all(item["unlocked"] for item in data["shop_catalog"])

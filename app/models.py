@@ -371,3 +371,24 @@ class AdaptationChunk(AdaptationTelemetry, Base):
         index=True,
     )
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class ReadingActivityDay(Base):
+    """Daily learning evidence only: no titles, topics or document contents."""
+
+    __tablename__ = "reading_activity_days"
+    __table_args__ = (CheckConstraint("length(lesson_key) = 64", name="ck_activity_lesson_key"),)
+    reading_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("reading_sessions.id", ondelete="CASCADE"), primary_key=True
+    )
+    activity_date: Mapped[date] = mapped_column(Date, primary_key=True)
+    lesson_key: Mapped[str] = mapped_column(String(64), nullable=False)
+    completed: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    correct_answer: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    inferred: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )

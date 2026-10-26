@@ -114,8 +114,34 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
                 ),
                 {"id": reading_id, "child": child_id, "document": document_id},
             )
+        educational = await migrate("upgrade", "0004_educational_progress")
+        assert educational.returncode == 0, educational.stderr
+        async with engine.begin() as connection:
+            await connection.execute(
+                text(
+                    "UPDATE reading_sessions SET completed=true,completion_percent=100,ended_at=TIMESTAMPTZ '2026-01-02 10:00:00+00',questions_answered=2,questions_correct=1,comprehension_score=50"
+                )
+            )
         final = await migrate("upgrade", "head")
         assert final.returncode == 0, final.stderr
+        async with engine.begin() as connection:
+            activity = (
+                await connection.execute(
+                    text(
+                        "SELECT activity_date,lesson_key,completed,correct_answer,inferred FROM reading_activity_days"
+                    )
+                )
+            ).one()
+            assert str(activity.activity_date) == "2026-01-02"
+            assert len(activity.lesson_key) == 64
+            assert activity.completed and activity.correct_answer and activity.inferred
+            # Reset optional practice fields before exercising the previous clean
+            # downgrade, retaining the original completed-reading snapshot.
+            await connection.execute(
+                text(
+                    "UPDATE reading_sessions SET questions_answered=0,questions_correct=0,comprehension_score=NULL"
+                )
+            )
         async with engine.connect() as connection:
             reading = (
                 await connection.execute(
@@ -163,7 +189,7 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
         async with engine.connect() as connection:
             assert (
                 await connection.scalar(text("SELECT version_num FROM alembic_version"))
-                == "0004_educational_progress"
+                == "0005_daily_activity"
             )
             assert await connection.scalar(text("SELECT score_delta FROM reading_sessions")) == 0
         async with engine.begin() as connection:
@@ -175,6 +201,17 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
         educational_rollback = await migrate("downgrade", "0004_best_effort")
         assert educational_rollback.returncode != 0
         assert "educational progress requires the current schema" in educational_rollback.stderr
+        async with engine.begin() as connection:
+            await connection.execute(text("UPDATE reading_activity_days SET inferred=false"))
+        activity_rollback = await migrate("downgrade", "0004_educational_progress")
+        assert activity_rollback.returncode != 0
+        assert "daily learning activity requires the current schema" in activity_rollback.stderr
+        async with engine.connect() as connection:
+            assert await connection.scalar(text("SELECT COUNT(*) FROM reading_activity_days")) == 1
+            assert (
+                await connection.scalar(text("SELECT version_num FROM alembic_version"))
+                == "0005_daily_activity"
+            )
         drift = await migrate("check")
         assert drift.returncode == 0, drift.stdout + drift.stderr
     finally:

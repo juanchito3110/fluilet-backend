@@ -140,8 +140,9 @@ Observed local verification and remaining operational checks: [verification.md](
 ## Educational lessons and progress
 
 Generate Spanish educational readings with `POST /api/v1/adaptations/generate`:
-six categories, three authored texts each, optional topic, levels 1..5 and exactly
-two text-grounded comprehension questions. Existing adaptation responses gain
+six categories, contextual Spanish Wikipedia retrieval, 29 factual offline articles,
+optional `custom_topic`/`topic`, levels 1..5 and exactly two text-grounded comprehension
+questions. Responses include source attribution, a fact and an interactive glossary. Existing adaptation responses gain
 only additive lesson fields. Reading sessions accept category, level, comprehension
 and TTS telemetry and expose five educational achievements.
 
@@ -155,5 +156,10 @@ Questions also adapt to the authorized reader's age (6–8, 9–11 or standard 1
 with a hint and educational explanation. Progress includes FluiBot's four stages,
 six collectible cards, ten accessories priced at 15–120 gems, and suggestions for
 the next reading level and voice speed. Rewards include 30 welcome gems and are
-recomputed from the learner's existing sessions. These additions require no new
-columns; the legacy progress lists remain available at their existing routes.
+recomputed from the learner's sessions, plus three daily missions worth 25/30/40
+gems. The alias `/api/v1/profiles/{profile_id}/educational-progress` returns the same
+owner-scoped child summary. Apply Alembic revision `0005_daily_activity` for the
+content-free daily activity journal; previous legacy progress list routes remain
+available. Mission goals reset at UTC midnight while historical bonuses remain.
+Unknown topics without an online or local source return a controlled 503 rather
+than fabricated lessons. `WIKIPEDIA_ENABLED=false` selects offline operation.

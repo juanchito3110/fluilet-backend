@@ -142,3 +142,26 @@ Rewards are derived from the authorized history: 30 welcome gems, 50 gems/100 XP
 per completion and 25 gems/50 XP per correct answer. `total_stars` aliases gems;
 rank thresholds refer to XP. Each shop `unlocked` flag expresses affordability.
 See [educational-features.md](educational-features.md) for exact tiers and formulas.
+
+## Factual sources, vocabulary and daily missions
+
+`POST /adaptations/generate` accepts `custom_topic` and `target_level` alongside
+`topic` and `simplification_level`; conflicting aliases return 422. Optional topic
+resolution uses category context, five Spanish Wikipedia search candidates and a
+3.5-second total deadline, then a 29-article factual local bank. Unsupported topics
+without an available source return a sanitized 503. Existing free-text adaptation
+quality thresholds continue to allow best-effort 200 responses.
+
+Adaptation responses add `fun_fact` and `key_vocabulary` (`word`, `definition`,
+`example`). Generated lessons also add `resolved_topic` and `source` containing
+provider, title, URL, license information and optional revision ID. Source is null
+for uploaded/free text. Generated lessons have 3–4 glossary entries; extremely
+short free text may have fewer distinct useful terms.
+
+`GET /profiles/{profile_id}/educational-progress` aliases the tutor-owned child
+summary. It and the existing modern summaries add `daily_missions`, with three
+items: reading completion (25 gems), at least one correct quiz answer (30), and
+practice on two distinct readings (40). Items expose `id`, `title`, `description`,
+`reward_gems`, `progress`, `target`, `completed`. Current goals use UTC dates;
+`total_gems` includes historical completed mission bonuses once per mission/day.
+XP formulas and legacy progress lists remain unchanged. Apply `0005_daily_activity`.

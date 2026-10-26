@@ -8,11 +8,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import auth, education, models, schemas
+from app import auth, education, models, schemas, vocabulary
 from app.activities import accessible_child
 from app.config import settings
 from app.database import get_db
 from app.ingestion import IngestionError, clean_text, extract_safely, read_stream
+from app.lesson_sources import SourceUnavailable, resolve_lesson
 from app.nlp.pipeline import original_result, pipeline
 from app.nlp.validation import InvalidText, TextTooLarge, validate_text
 
@@ -31,7 +32,9 @@ _FILE_BODY = {
 }
 
 
-async def process(text: str | None, data: bytes | None, media_type: str, level: int):
+async def process(
+    text: str | None, data: bytes | None, media_type: str, level: int, *, child_age=None
+):
     if _slots.locked():
         raise HTTPException(
             503, "Procesamiento ocupado. Intenta más tarde.", headers={"Retry-After": "5"}
@@ -50,7 +53,11 @@ async def process(text: str | None, data: bytes | None, media_type: str, level: 
             raise HTTPException(422, "El documento no contiene texto válido.") from None
         try:
             async with asyncio.timeout(settings.PROCESSING_TIMEOUT_SECONDS):
-                result = await pipeline.run(source, level)
+                result = (
+                    await pipeline.run(source, level, child_age=child_age)
+                    if child_age is not None
+                    else await pipeline.run(source, level)
+                )
         except TimeoutError:
             result = await asyncio.to_thread(original_result, source, "processing_budget_exceeded")
         digest = hashlib.sha256(source.encode("utf-8")).hexdigest()
@@ -69,6 +76,7 @@ async def persist(
     category="lectura_libre",
     level=3,
     title=None,
+    article=None,
 ):
     # Serialize metadata upserts per owner, independently of inference execution.
     locked_user = await db.scalar(
@@ -83,6 +91,9 @@ async def persist(
         child = await accessible_child(child_id, user, db)
         child_age = education.age_years(child.birth_date)
     practice = await asyncio.to_thread(education.questions, result.adapted_text, child_age)
+    fact, terms = await asyncio.to_thread(
+        vocabulary.enrich, result.adapted_text, article.fact_hint if article else ""
+    )
     document = await db.scalar(
         select(models.Document).where(
             models.Document.owner_id == user.id, models.Document.content_sha256 == digest
@@ -136,6 +147,21 @@ async def persist(
         comprehension_questions=practice,
         question_age_group=education.question_age_group(child_age),
         child_age_years=child_age,
+        fun_fact=fact,
+        key_vocabulary=terms,
+        resolved_topic=article.title if article else None,
+        source=schemas.LessonSource(
+            provider=article.provider,
+            title=article.title,
+            url=article.url,
+            license="CC BY-SA 4.0" if article.provider == "wikipedia" else None,
+            license_url="https://creativecommons.org/licenses/by-sa/4.0/"
+            if article.provider == "wikipedia"
+            else None,
+            revision_id=article.revision_id,
+        )
+        if article
+        else None,
     )
 
 
@@ -211,10 +237,19 @@ async def generate_lesson(
     user: models.User = Depends(_adults),
     db: AsyncSession = Depends(get_db),
 ):
+    child_age = None
     if payload.child_id:
-        await accessible_child(payload.child_id, user, db)
-    category, entry = education.lesson(payload.category, payload.topic)
-    result, digest = await process(entry.text, None, "text/plain", payload.simplification_level)
+        child = await accessible_child(payload.child_id, user, db)
+        child_age = education.age_years(child.birth_date)
+    try:
+        category, entry = await resolve_lesson(payload.category, payload.topic)
+    except SourceUnavailable:
+        raise HTTPException(
+            503, "No hay un artículo disponible para ese tema. Prueba un tema más específico."
+        ) from None
+    result, digest = await process(
+        entry.text, None, "text/plain", payload.simplification_level, child_age=child_age
+    )
     return await persist(
         result,
         digest,
@@ -226,4 +261,5 @@ async def generate_lesson(
         category=category,
         level=payload.simplification_level,
         title=entry.title,
+        article=entry,
     )

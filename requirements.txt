@@ -12,3 +12,5 @@ SQLAlchemy[asyncio]==2.0.52
 uvicorn==0.52.4
 pypdf>=6.1,<7
 Mako==1.4.3
+
+httpx>=0.28,<1

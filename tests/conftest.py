@@ -7,6 +7,7 @@ from datetime import date
 os.environ["SECRET_KEY"] = "test-key-0000000000000000000000000000000000000000000"
 os.environ["DATABASE_URL"] = "postgresql+psycopg://test:test@127.0.0.1:1/unused"
 os.environ["MT5_ENABLED"] = "false"
+os.environ["WIKIPEDIA_ENABLED"] = "false"
 
 import httpx
 import pytest

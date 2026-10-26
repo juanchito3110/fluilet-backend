@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import auth, models, schemas
+from app.daily_missions import authorized_activity, record_activity, snapshot
 from app.database import get_db
 from app.educational_progress import EDUCATIONAL_FIELDS, summarize, update_practice
 
@@ -151,6 +152,7 @@ async def start_reading(
     reading = reading_snapshot(document, child_id=child_id)
     update_practice(reading, payload.model_dump(exclude_unset=True))
     db.add(reading)
+    await record_activity(reading, db)
     await db.commit()
     await db.refresh(reading)
     return reading
@@ -193,6 +195,7 @@ async def start_independent_reading(
     reading = reading_snapshot(document, reader_user_id=user.id)
     update_practice(reading, payload.model_dump(exclude_unset=True))
     db.add(reading)
+    await record_activity(reading, db)
     await db.commit()
     await db.refresh(reading)
     return reading
@@ -243,7 +246,8 @@ async def independent_educational_progress(
             .order_by(models.ReadingSession.started_at, models.ReadingSession.id)
         )
     ).all()
-    return summarize(sessions)
+    activity = await authorized_activity(db, reader_user_id=user.id)
+    return summarize(sessions, activity_days=activity)
 
 
 @router.get("/readings/{reading_id}", response_model=schemas.ReadingRead)
@@ -272,6 +276,7 @@ async def update_reading(
     await authorize_reading(reading, user, db)
     if reading.document_id:
         await accessible_document(reading.document_id, user, db)
+    before = snapshot(reading)
     data = payload.model_dump(exclude_unset=True)
     if reading.completed and (not data or set(data) - EDUCATIONAL_FIELDS):
         raise HTTPException(409, "La sesión ya está finalizada.")
@@ -293,6 +298,7 @@ async def update_reading(
     for key, value in data.items():
         if key not in EDUCATIONAL_FIELDS:
             setattr(reading, key, value)
+    await record_activity(reading, db, before)
     await db.commit()
     await db.refresh(reading)
     return reading
@@ -352,7 +358,19 @@ async def progress(
             .order_by(models.ReadingSession.started_at, models.ReadingSession.id)
         )
     ).all()
-    return summarize(sessions, child.nivel_simplificacion_nlp)
+    activity = await authorized_activity(db, child_id=child_id)
+    return summarize(sessions, child.nivel_simplificacion_nlp, activity_days=activity)
+
+
+@router.get(
+    "/profiles/{profile_id}/educational-progress", response_model=schemas.EducationalProgress
+)
+async def profile_educational_progress(
+    profile_id: uuid.UUID,
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+    db: AsyncSession = Depends(get_db),
+):
+    return await progress(profile_id, user, db)
 
 
 @router.get("/children/{child_id}/progress/legacy", response_model=list[schemas.SessionProgress])

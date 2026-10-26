@@ -6,6 +6,7 @@ from statistics import mean
 from fastapi import HTTPException
 
 from app import auth, schemas
+from app.daily_missions import mission_summary
 from app.gamification import progress_rewards
 
 EDUCATIONAL_FIELDS = frozenset(
@@ -53,7 +54,8 @@ def update_practice(reading, data):
     return updates
 
 
-def summarize(sessions, baseline=2):
+def summarize(sessions, baseline=2, activity_days=None):
+    missions = mission_summary(sessions, activity_days)
     finished = [session for session in sessions if session.completed]
     scores = [
         session.comprehension_score
@@ -114,5 +116,6 @@ def summarize(sessions, baseline=2):
             )
             for (code, title, description), earned in zip(BADGES, unlocked, strict=True)
         ],
-        **progress_rewards(sessions, max(1, min(5, recommended))),
+        daily_missions=missions["daily_missions"],
+        **progress_rewards(sessions, max(1, min(5, recommended)), missions["mission_bonus_gems"]),
     )

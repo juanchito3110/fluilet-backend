@@ -216,3 +216,14 @@ def test_rewriter_avoids_noun_gender_mismatches():
 def test_guard_refuses_added_facts_even_when_lexical_overlap_is_high():
     source = SOURCE * 4
     assert not fidelity_ok(source, source + " Este fármaco cura cáncer.")
+
+
+def test_younger_readers_use_shorter_safe_clause_boundaries():
+    source = "El robot usa sensores para observar el terreno y recibe datos de otros robots."
+    assert refine(source, level=5) == source
+    younger = refine(source, level=5, child_age=7)
+    middle = refine(source, level=5, child_age=10)
+    assert ". El robot recibe" in younger
+    assert younger == middle
+    assert fidelity_ok(source, younger)
+    assert refine(source, level=5, child_age=12) == source

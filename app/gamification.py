@@ -205,14 +205,14 @@ def evolution(xp: int):
     }
 
 
-def progress_rewards(sessions, recommended_level):
+def progress_rewards(sessions, recommended_level, mission_bonus_gems=0):
     finished = [
         session
         for session in sessions
         if session.completed and float(session.completion_percent) == 100
     ]
     correct = sum(session.questions_correct for session in sessions)
-    gems = 30 + 50 * len(finished) + 25 * correct
+    gems = 30 + 50 * len(finished) + 25 * correct + mission_bonus_gems
     xp = 100 * len(finished) + 50 * correct
     days = len({_utc_day(session) for session in finished})
     counts = Counter(session.category for session in finished)

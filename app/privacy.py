@@ -37,6 +37,8 @@ async def validation_error(request: Request, exc: RequestValidationError):
                             "nivel_simplificacion_nlp",
                             "category",
                             "topic",
+                            "custom_topic",
+                            "target_level",
                             "simplification_level",
                             "child_id",
                             "comprehension_score",

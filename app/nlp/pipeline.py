@@ -91,7 +91,7 @@ class AdaptationPipeline:
             return None
         return ChunkResult(candidate, original, adapted, method)
 
-    async def run(self, text: str, level: int = 3) -> AdaptationResult:
+    async def run(self, text: str, level: int = 3, *, child_age=None) -> AdaptationResult:
         chunks = await asyncio.to_thread(reading_chunks, text)
         results = []
         # First compute a complete safe result. Optional model loading/generation
@@ -101,7 +101,9 @@ class AdaptationPipeline:
             chosen = ChunkResult(chunk, original, original)
             if not accepted(original, original):
                 for attempt in range(settings.MAX_GENERATION_ATTEMPTS):
-                    candidate = await asyncio.to_thread(refine, chunk, attempt, level)
+                    candidate = await asyncio.to_thread(
+                        refine, chunk, attempt, level, child_age=child_age
+                    )
                     checked = await self.accept_candidate(chunk, original, candidate)
                     if checked and checked.adapted.score > chosen.adapted.score:
                         chosen = checked
@@ -118,7 +120,9 @@ class AdaptationPipeline:
                     continue
                 for attempt in range(settings.MAX_GENERATION_ATTEMPTS):
                     generated = await self.model.generate(chunk, attempt)
-                    refined = await asyncio.to_thread(refine, generated, attempt, level)
+                    refined = await asyncio.to_thread(
+                        refine, generated, attempt, level, child_age=child_age
+                    )
                     for candidate, method in [(generated, "mt5"), (refined, "hybrid")]:
                         checked = await self.accept_candidate(
                             chunk, chosen.original, candidate, method

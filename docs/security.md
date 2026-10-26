@@ -122,3 +122,24 @@ explanations and age-group choices remain response data. FluiBot's counters, car
 catalog and practice suggestions are computed from the already owner-scoped
 sessions, with no per-request reward writes or shared learner cache. The game
 metadata uses the same client-reported practice figures as the educational summary.
+
+
+## Encyclopedic retrieval and daily activity
+
+Only the explicitly requested generation topic is sent to the fixed Spanish
+Wikipedia Action API host. It uses POST, bounded response streaming (256 KiB),
+no redirects, four concurrent slots and a total 3.5-second deadline. User documents
+and free-text adaptation bodies are never forwarded to Wikipedia. Disable the
+lookup with `WIKIPEDIA_ENABLED=false` where network disclosure of generation topics
+is unsuitable. Do not add HTTP body tracing; standard request URLs contain no topic.
+Extracts and source metadata remain in RAM and in the no-store response only.
+Source attribution includes the Wikipedia license and revision when available.
+
+Migration `0005_daily_activity` stores session/date activity flags and a content
+hash, without titles, topics, article excerpts or questions. Joins use the same
+child/adult ownership scope as the summary. Composite keys make repeated updates
+idempotent; summaries perform no writes. Historical dates inferred from legacy
+session snapshots are explicitly marked. Downgrade refuses to discard newly
+observed activity. Hash matching has the same dictionary-attack limitation as
+existing document hashes and is not an anonymity guarantee. Mission rewards rely
+on client-reported practice; they are not proof of quiz correctness.

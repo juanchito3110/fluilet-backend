@@ -88,3 +88,31 @@ migration, pip check or advisory check was disabled to obtain a passing result.
 Local Docker execution is unavailable because its daemon is stopped. The fixed
 service initialization and the Python 3.12 Windows/macOS/Linux jobs must be checked
 in the Actions run triggered by this push; local checks above use Python 3.14.7.
+
+
+## Factual lessons and daily missions — 2026-10-25 (Mexico City)
+
+This update was verified locally with Python 3.14.7:
+
+- Full PostgreSQL suite: **396 passed** on the dedicated test instance at port
+  55439, using private schemas; no test learner was added to the application DB.
+- SQLite portable suite: **394 passed, 2 skipped** (PostgreSQL-only checks).
+- Ruff checks/formatting and `pip check`: passed.
+- Application PostgreSQL: schema-only private backup, upgrade to
+  **0005_daily_activity**, and `alembic check` with no drift.
+- Server restarted on port **8000**; `/health/ready` returned 200, operational
+  PostgreSQL and `engine_mode=deterministic`. OpenAPI exposes the new topic/level
+  aliases, source, vocabulary, fact, daily missions and profile progress alias.
+- Separate real Wikipedia API lookups selected Real Madrid Club de Fútbol and
+  Biología marina. Automated tests remain offline with mocked Wikipedia transport;
+  they cover five-candidate disambiguation, source attribution, timeout, API
+  failures and bounded responses.
+
+Regression coverage includes actual club/marine/Egyptian/Olympic facts at levels
+1, 3 and 5, glossary terms present in the delivered reading, two grounded questions,
+unknown-topic 503 without filler or retention, age-sensitive safe clause boundaries,
+mission ownership for child/adult, midnight resets with historical gems, late quiz,
+repeated PATCH/GET and content-hash deduplication after document re-upload.
+Migration tests exercise inferred legacy backfill and refuse destructive downgrade
+when new daily activity exists. These are software correctness checks, not an
+independent factual audit of Wikipedia or a clinical comprehension study.

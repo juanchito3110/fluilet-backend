@@ -269,12 +269,12 @@ def split_domain_clauses(sentence: str) -> str:
     return sentence
 
 
-def split_explanatory_relative(sentence: str) -> str:
+def split_explanatory_relative(sentence: str, word_limit: int = 16) -> str:
     """Only comma-delimited relatives with one explicit, unambiguous subject.
 
     Restrictive relatives and embedded/ambiguous clauses stay untouched.
     """
-    if len(words(sentence)) <= 16:
+    if len(words(sentence)) <= word_limit:
         return sentence
     pattern = (
         rf"^(?P<subject>(?:El|La|Los|Las|Un|Una|Unos|Unas)\s+[^,]{{1,60}}),\s+que\s+"
@@ -288,15 +288,20 @@ def split_explanatory_relative(sentence: str) -> str:
     return f"{subject} {match['relative'].strip()}. {subject} {match['main'].strip()}"
 
 
-def refine(text: str, attempt: int = 0, level: int = 3) -> str:
+def refine(text: str, attempt: int = 0, level: int = 3, *, child_age=None) -> str:
+    # Age narrows only safe clause boundaries; it never changes source facts or
+    # the requested NLP level, and restrictive relatives stay attached.
+    limit = 16 if level >= 3 and attempt == 0 else 12
+    if child_age is not None and child_age < 12:
+        limit = min(limit, 10 if child_age <= 8 else 12)
     result = []
     for sentence in sentences(lexical(text)):
         sentence = split_domain_clauses(sentence)
-        sentence = split_explanatory_relative(sentence)
+        sentence = split_explanatory_relative(sentence, limit)
         # Split independent coordinated predicates, repeating the explicit subject
         # so that each new clause remains Subject-Verb-Object.
         match = re.match(_SUBJECT, sentence)
-        if match and len(words(sentence)) > (16 if level >= 3 and attempt == 0 else 12):
+        if match and len(words(sentence)) > limit:
             subject = match["subject"].strip()
             sentence = re.sub(
                 rf"\s+y\s+(?=(?:(?:después|antes|luego|hoy)\s+)?(?:no\s+)?{_FINITE}\b)",
