@@ -1,5 +1,7 @@
 # Simplificación pedagógica de cinco niveles
 
+> Actualización v2 (27 de octubre de 2026): el ranker contextual fue entrenado realmente en 20 épocas sobre 3.220 pares depurados/ampliados. La progresión del diagnóstico EASIER pasa de 0/6 a 6/6; eso no implica bandas exactas ni una garantía universal. El aprendizaje aislado no mejoró SARI agregado frente a su ablación. Véase [el informe completo y las limitaciones](model-retraining-report.md). Las cifras siguientes describen la calibración histórica v1.
+
 ## Procedencia y arquitectura
 
 El motor `pedagogical-es-v1` combina recursos léxicos con reescrituras sintácticas trazables y material didáctico local alineado. Las métricas siempre se calculan desde los textos que devuelve la API, sin redondear ni recortar puntajes.

@@ -5,6 +5,13 @@ Original/adapted lesson pairs and their educational response are retained in the
 owner-scoped database, as explicitly authorized on 26 October 2026.
 No commercial inference service is used. Android remains a separate repository.
 
+The current release adds a genuinely trained CPU contextual ranker (20 epochs,
+3,220 filtered/augmented examples) and compositional five-level rewriting.
+Authenticated `/api/v1/adaptations/model-info` exposes its measured results.
+[Training report](docs/model-retraining-report.md) distinguishes the 6/6 legacy
+diagnostic progression from exact score bands and independent generalization;
+the isolated learned ranker did not improve aggregate SARI in its ablation.
+
 ## Local setup
 
 Use Python 3.12 for a reproducible ML environment. The lightweight API/test suite

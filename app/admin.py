@@ -34,6 +34,8 @@ async def overview(
     user: models.User = Depends(require_master),
     db: AsyncSession = Depends(get_db),
 ):
+    from app.services.ranker import model_info
+
     users = (
         await db.scalars(select(models.User).order_by(models.User.created_at, models.User.id))
     ).all()
@@ -89,6 +91,7 @@ async def overview(
         )
     scores = [row.comprehension_score for row in sessions if row.comprehension_score is not None]
     return schemas.AdminOverview(
+        model_info=model_info(),
         total_tutors=sum(item.role == models.UserRole.TUTOR for item in users),
         total_profiles=len(children),
         total_adaptations=await db.scalar(

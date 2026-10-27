@@ -7,10 +7,14 @@ clinical model is included in this commit. API traffic is never used for trainin
 Official data: https://github.com/LURMORENO/EASIER_CORPUS
 Paper: https://doi.org/10.1371/journal.pone.0283622
 The source declares CC BY-NC-ND 4.0. Confirm your research/training/distribution
-rights before using it; this project does not redistribute the corpus, derived
-training files or weights. Code works with a locally supplied SGSS.csv and does
+rights before using it; this project does not redistribute the full corpus,
+derived training files or large transformer weights. Six unchanged public
+diagnostic rows are retained in `fixtures/easier_diagnostic.json`, with EASIER
+provenance and its declared license, for reproducible regression checks.
+Code works with a locally supplied SGSS.csv and does
 not automatically download licensed datasets. Temporary dataset/checkpoint
-artifacts are separate from the API's zero-retention user-document policy.
+artifacts are separate from the API's explicitly authorized, owner-scoped lesson
+retention. Retained user lessons are never consumed by these training scripts.
 
 EASIER supplies complex-word annotations and proposed synonyms, not a clinically
 validated parallel corpus of full syntactic rewrites for children with TDAH or
@@ -111,7 +115,7 @@ docs/easier-calibration-results.json. Previous numeric evidence remains unchange
 locally supplied candidate with annotation context and frequency. Runtime replacements
 require sentence overlap and agreement-safe curated forms. The complete index
 includes contexts from the old six-case calibration subset: do not claim it as a
-held-out evaluation. No corpus or checkpoint is redistributed in Git.
+held-out evaluation. The full corpus and large checkpoints remain outside Git.
 
 `python -m ml_training.evaluate_levels --output docs/pedagogical-evaluation-results.json`
 measures five actual outputs on the 31 authored/aligned bank references. Optional
@@ -119,3 +123,23 @@ measures five actual outputs on the 31 authored/aligned bank references. Optiona
 on API traffic, load weights, store source text in its report, or declare clinical
 validity. The failed 120-step checkpoint is inventoried, not silently activated.
 See `docs/pedagogical-simplification.md` for calibration provenance and limits.
+
+## Reproducible v2 ranking model
+
+`build_enhanced_dataset.py` filters SGSS, quarantines the six legacy diagnostic
+documents/families, adds declared regular Spanish inflections and synthetic
+sentence pairs, and audits document/source/registered-family partition separation.
+`train_ranker.py` fits 52 logistic coefficients by real CPU SGD for 20 epochs,
+records loss/F1/reference metrics and verifies changed finite weights. It does
+not require Torch and is not a new mT5 fine-tune. `evaluate_baseline.py` executes
+the archived v1 code with identical inputs; `evaluate_retrained.py` evaluates the
+current complete system and packages the checkpoint/metrics for production.
+
+The small JSON ranker is intentionally distributed in `app/services/assets/`,
+byte-identical to `checkpoints/context-ranker-v2/model.json`. Only numeric
+`checkpoints/retraining_metrics.json` is whitelisted under checkpoints in Git.
+SGSS inference candidates and their frequencies are restricted to the recorded
+training documents/families/targets. Full data derivatives remain ignored; no
+API traffic is training data. See [the complete report](../docs/model-retraining-report.md)
+for reproduction, held-out limitations, low lexical F1 and the absence of an
+aggregate SARI improvement from the learned weights alone.

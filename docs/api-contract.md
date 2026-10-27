@@ -285,3 +285,18 @@ their version is `legacy_enriched`. Managed/explicit academic demo refreshes may
 upgrade marked public readings and their numeric snapshots while preserving IDs,
 practice, dates and rewards. No columns changed. Exact results and interpretation
 are in [pedagogical-simplification.md](pedagogical-simplification.md).
+
+## Trained model telemetry
+
+Adaptation responses add `model_version` and nullable `checkpoint_name` without
+changing Android's existing fields. New v2 versions identify `context-ranker-es-v2`
+and `context-ranker-v2`; historical retained versions keep their actual provenance.
+`GET /api/v1/adaptations/model-info` requires a valid access token and is registered
+before the UUID route. It exposes dataset sizes, actual baseline/retrained
+metrics, epochs, loss history, SARI, artifact SHA-256 and end-to-end diagnostics.
+The master-only `/api/v1/admin/overview` includes the same `model_info` object.
+
+`easier_benchmark_before=0/6` and `easier_benchmark_after=6/6` mean strict measured
+five-level progression on the known six-case diagnostic. Read `benchmark_definition`
+and `benchmark_status`: these values do not mean exact per-age score bands,
+unseen vocabulary coverage, or independently validated semantic/clinical accuracy.

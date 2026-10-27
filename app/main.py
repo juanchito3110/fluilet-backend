@@ -28,9 +28,11 @@ from app.privacy import PrivacyMiddleware, validation_error
 async def lifespan(app):
     import asyncio
 
+    from app.services.ranker import checkpoint
     from app.services.resources import resources
 
     await asyncio.to_thread(resources)
+    await asyncio.to_thread(checkpoint)
     if settings.DEMO_ACCOUNTS_ENABLED:
         from app.demo_accounts import ensure_accounts
 

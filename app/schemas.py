@@ -355,6 +355,8 @@ class AdaptationRead(BaseModel):
     level_progression_met: bool = False
     removed_fragments: list[str] = Field(default_factory=list)
     engine_version: str = "legacy"
+    model_version: str = "unavailable"
+    checkpoint_name: str | None = None
 
     id: uuid.UUID
     original_text: str = Field(min_length=1)
@@ -606,6 +608,7 @@ class AdminProfile(BaseModel):
 
 
 class AdminOverview(BaseModel):
+    model_info: dict = Field(default_factory=dict)
     total_tutors: int
     total_profiles: int
     total_adaptations: int

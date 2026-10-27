@@ -219,3 +219,47 @@ history is not evidence of clinical efficacy. Android was not modified.
 - Docker includes only the shared lightweight CSV reader in addition to runtime
   code. Corpus/checkpoint mounts remain optional and excluded from Git/image
   context. No Docker image build was performed in this environment.
+
+## Dataset v2, fitted contextual ranker and live checkpoint — 27 October 2026
+
+- Full PostgreSQL suite: **494 passed**. Full SQLite: **490 passed, 4 skipped**.
+  Twenty new tests cover fitted/checksummed weights, deterministic data building,
+  partition separation, morphology, all twelve fixed diagnostics, real TXT/PDF
+  inference, authenticated model-info routing and exclusion of held-out SGSS
+  labels/frequencies. Existing route tests also verify model provenance and the
+  master overview. Ruff, formatting and `pip check` passed.
+- Dataset v2: **3,220 pairs**, train/validation/test **2,588/404/228**; full
+  unfiltered v1 derivation **7,704**, previous smoke selection **34**. The v2
+  includes 900 explicitly synthetic morphological examples and 36 syntactic
+  parallels. The known six diagnostic documents and their observed families
+  are quarantined from fitting. The split audit is over recorded source,
+  document and family keys, not a universal semantic-duplicate detector.
+- Real CPU SGD: **20 epochs, 52 fitted coefficients**. Train loss
+  **0.485250 → 0.431136**, validation loss **0.469675 → 0.418884**. Changed finite
+  weights and byte-identical local/released checkpoint copies were verified.
+  This is a logistic candidate ranker, not a new mT5 fine-tune.
+- Re-executed archived baseline `b342076` using the same SGSS and inputs.
+  End-to-end progression: EASIER **0/6 → 6/6**, newly authored controlled inputs
+  **0/6 → 6/6**. New-input SARI **79.669 → 83.120**, average gain
+  **23.695 → 26.574**. Exact bands and double-condition acceptance are separate:
+  v2 **5/6** EASIER and **2/6** new inputs satisfy the latter.
+- The isolated initial-weight/trained-weight ablation on 228 examples is
+  **44.544 → 44.501 SARI**; candidate-classification F1 is **0.391**. The report
+  discloses that the learned weights did not improve aggregate SARI. Known
+  diagnostics and small controlled inputs do not prove open-domain or clinical
+  generalization. Unsupported inputs retain truthful best-effort delivery.
+- All **15 retained managed lessons** were regenerated with v2 provenance.
+  Only one reading needed a changed numeric snapshot; other scores stayed the
+  same. Dates, responses, completion, reading times, gem/XP balances and streaks
+  were preserved. Repeating refresh changed zero readings.
+- Active PostgreSQL remains at **0007_master_accounts**; `alembic check` reports
+  no new operations. No column or migration was needed.
+- Server restarted on **8000**, readiness **200**. Actual authenticated HTTP
+  verified model-info, master overview and all fifteen retained versions with
+  `context-ranker-es-v2`, populated replacements and progressive previews.
+- `checkpoints/retraining_metrics.json` is explicitly versioned. Corpus,
+  derived JSONL, environments, secrets and large weights remain ignored. The
+  small released JSON ranker uses LF line endings for portable fingerprints.
+
+See [model-retraining-report.md](model-retraining-report.md) for reproducible
+commands, all measured comparisons, source attribution and limitations.

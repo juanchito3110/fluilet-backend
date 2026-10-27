@@ -25,6 +25,7 @@ class CorpusCandidate:
     target: str
     context: frozenset[str]
     frequency: int
+    document_id: str
 
 
 @dataclass(frozen=True)
@@ -97,12 +98,13 @@ def load_resources(path=None, root=ROOT):
                     continue
                 if normalized(source) == normalized(item):
                     continue
-                collected[source].append((item.casefold(), tokens))
+                collected[source].append((item.casefold(), tokens, row["document_id"]))
                 frequencies[item.casefold()] += 1
                 stats["accepted_annotations"] += 1
     index = {
         key: tuple(
-            CorpusCandidate(target, context, frequencies[target]) for target, context in values
+            CorpusCandidate(target, context, frequencies[target], document)
+            for target, context, document in values
         )
         for key, values in collected.items()
     }
@@ -116,7 +118,7 @@ def resources():
     return load_resources()
 
 
-def choose_corpus(source, text, level, context_tokens=None):
+def choose_corpus(source, text, level, context_tokens=None, *, training_only=False):
     """Corpus synonyms are sense-dependent: require substantial sentence overlap.
 
     No arbitrary top-frequency synonym gets applied globally to technical terms.
@@ -135,7 +137,29 @@ def choose_corpus(source, text, level, context_tokens=None):
         else {normalized(token) for token in words(text) if normalized(token) not in _STOP}
     )
     candidates = []
+    model = None
+    if training_only:
+        from app.services.ranker import checkpoint
+
+        model = checkpoint()
+        if model is None:
+            return None
     for candidate in values:
+        frequency = candidate.frequency
+        if model:
+            from app.services.morphology import family
+
+            document_hash = hashlib.sha256(("easier:" + candidate.document_id).encode()).hexdigest()
+            family_hash = hashlib.sha256(family(source).encode()).hexdigest()
+            if (
+                document_hash not in model["training_document_hashes"]
+                or family_hash not in model["training_family_hashes"]
+            ):
+                continue
+            target_hash = hashlib.sha256(candidate.target.casefold().encode()).hexdigest()
+            frequency = model.get("training_target_counts", {}).get(target_hash, 0)
+            if not frequency:
+                continue
         context = set(candidate.context) - {normalized(source)}
         overlap = len(context & tokens) / max(1, len(context))
         if overlap < 0.65 or len(context & tokens) < 3:
@@ -144,7 +168,5 @@ def choose_corpus(source, text, level, context_tokens=None):
         new = sum(count_syllables(word) for word in words(candidate.target))
         if new >= old or len(candidate.target) > len(source) + 4:
             continue
-        candidates.append(
-            (new, -math.log1p(candidate.frequency), len(candidate.target), candidate.target)
-        )
+        candidates.append((new, -math.log1p(frequency), len(candidate.target), candidate.target))
     return min(candidates)[-1] if candidates else None

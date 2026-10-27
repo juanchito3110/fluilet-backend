@@ -15,7 +15,8 @@ htmlcov/
 *.pth
 *.safetensors
 *.onnx
-checkpoints/
+checkpoints/*
+!checkpoints/retraining_metrics.json
 models/
 datasets/
 ml_training/data/

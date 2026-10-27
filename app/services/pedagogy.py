@@ -15,7 +15,7 @@ from app.services.lexicon_es import CURATED
 from app.services.local_plans import SIMPLE
 from app.services.resources import choose_corpus, resources
 
-VERSION = "pedagogical-es-v1"
+VERSION = "pedagogical-es-v2"
 GOALS = {
     1: (82, 100, 6, 9),
     2: (74, 84, 9, 12),
@@ -135,7 +135,9 @@ def lexical(text, level):
                 if token[0].isupper():
                     return token
                 if token not in decisions:
-                    decisions[token] = choose_corpus(token, unit, level, context) or token
+                    decisions[token] = (
+                        choose_corpus(token, unit, level, context, training_only=True) or token
+                    )
                 return decisions[token]
 
             rewritten = re.sub(r"[^\W\d_]+", corpus, rewritten)
@@ -260,14 +262,19 @@ def _general_candidates(text, level, legacy):
     return variants
 
 
-def _loss(candidate, level):
+def _loss(candidate, level, source=None):
     score = candidate.metric
     low, high, min_length, max_length = GOALS[level]
     target = (low + high) / 2
     length = score.word_count / score.sentence_count
     distance = max(0, low - score.score, score.score - high)
     length_distance = max(0, min_length - length, length - max_length)
-    return distance * 2 + abs(score.score - target) * 0.08 + length_distance * 0.4
+    learned = 0.0
+    if source is not None:
+        from app.services.ranker import quality
+
+        learned = 2 * (1 - quality(source, candidate.text, level))
+    return distance * 2 + abs(score.score - target) * 0.08 + length_distance * 0.4 + learned
 
 
 def _safe_numbers(source, candidate):
@@ -285,6 +292,18 @@ def choose_levels(text, legacy=None):
     resources()  # no-op after startup warm-up
     plan = _local_plan(text)
     source = measure(text)
+    from app.services.ranker import checkpoint
+    from app.services.rewriting import candidates as learned_candidates
+
+    learned = learned_candidates(text) if checkpoint() and not plan else []
+    costs = {}
+
+    def cost(item, level):
+        key = (item.text, level)
+        if key not in costs:
+            costs[key] = _loss(item, level, text)
+        return costs[key]
+
     groups = []
     for level in range(1, 6):
         raw = (
@@ -292,6 +311,7 @@ def choose_levels(text, legacy=None):
             if plan
             else _general_candidates(text, level, legacy)
         )
+        raw.extend(Candidate(value, "trained_context_ranker") for value in learned)
         unique = {
             item.text: item
             for item in raw
@@ -300,16 +320,16 @@ def choose_levels(text, legacy=None):
         # A reading never becomes harder than its actual original to hit a band.
         candidates = [item for item in unique.values() if item.metric.score >= source.score]
         groups.append(
-            sorted(
-                candidates or [Candidate(text, "original")], key=lambda item: _loss(item, level)
-            )[:20]
+            sorted(candidates or [Candidate(text, "original")], key=lambda item: cost(item, level))[
+                :20
+            ]
         )
-    paths = [(_loss(item, 1), [item]) for item in groups[0]]
+    paths = [(cost(item, 1), [item]) for item in groups[0]]
     for level in range(2, 6):
         next_paths = []
         for item in groups[level - 1]:
             options = [
-                (loss + _loss(item, level), path + [item])
+                (loss + cost(item, level), path + [item])
                 for loss, path in paths
                 if path[-1].metric.score > item.metric.score + 0.001
             ]

@@ -1,0 +1,906 @@
+{
+  "dataset_v1_size": 7704,
+  "dataset_v2_size": 3220,
+  "baseline_metrics": {
+    "revision": "b3420760039936adce6ace614630d5b8e70756ee",
+    "corpus_sha256": "02aeb385fdfa8fd4f9ab3afbc5b0eeac84d514f33c8f20fa387e48068dddab06",
+    "end_to_end": {
+      "easier_diagnostic": {
+        "samples": 6,
+        "progressive_count": 0,
+        "double_condition_count": 5,
+        "mean_gain": 38.77271113468162,
+        "mean_sari_score": 25.96323703611696,
+        "mean_inference_seconds": 0.12342345833894797,
+        "results": [
+          {
+            "id": "120",
+            "progressive": false,
+            "original_score": 58.68500000000002,
+            "scores": [
+              85.933,
+              85.933,
+              63.135000000000005,
+              58.68500000000002,
+              58.68500000000002
+            ],
+            "gain": 27.24799999999999,
+            "double_condition_met": true,
+            "sari_score": 40.49094607130321,
+            "seconds": 0.4329967910016421
+          },
+          {
+            "id": "276",
+            "progressive": false,
+            "original_score": 27.559390243902442,
+            "scores": [
+              71.34284313725492,
+              71.34284313725492,
+              71.34284313725492,
+              71.34284313725492,
+              71.34284313725492
+            ],
+            "gain": 43.783452893352475,
+            "double_condition_met": true,
+            "sari_score": 25.22104503683451,
+            "seconds": 0.060082208015955985
+          },
+          {
+            "id": "68",
+            "progressive": false,
+            "original_score": 44.8324358974359,
+            "scores": [
+              44.8324358974359,
+              44.8324358974359,
+              44.8324358974359,
+              44.8324358974359,
+              44.8324358974359
+            ],
+            "gain": 0.0,
+            "double_condition_met": false,
+            "sari_score": 32.124556415767294,
+            "seconds": 0.04539358400506899
+          },
+          {
+            "id": "30",
+            "progressive": false,
+            "original_score": 36.606875,
+            "scores": [
+              72.5644117647059,
+              72.5644117647059,
+              72.5644117647059,
+              72.5644117647059,
+              48.64790322580646
+            ],
+            "gain": 35.95753676470589,
+            "double_condition_met": true,
+            "sari_score": 27.588665242117926,
+            "seconds": 0.08845183299854398
+          },
+          {
+            "id": "200",
+            "progressive": false,
+            "original_score": 14.10583333333335,
+            "scores": [
+              84.77203703703705,
+              84.77203703703705,
+              84.77203703703705,
+              84.77203703703705,
+              84.77203703703705
+            ],
+            "gain": 70.6662037037037,
+            "double_condition_met": true,
+            "sari_score": 11.489690864690862,
+            "seconds": 0.048942541994620115
+          },
+          {
+            "id": "84",
+            "progressive": false,
+            "original_score": 11.085000000000008,
+            "scores": [
+              66.06607344632768,
+              66.06607344632768,
+              66.06607344632768,
+              66.06607344632768,
+              66.06607344632768
+            ],
+            "gain": 54.98107344632767,
+            "double_condition_met": true,
+            "sari_score": 18.86451858598796,
+            "seconds": 0.06467379201785661
+          }
+        ]
+      },
+      "unseen_v2": {
+        "samples": 6,
+        "progressive_count": 0,
+        "double_condition_count": 1,
+        "mean_gain": 23.695120992534033,
+        "mean_sari_score": 79.66922572762178,
+        "mean_inference_seconds": 0.03503597883779245,
+        "results": [
+          {
+            "id": "fresh-science",
+            "progressive": false,
+            "original_score": 21.313260869565227,
+            "scores": [
+              40.43000000000001,
+              40.43000000000001,
+              37.315000000000026,
+              24.855000000000018,
+              24.855000000000018
+            ],
+            "gain": 19.11673913043478,
+            "double_condition_met": false,
+            "sari_score": 74.21619372386637,
+            "seconds": 0.032744541007559747
+          },
+          {
+            "id": "fresh-history",
+            "progressive": false,
+            "original_score": 9.262272727272745,
+            "scores": [
+              35.521956521739156,
+              35.521956521739156,
+              35.521956521739156,
+              35.521956521739156,
+              35.521956521739156
+            ],
+            "gain": 26.25968379446641,
+            "double_condition_met": false,
+            "sari_score": 70.85336325467905,
+            "seconds": 0.03661412501242012
+          },
+          {
+            "id": "fresh-legal",
+            "progressive": false,
+            "original_score": 52.251000000000005,
+            "scores": [
+              68.73045454545456,
+              68.73045454545456,
+              68.73045454545456,
+              68.73045454545456,
+              52.251000000000005
+            ],
+            "gain": 16.47945454545456,
+            "double_condition_met": true,
+            "sari_score": 92.5205708549234,
+            "seconds": 0.03146270799334161
+          },
+          {
+            "id": "fresh-medical",
+            "progressive": false,
+            "original_score": 24.489166666666705,
+            "scores": [
+              63.08166666666668,
+              63.08166666666668,
+              63.08166666666668,
+              63.08166666666668,
+              63.08166666666668
+            ],
+            "gain": 38.59249999999997,
+            "double_condition_met": false,
+            "sari_score": 81.76693107080546,
+            "seconds": 0.040991665999172255
+          },
+          {
+            "id": "fresh-sports",
+            "progressive": false,
+            "original_score": 14.10583333333335,
+            "scores": [
+              37.253181818181844,
+              37.253181818181844,
+              37.253181818181844,
+              37.253181818181844,
+              37.253181818181844
+            ],
+            "gain": 23.147348484848493,
+            "double_condition_met": false,
+            "sari_score": 92.8030303030303,
+            "seconds": 0.03481537499465048
+          },
+          {
+            "id": "fresh-school",
+            "progressive": false,
+            "original_score": 21.893333333333345,
+            "scores": [
+              40.468333333333334,
+              40.468333333333334,
+              43.43500000000003,
+              25.63499999999999,
+              25.63499999999999
+            ],
+            "gain": 18.57499999999999,
+            "double_condition_met": false,
+            "sari_score": 65.85526515842606,
+            "seconds": 0.033587458019610494
+          }
+        ]
+      }
+    }
+  },
+  "retrained_metrics": {
+    "sari_score": 44.500992817213465,
+    "mean_readability_gain": 10.554994124461945,
+    "samples": 228,
+    "protocol": "end_to_end_constrained_generation; references used only for scoring",
+    "lexical_selection": {
+      "accuracy": 0.6491228070175439,
+      "f1": 0.39086294416243655
+    }
+  },
+  "epochs": 20,
+  "selected_epoch": 20,
+  "train_loss": 0.4311357510828492,
+  "val_loss": 0.41888429713419056,
+  "sari_score": 44.500992817213465,
+  "metric_protocol": "end_to_end_constrained_generation; Unicode word set ngrams 1..4; single reference",
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.4852495343987401,
+      "val_loss": 0.46967540253331685,
+      "lexical_selection": {
+        "accuracy": 0.7144039735099338,
+        "f1": 0.6341463414634146
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.4739905552221862,
+      "val_loss": 0.45267475000242785,
+      "lexical_selection": {
+        "accuracy": 0.6837748344370861,
+        "f1": 0.6789915966386555
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.46652895237877035,
+      "val_loss": 0.4451348329801851,
+      "lexical_selection": {
+        "accuracy": 0.6564569536423841,
+        "f1": 0.037122969837587005
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.466606042305052,
+      "val_loss": 0.4555872126715744,
+      "lexical_selection": {
+        "accuracy": 0.6663907284768212,
+        "f1": 0.45170068027210886
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.4504693765218366,
+      "val_loss": 0.4331888126979011,
+      "lexical_selection": {
+        "accuracy": 0.6241721854304636,
+        "f1": 0.17454545454545456
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.45197398070805583,
+      "val_loss": 0.4362403894293967,
+      "lexical_selection": {
+        "accuracy": 0.6804635761589404,
+        "f1": 0.6767169179229481
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.44554252453478216,
+      "val_loss": 0.43153192049972944,
+      "lexical_selection": {
+        "accuracy": 0.6283112582781457,
+        "f1": 0.15122873345935728
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.4427079871284523,
+      "val_loss": 0.4280284210593068,
+      "lexical_selection": {
+        "accuracy": 0.6299668874172185,
+        "f1": 0.18281535648994515
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.4410042814750398,
+      "val_loss": 0.4265853769339937,
+      "lexical_selection": {
+        "accuracy": 0.7243377483443708,
+        "f1": 0.6619289340101523
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.43984498040012443,
+      "val_loss": 0.42614733186679565,
+      "lexical_selection": {
+        "accuracy": 0.7135761589403974,
+        "f1": 0.6326963906581741
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.4386765525129094,
+      "val_loss": 0.4227173948281466,
+      "lexical_selection": {
+        "accuracy": 0.6937086092715232,
+        "f1": 0.5795454545454546
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.43663193014970725,
+      "val_loss": 0.4224584470501348,
+      "lexical_selection": {
+        "accuracy": 0.695364238410596,
+        "f1": 0.5799086757990868
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.4356909060626386,
+      "val_loss": 0.42232963810796514,
+      "lexical_selection": {
+        "accuracy": 0.6771523178807947,
+        "f1": 0.4715447154471545
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.442815586705656,
+      "val_loss": 0.43210579468073906,
+      "lexical_selection": {
+        "accuracy": 0.6581125827814569,
+        "f1": 0.02823529411764706
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.438060982865545,
+      "val_loss": 0.4231872632621329,
+      "lexical_selection": {
+        "accuracy": 0.6473509933774835,
+        "f1": 0.08189655172413793
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 16,
+      "train_loss": 0.43650707500722896,
+      "val_loss": 0.42528891350973086,
+      "lexical_selection": {
+        "accuracy": 0.6382450331125827,
+        "f1": 0.24784853700516352
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 17,
+      "train_loss": 0.4334675617490392,
+      "val_loss": 0.41905108808907565,
+      "lexical_selection": {
+        "accuracy": 0.6663907284768212,
+        "f1": 0.42998585572843
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 18,
+      "train_loss": 0.43468494652692125,
+      "val_loss": 0.423170117157473,
+      "lexical_selection": {
+        "accuracy": 0.6357615894039735,
+        "f1": 0.12698412698412698
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 19,
+      "train_loss": 0.43543465169301265,
+      "val_loss": 0.42124169842227027,
+      "lexical_selection": {
+        "accuracy": 0.6862582781456954,
+        "f1": 0.6785411365564037
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.4311357510828492,
+      "val_loss": 0.41888429713419056,
+      "lexical_selection": {
+        "accuracy": 0.6630794701986755,
+        "f1": 0.3952451708766716
+      },
+      "reference_ranking": {
+        "sari_score": 100.0,
+        "mean_readability_gain": 11.354923298071888,
+        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
+      },
+      "sari_score": 34.020419088077595,
+      "mean_readability_gain": 0.6975609032779779,
+      "samples": 24,
+      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+    }
+  ],
+  "weights_sha256_before": "b4b23e2f5de24397f87b49c227f2fb70b2669945881ed2ca71dce9dd08818231",
+  "weights_sha256_after": "622b0e4c49a121cbaee65dbfaac6b3ed5b604e8e8d526249a5ff4226da8d578a",
+  "training_seconds": 12.076668666006299,
+  "dataset_manifest": {
+    "version": "fluilet-dataset-v2",
+    "seed": 20261027,
+    "source_sha256": "02aeb385fdfa8fd4f9ab3afbc5b0eeac84d514f33c8f20fa387e48068dddab06",
+    "v1": {
+      "raw_rows": 5130,
+      "previous_smoke_pairs": 34,
+      "full_unfiltered_derived_pairs": 7704
+    },
+    "v2": {
+      "total_pairs": 3220,
+      "lexical_pairs": 3184,
+      "syntactic_parallel": 36,
+      "morphology": {
+        "observed": 2284,
+        "present": 168,
+        "past": 140,
+        "imperfect": 164,
+        "future": 168,
+        "conditional": 164,
+        "participle": 32,
+        "gerund": 28,
+        "infinitive": 28,
+        "gender_number": 4,
+        "nominalization": 4,
+        "syntax": 36
+      },
+      "levels": {
+        "2": 271,
+        "5": 2162,
+        "4": 140,
+        "1": 420,
+        "3": 227
+      },
+      "partitions": {
+        "train": 2588,
+        "validation": 404,
+        "test": 228
+      },
+      "provenance": {
+        "EASIER_filtered_annotation": 2284,
+        "authored_morphological_augmentation": 900,
+        "authored_syntactic_parallel": 36
+      }
+    },
+    "filtered": {
+      "not_shorter_or_noisy": 4804,
+      "ambiguous_span": 63,
+      "quarantined_family": 149,
+      "quarantined_document": 197,
+      "cross_partition_family": 1189
+    },
+    "split_sha256": {
+      "train": "52769a83df72f8500e8596ee33a41b6ae0031312d0bcf7a88e586d534be27b78",
+      "validation": "33d188a84f873afcaa7cb0ca5644233161cff2b1d6d2b7a3513004020dd546ab",
+      "test": "036a3d922ed02e3bd7668e97ec44fd4829928cec4693bffb55461e77c6ad1af4"
+    },
+    "quarantine_documents": [
+      "120",
+      "200",
+      "276",
+      "30",
+      "68",
+      "84"
+    ],
+    "quarantine_family_count": 169,
+    "leakage_audit": "document/source/family intersections empty",
+    "limitations": [
+      "SGSS labels are lexical proposals, not certified sentence paraphrases",
+      "synthetic contexts and regular-verb forms are weak supervision, not clinical observations",
+      "the six legacy diagnostics informed v1 rules: not an unseen independent benchmark"
+    ],
+    "license": "EASIER source declares CC BY-NC-ND 4.0; local research derivatives remain untracked"
+  },
+  "architecture": "two linear logistic heads; 52 fitted coefficients; CPU SGD; constrained candidate generation",
+  "end_to_end": {
+    "easier_diagnostic": {
+      "samples": 6,
+      "progressive_count": 6,
+      "double_condition_count": 5,
+      "mean_gain": 42.06906005373643,
+      "mean_sari_score": 24.649863667872864,
+      "mean_inference_seconds": 0.12815229867313369,
+      "results": [
+        {
+          "id": "120",
+          "progressive": true,
+          "original_score": 58.68500000000002,
+          "scores": [
+            87.80852941176472,
+            82.69928571428572,
+            71.85500000000002,
+            63.97637931034484,
+            58.68500000000002
+          ],
+          "gain": 29.123529411764707,
+          "double_condition_met": true,
+          "sari_score": 34.33726268285092,
+          "seconds": 0.4142005000030622
+        },
+        {
+          "id": "276",
+          "progressive": true,
+          "original_score": 27.559390243902442,
+          "scores": [
+            71.34284313725492,
+            41.8626595744681,
+            40.53712765957448,
+            40.00388888888891,
+            37.26833333333336
+          ],
+          "gain": 43.783452893352475,
+          "double_condition_met": true,
+          "sari_score": 25.22104503683451,
+          "seconds": 0.08095866700750776
+        },
+        {
+          "id": "68",
+          "progressive": true,
+          "original_score": 44.8324358974359,
+          "scores": [
+            62.735000000000014,
+            62.05121621621622,
+            61.13756410256413,
+            60.773888888888905,
+            59.04333333333335
+          ],
+          "gain": 17.902564102564114,
+          "double_condition_met": false,
+          "sari_score": 30.39799959475501,
+          "seconds": 0.0573122919886373
+        },
+        {
+          "id": "30",
+          "progressive": true,
+          "original_score": 36.606875,
+          "scores": [
+            72.5644117647059,
+            60.705967741935495,
+            58.696290322580666,
+            56.686612903225836,
+            54.676935483871006
+          ],
+          "gain": 35.95753676470589,
+          "double_condition_met": true,
+          "sari_score": 27.588665242117926,
+          "seconds": 0.07036416602204554
+        },
+        {
+          "id": "200",
+          "progressive": true,
+          "original_score": 14.10583333333335,
+          "scores": [
+            84.77203703703705,
+            42.28299999999999,
+            34.807000000000016,
+            32.2766666666667,
+            24.839000000000027
+          ],
+          "gain": 70.6662037037037,
+          "double_condition_met": true,
+          "sari_score": 11.489690864690862,
+          "seconds": 0.05850483401445672
+        },
+        {
+          "id": "84",
+          "progressive": true,
+          "original_score": 11.085000000000008,
+          "scores": [
+            66.06607344632768,
+            24.0458695652174,
+            21.848953488372103,
+            20.621666666666698,
+            20.400116279069778
+          ],
+          "gain": 54.98107344632767,
+          "double_condition_met": true,
+          "sari_score": 18.86451858598796,
+          "seconds": 0.08757333300309256
+        }
+      ]
+    },
+    "unseen_v2": {
+      "samples": 6,
+      "progressive_count": 6,
+      "double_condition_count": 2,
+      "mean_gain": 26.574035133948176,
+      "mean_sari_score": 83.11951721445938,
+      "mean_inference_seconds": 0.05161267349224848,
+      "results": [
+        {
+          "id": "fresh-science",
+          "progressive": true,
+          "original_score": 21.313260869565227,
+          "scores": [
+            43.545000000000016,
+            40.43000000000001,
+            37.56543478260869,
+            37.315000000000026,
+            34.85673913043479
+          ],
+          "gain": 22.23173913043479,
+          "double_condition_met": false,
+          "sari_score": 81.50908545645387,
+          "seconds": 0.05301224999129772
+        },
+        {
+          "id": "fresh-history",
+          "progressive": true,
+          "original_score": 9.262272727272745,
+          "scores": [
+            35.521956521739156,
+            31.9168181818182,
+            26.253181818181844,
+            23.42136363636365,
+            17.757727272727294
+          ],
+          "gain": 26.25968379446641,
+          "double_condition_met": false,
+          "sari_score": 70.85336325467905,
+          "seconds": 0.049865499982843176
+        },
+        {
+          "id": "fresh-legal",
+          "progressive": true,
+          "original_score": 52.251000000000005,
+          "scores": [
+            68.73045454545456,
+            67.203,
+            60.235000000000014,
+            59.72700000000002,
+            52.251000000000005
+          ],
+          "gain": 16.47945454545456,
+          "double_condition_met": true,
+          "sari_score": 92.5205708549234,
+          "seconds": 0.04422291700029746
+        },
+        {
+          "id": "fresh-medical",
+          "progressive": true,
+          "original_score": 24.489166666666705,
+          "scores": [
+            65.15833333333336,
+            63.08166666666668,
+            56.235000000000014,
+            49.04653846153846,
+            47.85166666666669
+          ],
+          "gain": 40.669166666666655,
+          "double_condition_met": true,
+          "sari_score": 88.34892774455253,
+          "seconds": 0.0600873329967726
+        },
+        {
+          "id": "fresh-sports",
+          "progressive": true,
+          "original_score": 14.10583333333335,
+          "scores": [
+            37.468333333333334,
+            37.253181818181844,
+            34.535000000000025,
+            28.601666666666688,
+            27.085000000000008
+          ],
+          "gain": 23.362499999999983,
+          "double_condition_met": false,
+          "sari_score": 80.1288833236791,
+          "seconds": 0.04747274998226203
+        },
+        {
+          "id": "fresh-school",
+          "progressive": true,
+          "original_score": 21.893333333333345,
+          "scores": [
+            52.33500000000001,
+            49.36833333333334,
+            46.40166666666667,
+            43.43500000000003,
+            40.468333333333334
+          ],
+          "gain": 30.441666666666663,
+          "double_condition_met": false,
+          "sari_score": 85.3562726524683,
+          "seconds": 0.055015291000017896
+        }
+      ]
+    }
+  },
+  "easier_benchmark_before": "0/6",
+  "easier_benchmark_after": "6/6",
+  "benchmark_definition": "strict five-level score progression, not exact pedagogical bands or clinical accuracy",
+  "benchmark_status": "legacy six-case diagnostic informed v1 rules; excluded from v2 fitting; not independent generalization",
+  "initial_weight_ablation": {
+    "sari_score": 44.54384786845761,
+    "mean_readability_gain": 10.579505022920213,
+    "samples": 228,
+    "protocol": "end_to_end_constrained_generation; references used only for scoring"
+  },
+  "model_version": "context-ranker-es-v2",
+  "checkpoint_name": "context-ranker-v2",
+  "active": true,
+  "artifact_sha256": "bf6fed23c4461188711d92a5fd5cc0ad21188819484fe6aee7ac1f89a1a8dfe1"
+}

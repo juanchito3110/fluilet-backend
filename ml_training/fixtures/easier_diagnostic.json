@@ -1,0 +1,38 @@
+[
+  {
+    "source": "El frío aire invernal no impide que por todo el mercado se desprenda un celestial aroma a Stollen (pan dulce frutado), Bratwurst (salchichas) y Lebkuchen (pan de jengibre).",
+    "target": "El frío aire invernal no impide que por todo el mercado se desprenda un celestial olor a Stollen (pan dulce frutado), Bratwurst (salchichas) y Lebkuchen (pan de jengibre).",
+    "document_id": "120",
+    "annotation": "derived_lexical_substitution"
+  },
+  {
+    "source": "El texto recoge las medidas organizativas, procesales y de seguridad laboral más urgentes para la paulatina vuelta a la actividad de los juzgados y tribunales y tiene como prioridad la salud de los profesionales que desarrollan su trabajo en ese ámbito.",
+    "target": "El texto recoge las medidas organizativas, procesales y de seguridad laboral más urgentes para la gradual vuelta a la actividad de los juzgados y tribunales y tiene como prioridad la salud de los profesionales que desarrollan su trabajo en ese ámbito.",
+    "document_id": "276",
+    "annotation": "derived_lexical_substitution"
+  },
+  {
+    "source": "Y aunque también puede afectar a niños y personas mayores, el 70 por 100 de los nuevos casos se detectan en personas de entre 20 y 40 años de edad y, en 3 de cada 4 pacientes, en mujeres.",
+    "target": "Y aunque también puede afectar a niños y personas mayores, el 70 por 100 de los nuevos casos se localizan en personas de entre 20 y 40 años de edad y, en 3 de cada 4 pacientes, en mujeres.",
+    "document_id": "68",
+    "annotation": "derived_lexical_substitution"
+  },
+  {
+    "source": "El dolor neuropático destaca también por su  intensidad y la  capacidad  de alterar de forma importante la calidad de vida del paciente, por lo que representa  un  problema  sociosanitario  de  gran  envergadura",
+    "target": "El dolor neuropático destaca también por su  intensidad y la  capacidad  de alterar de forma importante la calidad de vida del paciente, por lo que representa  un  problema  sociosanitario  de  gran  consideración",
+    "document_id": "30",
+    "annotation": "derived_lexical_substitution"
+  },
+  {
+    "source": "Su objetivo es definir una estrategia común europea para un abordaje homogéneo de la fragilidad, mejorando su detección, diagnóstico temprano, prevención, evaluación y manejo",
+    "target": "Su objetivo es definir una estrategia común europea para un abordaje similar de la fragilidad, mejorando su detección, diagnóstico temprano, prevención, evaluación y manejo",
+    "document_id": "200",
+    "annotation": "derived_lexical_substitution"
+  },
+  {
+    "source": "Existe además un cuarto objetivo transversal que es la coordinación con otros países de la UE así como la participación e involucración de las partes interesadas (pacientes, profesionales sanitarios, administraciones sanitarias, distribuidores e industria) y la evaluación continua del Plan.",
+    "target": "Existe además un cuarto objetivo transversal que es la coordinación con otros países de la UE así como la participación e compromiso de las partes interesadas (pacientes, profesionales sanitarios, administraciones sanitarias, distribuidores e industria) y la evaluación continua del Plan.",
+    "document_id": "84",
+    "annotation": "derived_lexical_substitution"
+  }
+]

@@ -1,0 +1,218 @@
+{
+  "revision": "b3420760039936adce6ace614630d5b8e70756ee",
+  "corpus_sha256": "02aeb385fdfa8fd4f9ab3afbc5b0eeac84d514f33c8f20fa387e48068dddab06",
+  "end_to_end": {
+    "easier_diagnostic": {
+      "samples": 6,
+      "progressive_count": 0,
+      "double_condition_count": 5,
+      "mean_gain": 38.77271113468162,
+      "mean_sari_score": 25.96323703611696,
+      "mean_inference_seconds": 0.12342345833894797,
+      "results": [
+        {
+          "id": "120",
+          "progressive": false,
+          "original_score": 58.68500000000002,
+          "scores": [
+            85.933,
+            85.933,
+            63.135000000000005,
+            58.68500000000002,
+            58.68500000000002
+          ],
+          "gain": 27.24799999999999,
+          "double_condition_met": true,
+          "sari_score": 40.49094607130321,
+          "seconds": 0.4329967910016421
+        },
+        {
+          "id": "276",
+          "progressive": false,
+          "original_score": 27.559390243902442,
+          "scores": [
+            71.34284313725492,
+            71.34284313725492,
+            71.34284313725492,
+            71.34284313725492,
+            71.34284313725492
+          ],
+          "gain": 43.783452893352475,
+          "double_condition_met": true,
+          "sari_score": 25.22104503683451,
+          "seconds": 0.060082208015955985
+        },
+        {
+          "id": "68",
+          "progressive": false,
+          "original_score": 44.8324358974359,
+          "scores": [
+            44.8324358974359,
+            44.8324358974359,
+            44.8324358974359,
+            44.8324358974359,
+            44.8324358974359
+          ],
+          "gain": 0.0,
+          "double_condition_met": false,
+          "sari_score": 32.124556415767294,
+          "seconds": 0.04539358400506899
+        },
+        {
+          "id": "30",
+          "progressive": false,
+          "original_score": 36.606875,
+          "scores": [
+            72.5644117647059,
+            72.5644117647059,
+            72.5644117647059,
+            72.5644117647059,
+            48.64790322580646
+          ],
+          "gain": 35.95753676470589,
+          "double_condition_met": true,
+          "sari_score": 27.588665242117926,
+          "seconds": 0.08845183299854398
+        },
+        {
+          "id": "200",
+          "progressive": false,
+          "original_score": 14.10583333333335,
+          "scores": [
+            84.77203703703705,
+            84.77203703703705,
+            84.77203703703705,
+            84.77203703703705,
+            84.77203703703705
+          ],
+          "gain": 70.6662037037037,
+          "double_condition_met": true,
+          "sari_score": 11.489690864690862,
+          "seconds": 0.048942541994620115
+        },
+        {
+          "id": "84",
+          "progressive": false,
+          "original_score": 11.085000000000008,
+          "scores": [
+            66.06607344632768,
+            66.06607344632768,
+            66.06607344632768,
+            66.06607344632768,
+            66.06607344632768
+          ],
+          "gain": 54.98107344632767,
+          "double_condition_met": true,
+          "sari_score": 18.86451858598796,
+          "seconds": 0.06467379201785661
+        }
+      ]
+    },
+    "unseen_v2": {
+      "samples": 6,
+      "progressive_count": 0,
+      "double_condition_count": 1,
+      "mean_gain": 23.695120992534033,
+      "mean_sari_score": 79.66922572762178,
+      "mean_inference_seconds": 0.03503597883779245,
+      "results": [
+        {
+          "id": "fresh-science",
+          "progressive": false,
+          "original_score": 21.313260869565227,
+          "scores": [
+            40.43000000000001,
+            40.43000000000001,
+            37.315000000000026,
+            24.855000000000018,
+            24.855000000000018
+          ],
+          "gain": 19.11673913043478,
+          "double_condition_met": false,
+          "sari_score": 74.21619372386637,
+          "seconds": 0.032744541007559747
+        },
+        {
+          "id": "fresh-history",
+          "progressive": false,
+          "original_score": 9.262272727272745,
+          "scores": [
+            35.521956521739156,
+            35.521956521739156,
+            35.521956521739156,
+            35.521956521739156,
+            35.521956521739156
+          ],
+          "gain": 26.25968379446641,
+          "double_condition_met": false,
+          "sari_score": 70.85336325467905,
+          "seconds": 0.03661412501242012
+        },
+        {
+          "id": "fresh-legal",
+          "progressive": false,
+          "original_score": 52.251000000000005,
+          "scores": [
+            68.73045454545456,
+            68.73045454545456,
+            68.73045454545456,
+            68.73045454545456,
+            52.251000000000005
+          ],
+          "gain": 16.47945454545456,
+          "double_condition_met": true,
+          "sari_score": 92.5205708549234,
+          "seconds": 0.03146270799334161
+        },
+        {
+          "id": "fresh-medical",
+          "progressive": false,
+          "original_score": 24.489166666666705,
+          "scores": [
+            63.08166666666668,
+            63.08166666666668,
+            63.08166666666668,
+            63.08166666666668,
+            63.08166666666668
+          ],
+          "gain": 38.59249999999997,
+          "double_condition_met": false,
+          "sari_score": 81.76693107080546,
+          "seconds": 0.040991665999172255
+        },
+        {
+          "id": "fresh-sports",
+          "progressive": false,
+          "original_score": 14.10583333333335,
+          "scores": [
+            37.253181818181844,
+            37.253181818181844,
+            37.253181818181844,
+            37.253181818181844,
+            37.253181818181844
+          ],
+          "gain": 23.147348484848493,
+          "double_condition_met": false,
+          "sari_score": 92.8030303030303,
+          "seconds": 0.03481537499465048
+        },
+        {
+          "id": "fresh-school",
+          "progressive": false,
+          "original_score": 21.893333333333345,
+          "scores": [
+            40.468333333333334,
+            40.468333333333334,
+            43.43500000000003,
+            25.63499999999999,
+            25.63499999999999
+          ],
+          "gain": 18.57499999999999,
+          "double_condition_met": false,
+          "sari_score": 65.85526515842606,
+          "seconds": 0.033587458019610494
+        }
+      ]
+    }
+  }
+}

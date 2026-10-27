@@ -34,6 +34,8 @@ class AdaptationResult:
     level_progression_met: bool = False
     removed_fragments: list[str] = field(default_factory=list)
     engine_version: str = "legacy"
+    model_version: str = "unavailable"
+    checkpoint_name: str | None = None
 
     @property
     def meets_readability_target(self) -> bool:
@@ -190,6 +192,7 @@ class AdaptationPipeline:
 
     async def run(self, text: str, level: int = 3, *, child_age=None) -> AdaptationResult:
         from app.services.pedagogy import VERSION, _local_plan, choose_levels, replacements
+        from app.services.ranker import checkpoint
 
         chunks = await asyncio.to_thread(reading_chunks, text)
         local = await asyncio.to_thread(_local_plan, text)
@@ -271,6 +274,8 @@ class AdaptationPipeline:
             level_progression_met=progressive,
             removed_fragments=removed,
             engine_version=VERSION,
+            model_version=checkpoint()["model_version"] if checkpoint() else "unavailable",
+            checkpoint_name=checkpoint()["checkpoint_name"] if checkpoint() else None,
         )
         if not progressive:
             result.warnings.append("level_progression_not_available")

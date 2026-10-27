@@ -21,6 +21,14 @@ router = APIRouter(prefix="/api/v1/adaptations", tags=["adaptations"])
 _slots = asyncio.Semaphore(settings.PROCESSING_CONCURRENCY)
 _adults = auth.require_roles(models.UserRole.TUTOR, models.UserRole.ADULTO_INDEPENDIENTE)
 
+
+@router.get("/model-info")
+async def model_information(user: models.User = Depends(auth.get_current_user)):
+    from app.services.ranker import model_info
+
+    return await asyncio.to_thread(model_info)
+
+
 _FILE_BODY = {
     "requestBody": {
         "required": True,
@@ -169,6 +177,8 @@ async def persist(
         level_progression_met=result.level_progression_met,
         removed_fragments=result.removed_fragments,
         engine_version=result.engine_version,
+        model_version=result.model_version,
+        checkpoint_name=result.checkpoint_name,
         id=content.id,
         original_text=result.original_text,
         original_readability_score=metrics["original_szigriszt_score"],
@@ -400,5 +410,7 @@ async def get_adaptation(
             level_previews=previews,
             level_progression_met=progressive,
             engine_version="legacy_enriched",
+            model_version="legacy_not_retrained",
+            checkpoint_name=None,
         )
     return schemas.AdaptationRead.model_validate(payload)
