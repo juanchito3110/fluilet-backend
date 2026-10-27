@@ -89,7 +89,7 @@ async def test_rich_local_encyclopedia_is_available_without_network(topic, key):
     "category,topic,fragments",
     [
         ("deportes", "Real Madrid", ["1902", "FIFA", "Santiago Bernabéu"]),
-        ("animales_naturaleza", "marina", ["biología", "océanos", "fauna"]),
+        ("animales_naturaleza", "marina", ["biología", "mar", "animales"]),
         ("historia_misterios", "egipcia", ["Nilo", "jeroglíficos", "papiro"]),
         ("deportes", "olímpicos", ["1896", "Atenas", "1924"]),
     ],

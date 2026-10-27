@@ -250,7 +250,9 @@ class WikipediaSource:
                         title, raw = page.get("title", ""), page.get("extract", "")
                         if not isinstance(title, str) or not isinstance(raw, str):
                             continue
-                        text = clean_extract(raw)
+                        # Preserve the entire plaintext introduction for the original side.
+                        # Noise cleanup belongs to the adapted derivation, not the source.
+                        text = raw.strip()
                         if len(words(text)) < 20:
                             continue
                         score = _candidate_score(resolution, title, text)

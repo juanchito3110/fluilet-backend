@@ -1,5 +1,7 @@
 # Revisión académica: comparación y demostración
 
+> Actualización: el motor vigente y sus resultados están en [simplificación pedagógica](pedagogical-simplification.md). Las mediciones siguientes son históricas.
+
 Contrato revisado contra Android **b822b85**, sin modificar ese repositorio.
 La conservación en BD de originales y adaptaciones, incluidos textos manuales,
 fue autorizada explícitamente el **26 de octubre de 2026**. Sustituye la regla

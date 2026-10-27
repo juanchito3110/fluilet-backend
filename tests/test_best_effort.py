@@ -26,7 +26,7 @@ TEXT_B = (
     "de herramientas tecnológicas contemporáneas facilita considerablemente la comprensión de "
     "los libros en la escuela."
 )
-TECHNICAL = "La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados."
+TECHNICAL = "La espectrointerferometría analiza matrices hiperdimensionales extraordinariamente sofisticadas."
 
 
 @pytest.mark.parametrize("level", [1, 2, 3, 4, 5])

@@ -26,6 +26,11 @@ from app.privacy import PrivacyMiddleware, validation_error
 
 @asynccontextmanager
 async def lifespan(app):
+    import asyncio
+
+    from app.services.resources import resources
+
+    await asyncio.to_thread(resources)
     if settings.DEMO_ACCOUNTS_ENABLED:
         from app.demo_accounts import ensure_accounts
 

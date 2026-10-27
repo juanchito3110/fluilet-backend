@@ -329,7 +329,33 @@ class ComparisonMetrics(BaseModel):
     adapted_average_words_per_sentence: float
 
 
+class LexicalReplacement(BaseModel):
+    original: str
+    adapted: str
+
+
+class LevelPreview(BaseModel):
+    level: int = Field(ge=1, le=5)
+    adapted_text: str
+    readability_score: float
+    readability_level: str
+    avg_sentence_length: float
+    target_met: bool = False
+    method: str = "pedagogical"
+
+
 class AdaptationRead(BaseModel):
+    readability_gain: float = 0.0
+    original_avg_sentence_length: float = 0.0
+    adapted_avg_sentence_length: float = 0.0
+    original_syllables_per_word: float = 0.0
+    adapted_syllables_per_word: float = 0.0
+    lexical_replacements: list[LexicalReplacement] = Field(default_factory=list)
+    level_previews: list[LevelPreview] = Field(default_factory=list)
+    level_progression_met: bool = False
+    removed_fragments: list[str] = Field(default_factory=list)
+    engine_version: str = "legacy"
+
     id: uuid.UUID
     original_text: str = Field(min_length=1)
     original_readability_score: float

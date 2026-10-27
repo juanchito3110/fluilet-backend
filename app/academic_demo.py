@@ -126,6 +126,9 @@ async def seed_demo(
             )
         )
     await db.commit()
+    from app.services.demo_refresh import refresh_marked
+
+    await refresh_marked(db, [profile_id])
     response = await progress(profile_id, user, db)
     response.demo_data = True
     response.demo_lessons = lessons

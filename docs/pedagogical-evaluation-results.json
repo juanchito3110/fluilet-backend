@@ -1,0 +1,1633 @@
+{
+  "engine_version": "pedagogical-es-v1",
+  "samples": 31,
+  "corpus": {
+    "rows_read": 5130,
+    "accepted_annotations": 7876,
+    "rejected_annotations": 8,
+    "curated_pairs": 397,
+    "corpus_present": true,
+    "corpus_sha256": "02aeb385fdfa8fd4f9ab3afbc5b0eeac84d514f33c8f20fa387e48068dddab06",
+    "corpus_status": "loaded",
+    "encoding": "mixed UTF-8/CP1252 per-line; invalid annotations rejected",
+    "utf8_lines": 5153,
+    "cp1252_lines": 1,
+    "corpus_terms": 3387,
+    "indexed_candidates": 7876
+  },
+  "resource_inventory": {
+    "training_code_available": true,
+    "checkpoints": [
+      {
+        "name": "easier-smoke",
+        "steps": 120,
+        "weights_available": true,
+        "auto_activated": false
+      }
+    ],
+    "activation_policy": "configured_checkpoint_only; no unvalidated automatic activation"
+  },
+  "dataset_status": "authored_local_alignment_calibration",
+  "mean_original_score": 50.800593959268454,
+  "median_original_score": 51.093943089430915,
+  "progressive_count": 31,
+  "mean_inference_seconds_all_levels": 0.03292449587024748,
+  "levels": [
+    {
+      "level": 1,
+      "goal": [
+        82,
+        100,
+        6,
+        9
+      ],
+      "mean_score": 75.42690898499042,
+      "mean_gain": 24.626315025721958,
+      "mean_sentence_length": 7.9422500438629475,
+      "gain_15_count": 26,
+      "goal_met_count": 7,
+      "double_condition_count": 22
+    },
+    {
+      "level": 2,
+      "goal": [
+        74,
+        84,
+        9,
+        12
+      ],
+      "mean_score": 72.1478307178312,
+      "mean_gain": 21.347236758562747,
+      "mean_sentence_length": 8.778650560908625,
+      "gain_15_count": 24,
+      "goal_met_count": 9,
+      "double_condition_count": 20
+    },
+    {
+      "level": 3,
+      "goal": [
+        65,
+        74,
+        11,
+        15
+      ],
+      "mean_score": 66.17444933006536,
+      "mean_gain": 15.373855370796905,
+      "mean_sentence_length": 11.35171880091235,
+      "gain_15_count": 13,
+      "goal_met_count": 17,
+      "double_condition_count": 10
+    },
+    {
+      "level": 4,
+      "goal": [
+        58,
+        66,
+        14,
+        18
+      ],
+      "mean_score": 60.57377972055148,
+      "mean_gain": 9.773185761283028,
+      "mean_sentence_length": 13.866436251920122,
+      "gain_15_count": 7,
+      "goal_met_count": 12,
+      "double_condition_count": 0
+    },
+    {
+      "level": 5,
+      "goal": [
+        50,
+        65,
+        16,
+        24
+      ],
+      "mean_score": 57.38465330209548,
+      "mean_gain": 6.584059342827029,
+      "mean_sentence_length": 14.190092165898617,
+      "gain_15_count": 3,
+      "goal_met_count": 3,
+      "double_condition_count": 0
+    }
+  ],
+  "results": [
+    {
+      "id": "tierra",
+      "original_score": 57.890000000000015,
+      "original_avg_sentence_length": 15.0,
+      "inference_seconds_all_levels": 0.4506981669983361,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 92.83651515151517,
+          "gain": 34.94651515151516,
+          "avg_sentence_length": 7.333333333333333,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 78.93276785714288,
+          "gain": 21.042767857142863,
+          "avg_sentence_length": 9.142857142857142,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 68.27333333333334,
+          "gain": 10.383333333333326,
+          "avg_sentence_length": 15.0,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 63.701666666666675,
+          "gain": 5.81166666666666,
+          "avg_sentence_length": 12.6,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 60.55166666666668,
+          "gain": 2.6616666666666617,
+          "avg_sentence_length": 15.75,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "luna",
+      "original_score": 64.27710526315792,
+      "original_avg_sentence_length": 11.4,
+      "inference_seconds_all_levels": 0.014117624989012256,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 94.21818318318319,
+          "gain": 29.941077920025265,
+          "avg_sentence_length": 8.222222222222221,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 76.98589285714287,
+          "gain": 12.708787593984951,
+          "avg_sentence_length": 9.142857142857142,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 3,
+          "score": 67.27008771929826,
+          "gain": 2.9929824561403393,
+          "avg_sentence_length": 9.5,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 65.57136363636366,
+          "gain": 1.2942583732057358,
+          "avg_sentence_length": 11.0,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 65.37008771929825,
+          "gain": 1.0929824561403336,
+          "avg_sentence_length": 11.4,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "telescopio",
+      "original_score": 46.072500000000005,
+      "original_avg_sentence_length": 12.8,
+      "inference_seconds_all_levels": 0.015702250006143004,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 78.22223723723724,
+          "gain": 32.14973723723723,
+          "avg_sentence_length": 8.222222222222221,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 74.23746478873241,
+          "gain": 28.164964788732405,
+          "avg_sentence_length": 8.875,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 67.23696078431375,
+          "gain": 21.164460784313746,
+          "avg_sentence_length": 11.333333333333334,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 4,
+          "score": 59.10075342465753,
+          "gain": 13.028253424657528,
+          "avg_sentence_length": 14.6,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 59.01608108108111,
+          "gain": 12.943581081081106,
+          "avg_sentence_length": 14.8,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "abejas",
+      "original_score": 58.80057377049182,
+      "original_avg_sentence_length": 12.2,
+      "inference_seconds_all_levels": 0.015114666981389746,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 86.95272151898735,
+          "gain": 28.152147748495523,
+          "avg_sentence_length": 7.9,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 79.34308080808081,
+          "gain": 20.54250703758899,
+          "avg_sentence_length": 8.555555555555555,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 70.73500000000001,
+          "gain": 11.93442622950819,
+          "avg_sentence_length": 11.5,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 62.22176470588237,
+          "gain": 3.4211909353905483,
+          "avg_sentence_length": 13.6,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 60.4663432835821,
+          "gain": 1.6657695130902752,
+          "avg_sentence_length": 13.4,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "bosques",
+      "original_score": 47.72854838709677,
+      "original_avg_sentence_length": 12.4,
+      "inference_seconds_all_levels": 0.015524499991443008,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 84.95737237237239,
+          "gain": 37.22882398527562,
+          "avg_sentence_length": 8.222222222222221,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 77.74159340659341,
+          "gain": 30.013045019496637,
+          "avg_sentence_length": 9.285714285714286,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 67.99863636363638,
+          "gain": 20.270087976539607,
+          "avg_sentence_length": 11.0,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 4,
+          "score": 63.59863636363638,
+          "gain": 15.870087976539608,
+          "avg_sentence_length": 15.4,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 55.75049295774649,
+          "gain": 8.021944570649715,
+          "avg_sentence_length": 14.2,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "agua",
+      "original_score": 63.25589552238808,
+      "original_avg_sentence_length": 13.4,
+      "inference_seconds_all_levels": 0.016679542022757232,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 84.76890374331552,
+          "gain": 21.51300822092744,
+          "avg_sentence_length": 7.7272727272727275,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 78.67466666666668,
+          "gain": 15.418771144278601,
+          "avg_sentence_length": 9.375,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 69.67833333333334,
+          "gain": 6.422437810945262,
+          "avg_sentence_length": 11.666666666666666,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 66.40433333333335,
+          "gain": 3.148437810945275,
+          "avg_sentence_length": 15.0,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 65.88647058823533,
+          "gain": 2.630575065847246,
+          "avg_sentence_length": 13.6,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "arqueologia",
+      "original_score": 33.660806451612935,
+      "original_avg_sentence_length": 12.4,
+      "inference_seconds_all_levels": 0.016608500009169802,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 70.71019025875191,
+          "gain": 37.04938380713897,
+          "avg_sentence_length": 8.11111111111111,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 67.13602739726028,
+          "gain": 33.475220945647344,
+          "avg_sentence_length": 9.125,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 66.40558823529412,
+          "gain": 32.744781783681184,
+          "avg_sentence_length": 8.5,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 4,
+          "score": 55.806875000000005,
+          "gain": 22.14606854838707,
+          "avg_sentence_length": 12.8,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 49.30813432835823,
+          "gain": 15.647327876745294,
+          "avg_sentence_length": 13.4,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "escritura",
+      "original_score": 36.64730769230772,
+      "original_avg_sentence_length": 13.0,
+      "inference_seconds_all_levels": 0.01707162498496473,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 68.87136363636365,
+          "gain": 32.224055944055934,
+          "avg_sentence_length": 7.7,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 67.3127777777778,
+          "gain": 30.665470085470076,
+          "avg_sentence_length": 8.0,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 65.0270634920635,
+          "gain": 28.379755799755785,
+          "avg_sentence_length": 10.285714285714286,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 4,
+          "score": 56.72470588235293,
+          "gain": 20.07739819004521,
+          "avg_sentence_length": 13.6,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 51.45233333333334,
+          "gain": 14.805025641025622,
+          "avg_sentence_length": 15.0,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "mapas",
+      "original_score": 56.76378787878791,
+      "original_avg_sentence_length": 13.2,
+      "inference_seconds_all_levels": 0.015661540994187817,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 72.67722222222226,
+          "gain": 15.913434343434346,
+          "avg_sentence_length": 7.777777777777778,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 72.19307692307694,
+          "gain": 15.429289044289035,
+          "avg_sentence_length": 8.125,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 69.36972222222224,
+          "gain": 12.605934343434328,
+          "avg_sentence_length": 12.0,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 62.22176470588237,
+          "gain": 5.457976827094463,
+          "avg_sentence_length": 13.6,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 58.44500000000002,
+          "gain": 1.6812121212121127,
+          "avg_sentence_length": 14.0,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "futbol",
+      "original_score": 65.40115384615387,
+      "original_avg_sentence_length": 13.0,
+      "inference_seconds_all_levels": 0.01525825000135228,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 80.09786149162862,
+          "gain": 14.696707645474746,
+          "avg_sentence_length": 8.11111111111111,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 2,
+          "score": 77.04500000000002,
+          "gain": 11.643846153846141,
+          "avg_sentence_length": 8.75,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 3,
+          "score": 69.67833333333334,
+          "gain": 4.277179487179467,
+          "avg_sentence_length": 11.666666666666666,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 69.33789855072466,
+          "gain": 3.936744704570785,
+          "avg_sentence_length": 13.8,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 67.7188235294118,
+          "gain": 2.3176696832579182,
+          "avg_sentence_length": 13.6,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "atletismo",
+      "original_score": 57.50542253521125,
+      "original_avg_sentence_length": 14.2,
+      "inference_seconds_all_levels": 0.015920999983791262,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 74.97731354642315,
+          "gain": 17.471891011211895,
+          "avg_sentence_length": 8.11111111111111,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 73.90166666666669,
+          "gain": 16.396244131455433,
+          "avg_sentence_length": 8.333333333333334,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 68.50444444444446,
+          "gain": 10.999021909233207,
+          "avg_sentence_length": 12.0,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 61.29684210526317,
+          "gain": 3.7914195700519144,
+          "avg_sentence_length": 15.2,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 60.004999999999995,
+          "gain": 2.499577464788743,
+          "avg_sentence_length": 16.0,
+          "target_met": true,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "baloncesto",
+      "original_score": 50.743064516129046,
+      "original_avg_sentence_length": 12.4,
+      "inference_seconds_all_levels": 0.014069249999010935,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 66.44629032258067,
+          "gain": 15.70322580645162,
+          "avg_sentence_length": 7.75,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 65.48954545454546,
+          "gain": 14.746480938416418,
+          "avg_sentence_length": 8.25,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 3,
+          "score": 62.739545454545464,
+          "gain": 11.996480938416418,
+          "avg_sentence_length": 11.0,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 58.651666666666685,
+          "gain": 7.908602150537639,
+          "avg_sentence_length": 13.2,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 55.817089552238805,
+          "gain": 5.074025036109759,
+          "avg_sentence_length": 13.4,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "robots",
+      "original_score": 40.69467741935484,
+      "original_avg_sentence_length": 12.4,
+      "inference_seconds_all_levels": 0.015751333005027846,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 76.96227272727273,
+          "gain": 36.267595307917894,
+          "avg_sentence_length": 7.7,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 75.96555555555557,
+          "gain": 35.27087813620073,
+          "avg_sentence_length": 8.0,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 69.73838345864664,
+          "gain": 29.0437060392918,
+          "avg_sentence_length": 10.857142857142858,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 4,
+          "score": 61.11500000000001,
+          "gain": 20.42032258064517,
+          "avg_sentence_length": 14.0,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 58.50311594202903,
+          "gain": 17.808438522674187,
+          "avg_sentence_length": 13.8,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "internet",
+      "original_score": 54.762419354838734,
+      "original_avg_sentence_length": 12.4,
+      "inference_seconds_all_levels": 0.015388625004561618,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 81.81681818181819,
+          "gain": 27.054398826979458,
+          "avg_sentence_length": 7.7,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 79.76608298171593,
+          "gain": 25.00366362687719,
+          "avg_sentence_length": 8.777777777777779,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 69.36972222222224,
+          "gain": 14.607302867383503,
+          "avg_sentence_length": 12.0,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 63.785,
+          "gain": 9.022580645161263,
+          "avg_sentence_length": 14.0,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 60.38941176470589,
+          "gain": 5.626992409867157,
+          "avg_sentence_length": 13.6,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "energia solar",
+      "original_score": 41.43827868852459,
+      "original_avg_sentence_length": 12.2,
+      "inference_seconds_all_levels": 0.014296458015451208,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 59.29032786885247,
+          "gain": 17.85204918032788,
+          "avg_sentence_length": 7.625,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 2,
+          "score": 57.83721674876849,
+          "gain": 16.3989380602439,
+          "avg_sentence_length": 8.285714285714286,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 3,
+          "score": 54.81940860215054,
+          "gain": 13.381129913625948,
+          "avg_sentence_length": 10.333333333333334,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 52.48415254237288,
+          "gain": 11.045873853848292,
+          "avg_sentence_length": 11.8,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 50.50666666666666,
+          "gain": 9.06838797814207,
+          "avg_sentence_length": 12.0,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "julio verne",
+      "original_score": 52.09768656716421,
+      "original_avg_sentence_length": 13.4,
+      "inference_seconds_all_levels": 0.01676387499901466,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 66.4160810810811,
+          "gain": 14.318394513916893,
+          "avg_sentence_length": 7.4,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 2,
+          "score": 63.77722222222226,
+          "gain": 11.679535655058046,
+          "avg_sentence_length": 7.777777777777778,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 3,
+          "score": 61.555000000000035,
+          "gain": 9.457313432835825,
+          "avg_sentence_length": 10.0,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 59.182222222222244,
+          "gain": 7.084535655058033,
+          "avg_sentence_length": 14.4,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 56.627957746478884,
+          "gain": 4.530271179314674,
+          "avg_sentence_length": 14.2,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "vuelta mundo",
+      "original_score": 53.931969696969716,
+      "original_avg_sentence_length": 13.2,
+      "inference_seconds_all_levels": 0.025177499977871776,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 78.74981481481484,
+          "gain": 24.817845117845124,
+          "avg_sentence_length": 8.1,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 77.84981481481483,
+          "gain": 23.91784511784512,
+          "avg_sentence_length": 9.0,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 67.27917293233082,
+          "gain": 13.347203235361107,
+          "avg_sentence_length": 10.857142857142858,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 61.89274647887326,
+          "gain": 7.960776781903547,
+          "avg_sentence_length": 14.2,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 57.50542253521125,
+          "gain": 3.5734528382415363,
+          "avg_sentence_length": 14.2,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "isla tesoro",
+      "original_score": 62.64333333333335,
+      "original_avg_sentence_length": 14.4,
+      "inference_seconds_all_levels": 0.01913416598108597,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 79.24443683409439,
+          "gain": 16.601103500761035,
+          "avg_sentence_length": 8.11111111111111,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 78.62478873239439,
+          "gain": 15.98145539906104,
+          "avg_sentence_length": 8.875,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 69.2149086757991,
+          "gain": 6.571575342465742,
+          "avg_sentence_length": 12.166666666666666,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 64.3738888888889,
+          "gain": 1.7305555555555472,
+          "avg_sentence_length": 14.4,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 62.77021126760566,
+          "gain": 0.12687793427230787,
+          "avg_sentence_length": 14.2,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "real madrid",
+      "original_score": 39.633039215686296,
+      "original_avg_sentence_length": 25.5,
+      "inference_seconds_all_levels": 0.0346113329869695,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 82.44997105045492,
+          "gain": 42.816931834768624,
+          "avg_sentence_length": 7.153846153846154,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 75.7526100628931,
+          "gain": 36.1195708472068,
+          "avg_sentence_length": 8.833333333333334,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 66.34816770186336,
+          "gain": 26.715128486177065,
+          "avg_sentence_length": 16.428571428571427,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 4,
+          "score": 57.06601045296169,
+          "gain": 17.432971237275396,
+          "avg_sentence_length": 17.571428571428573,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 52.72848739495801,
+          "gain": 13.095448179271713,
+          "avg_sentence_length": 19.428571428571427,
+          "target_met": true,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "biologia marina",
+      "original_score": 47.82527982326951,
+      "original_avg_sentence_length": 13.857142857142858,
+      "inference_seconds_all_levels": 0.02582579100271687,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 79.99736559139785,
+          "gain": 32.17208576812834,
+          "avg_sentence_length": 8.266666666666667,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 79.0501856017998,
+          "gain": 31.224905778530285,
+          "avg_sentence_length": 9.071428571428571,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 69.47004273504275,
+          "gain": 21.644762911773242,
+          "avg_sentence_length": 11.7,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 4,
+          "score": 62.254999999999995,
+          "gain": 14.429720176730484,
+          "avg_sentence_length": 13.75,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 60.29071428571428,
+          "gain": 12.465434462444769,
+          "avg_sentence_length": 15.714285714285714,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "tiburon",
+      "original_score": 48.09059845559845,
+      "original_avg_sentence_length": 10.571428571428571,
+      "inference_seconds_all_levels": 0.019930334005039185,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 69.65579037800687,
+          "gain": 21.565191922408417,
+          "avg_sentence_length": 8.083333333333334,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 69.56320993439553,
+          "gain": 21.472611478797077,
+          "avg_sentence_length": 8.818181818181818,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 67.60361397479957,
+          "gain": 19.51301551920112,
+          "avg_sentence_length": 10.777777777777779,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 4,
+          "score": 63.3616009852217,
+          "gain": 15.271002529623246,
+          "avg_sentence_length": 12.428571428571429,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 58.36833333333334,
+          "gain": 10.277734877734886,
+          "avg_sentence_length": 12.0,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "dinosaurios",
+      "original_score": 51.093943089430915,
+      "original_avg_sentence_length": 13.666666666666666,
+      "inference_seconds_all_levels": 0.019126833009067923,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 68.87136363636365,
+          "gain": 17.77742054693274,
+          "avg_sentence_length": 7.7,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 68.82489898989901,
+          "gain": 17.730955900468096,
+          "avg_sentence_length": 8.555555555555555,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 65.87424268502582,
+          "gain": 14.780299595594904,
+          "avg_sentence_length": 11.857142857142858,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 58.77791666666668,
+          "gain": 7.683973577235761,
+          "avg_sentence_length": 13.333333333333334,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 56.27752873563219,
+          "gain": 5.183585646201273,
+          "avg_sentence_length": 14.5,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "sistema solar",
+      "original_score": 64.51048500881835,
+      "original_avg_sentence_length": 11.571428571428571,
+      "inference_seconds_all_levels": 0.018980458000442013,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 77.68801204819279,
+          "gain": 13.17752703937444,
+          "avg_sentence_length": 8.3,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 2,
+          "score": 76.31154320987656,
+          "gain": 11.801058201058211,
+          "avg_sentence_length": 9.0,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 3,
+          "score": 70.02767857142857,
+          "gain": 5.517193562610217,
+          "avg_sentence_length": 11.428571428571429,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 66.38045454545457,
+          "gain": 1.8699695366362192,
+          "avg_sentence_length": 11.0,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 65.785,
+          "gain": 1.274514991181647,
+          "avg_sentence_length": 12.0,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "agujeros negros",
+      "original_score": 56.43970588235297,
+      "original_avg_sentence_length": 17.0,
+      "inference_seconds_all_levels": 0.02035520799108781,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 77.54333333333334,
+          "gain": 21.10362745098037,
+          "avg_sentence_length": 8.4,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 74.86240963855423,
+          "gain": 18.42270375620126,
+          "avg_sentence_length": 10.375,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 68.24766233766235,
+          "gain": 11.80795645530938,
+          "avg_sentence_length": 12.571428571428571,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 61.84269230769231,
+          "gain": 5.402986425339343,
+          "avg_sentence_length": 15.6,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 57.06639534883725,
+          "gain": 0.6266894664842795,
+          "avg_sentence_length": 17.2,
+          "target_met": true,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "volcanes",
+      "original_score": 62.61265151515152,
+      "original_avg_sentence_length": 14.666666666666666,
+      "inference_seconds_all_levels": 0.021856833016499877,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 74.90413580246916,
+          "gain": 12.291484287317637,
+          "avg_sentence_length": 8.1,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 2,
+          "score": 74.4679411764706,
+          "gain": 11.855289661319084,
+          "avg_sentence_length": 8.5,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 3,
+          "score": 69.00120209059236,
+          "gain": 6.3885505754408385,
+          "avg_sentence_length": 11.714285714285714,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 63.5551550387597,
+          "gain": 0.9425035236081811,
+          "avg_sentence_length": 14.333333333333334,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 63.20166666666666,
+          "gain": 0.5890151515151416,
+          "avg_sentence_length": 14.833333333333334,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "antiguo egipto",
+      "original_score": 42.42137873754154,
+      "original_avg_sentence_length": 12.285714285714286,
+      "inference_seconds_all_levels": 0.02371083400794305,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 64.02939880507843,
+          "gain": 21.60802006753689,
+          "avg_sentence_length": 7.923076923076923,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 2,
+          "score": 62.8224213836478,
+          "gain": 20.401042646106262,
+          "avg_sentence_length": 8.833333333333334,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 3,
+          "score": 60.746586452762934,
+          "gain": 18.325207715221396,
+          "avg_sentence_length": 9.272727272727273,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 53.60569219440353,
+          "gain": 11.184313456861993,
+          "avg_sentence_length": 13.857142857142858,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 50.24898176291792,
+          "gain": 7.8276030253763835,
+          "avg_sentence_length": 13.428571428571429,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "inteligencia artificial",
+      "original_score": 38.3775702811245,
+      "original_avg_sentence_length": 13.833333333333334,
+      "inference_seconds_all_levels": 0.01887683299719356,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 57.10250000000002,
+          "gain": 18.724929718875522,
+          "avg_sentence_length": 8.0,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 2,
+          "score": 56.40925474254746,
+          "gain": 18.031684461422962,
+          "avg_sentence_length": 9.11111111111111,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 3,
+          "score": 53.80608013937286,
+          "gain": 15.428509858248361,
+          "avg_sentence_length": 11.714285714285714,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 50.21166666666668,
+          "gain": 11.834096385542182,
+          "avg_sentence_length": 13.333333333333334,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 47.19919753086421,
+          "gain": 8.821627249739713,
+          "avg_sentence_length": 13.5,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "robots submarinos",
+      "original_score": 49.74480392156865,
+      "original_avg_sentence_length": 14.166666666666666,
+      "inference_seconds_all_levels": 0.02074025000911206,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 78.00527491408937,
+          "gain": 28.260470992520716,
+          "avg_sentence_length": 8.083333333333334,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 76.87758373205742,
+          "gain": 27.132779810488763,
+          "avg_sentence_length": 8.636363636363637,
+          "target_met": false,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 67.43692307692311,
+          "gain": 17.692119155354455,
+          "avg_sentence_length": 11.375,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 4,
+          "score": 62.5917375886525,
+          "gain": 12.846933667083846,
+          "avg_sentence_length": 15.666666666666666,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 57.483717948717974,
+          "gain": 7.73891402714932,
+          "avg_sentence_length": 15.166666666666666,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "juegos olimpicos",
+      "original_score": 52.89517857142859,
+      "original_avg_sentence_length": 11.428571428571429,
+      "inference_seconds_all_levels": 0.019204750016797334,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 62.701791044776115,
+          "gain": 9.806612473347528,
+          "avg_sentence_length": 8.375,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 2,
+          "score": 60.25583333333333,
+          "gain": 7.36065476190474,
+          "avg_sentence_length": 9.0,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 3,
+          "score": 58.97011904761904,
+          "gain": 6.074940476190456,
+          "avg_sentence_length": 10.285714285714286,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 58.33156419529836,
+          "gain": 5.436385623869775,
+          "avg_sentence_length": 11.285714285714286,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 55.28085537918871,
+          "gain": 2.3856768077601203,
+          "avg_sentence_length": 11.571428571428571,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "robots inteligencia artificial",
+      "original_score": 26.201666666666682,
+      "original_avg_sentence_length": 14.5,
+      "inference_seconds_all_levels": 0.0233597079932224,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 61.75704301075271,
+          "gain": 35.55537634408603,
+          "avg_sentence_length": 7.75,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 2,
+          "score": 59.650711462450616,
+          "gain": 33.449044795783934,
+          "avg_sentence_length": 8.363636363636363,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 3,
+          "score": 57.74696581196582,
+          "gain": 31.54529914529914,
+          "avg_sentence_length": 10.11111111111111,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 4,
+          "score": 49.869469696969695,
+          "gain": 23.667803030303013,
+          "avg_sentence_length": 14.666666666666666,
+          "target_met": false,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 41.68245098039218,
+          "gain": 15.4807843137255,
+          "avg_sentence_length": 14.166666666666666,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    },
+    {
+      "id": "pequeno faro",
+      "original_score": 50.65758064516129,
+      "original_avg_sentence_length": 15.5,
+      "inference_seconds_all_levels": 0.025141332997009158,
+      "progressive": true,
+      "levels": [
+        {
+          "level": 1,
+          "score": 85.31227272727274,
+          "gain": 34.65469208211145,
+          "avg_sentence_length": 8.25,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 2,
+          "score": 78.91990732568404,
+          "gain": 28.262326680522747,
+          "avg_sentence_length": 9.363636363636363,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 3,
+          "score": 71.23500000000001,
+          "gain": 20.577419354838725,
+          "avg_sentence_length": 11.0,
+          "target_met": true,
+          "double_condition_met": true
+        },
+        {
+          "level": 4,
+          "score": 62.4669298245614,
+          "gain": 11.809349179400108,
+          "avg_sentence_length": 15.833333333333334,
+          "target_met": true,
+          "double_condition_met": false
+        },
+        {
+          "level": 5,
+          "score": 57.22061403508773,
+          "gain": 6.563033389926439,
+          "avg_sentence_length": 15.833333333333334,
+          "target_met": false,
+          "double_condition_met": false
+        }
+      ]
+    }
+  ]
+}

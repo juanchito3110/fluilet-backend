@@ -1,6 +1,8 @@
 """Original Spanish reference articles with public sources and no study filler."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+
+from app.services.local_plans import SOURCE_REVISIONS
 
 
 @dataclass(frozen=True)
@@ -242,3 +244,7 @@ BANK = {
     "tecnologia": ("robots", "internet", "energia solar"),
     "cuentos_aventuras": ("julio verne", "vuelta mundo", "isla tesoro"),
 }
+
+# Updated public reference material; received Wikipedia/user originals are untouched.
+for _key, _units in SOURCE_REVISIONS.items():
+    ARTICLES[_key] = replace(ARTICLES[_key], text=" ".join(_units))

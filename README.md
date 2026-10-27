@@ -212,3 +212,19 @@ adjustments to the normal reward formula; responses identify them with
 See [demo-accounts.md](docs/demo-accounts.md) for credentials, exact phases, endpoint
 contracts, restoration semantics and the distinction between adjustments and real
 practice. Android was not modified by this backend update.
+
+
+## Five-level pedagogical rewriting
+
+The runtime warms one in-memory SGSS index from locally supplied EASIER data,
+with a 397-pair independent Spanish lexicon and contextual synonym filtering.
+`app/services` adds source-preserving noise cleanup, bounded syntactic rewrites,
+31 aligned public teaching articles and measured five-level previews. Responses
+include gains, syllables/word, sentence averages and actual lexical replacements.
+Scores are computed from each text; unmet bands and unavailable progressions are
+explicit. Local aligned-bank calibration and free-text/EASIER performance are
+reported separately, without attributing these rewrites to an unvalidated mT5 model.
+
+See [pedagogical-simplification.md](docs/pedagogical-simplification.md) for exact
+observed results, source/version provenance, API fields, limitations and reproduction.
+No weights or corpus are committed; no schema migration is needed for response JSON.

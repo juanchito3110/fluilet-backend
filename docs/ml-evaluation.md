@@ -1,5 +1,7 @@
 # Evaluación técnica de mT5 + EASIER
 
+> Actualización: el motor vigente y sus resultados están en [simplificación pedagógica](pedagogical-simplification.md). Las mediciones siguientes son históricas.
+
 **Fluilet · 20 de octubre de 2026 (entrenamiento: 19 de octubre) · Entregable para el asesor Aldo Maciel**
 
 ## Política de entrega vigente desde el 21 de octubre de 2026

@@ -266,3 +266,22 @@ POST `/auth/verify-parental-pin` is authenticated as tutor, accepts a 4–6 digi
 and returns a validity boolean. Existing authentication rate limiting also covers
 this route. All default academic passwords/PINs are hashed and use the normal
 login verifier; there is no hardcoded demo-login bypass.
+
+
+## Graded rewriting fields
+
+All adaptation POSTs and retained GET add `readability_gain`,
+`original_avg_sentence_length`, `adapted_avg_sentence_length`,
+`original_syllables_per_word`, `adapted_syllables_per_word`,
+`lexical_replacements` (`original`, `adapted`), `level_previews`,
+`level_progression_met`, `removed_fragments` and `engine_version`. Previews list
+levels 1..5 with actual text, score, INFLESZ label, sentence average, target status
+and method. Original content stays intact; Wikipedia cleanup now belongs only to
+the adapted side. Very simple/unsupported sources may have equal previews and
+`level_progression_met=false`; valid free text remains a 200 best-effort reading.
+
+Older retained pairs are enriched on GET without changing either stored text;
+their version is `legacy_enriched`. Managed/explicit academic demo refreshes may
+upgrade marked public readings and their numeric snapshots while preserving IDs,
+practice, dates and rewards. No columns changed. Exact results and interpretation
+are in [pedagogical-simplification.md](pedagogical-simplification.md).

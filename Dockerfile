@@ -7,6 +7,7 @@ COPY ml_training/requirements.txt ./ml_training/requirements.txt
 RUN pip install -r requirements.txt && if [ "$INSTALL_ML" = "true" ]; then pip install -r ml_training/requirements.txt; fi
 RUN useradd --uid 10001 --no-create-home fluilet
 COPY app ./app
+COPY ml_training/__init__.py ml_training/prepare_easier.py ./ml_training/
 COPY alembic ./alembic
 COPY alembic.ini ./
 USER 10001:10001

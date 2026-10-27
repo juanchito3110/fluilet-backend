@@ -187,3 +187,35 @@ without consuming the added original/claimed fields in Android.
 explicit adjustments over the normal reward formula. `has_admin_adjustments`
 discloses them; no readability score or birth date is falsified. Synthetic account
 history is not evidence of clinical efficacy. Android was not modified.
+
+## Pedagogical rewriting and five-level comparisons — 27 October 2026
+
+- Full PostgreSQL suite: **474 passed**. SQLite: **470 passed, 4 skipped**
+  (PostgreSQL-only checks). After the final contextual single-occurrence guard,
+  all **45 pedagogical engine tests** passed again. Ruff, format checks and
+  `pip check` passed.
+- Coverage includes the complete 31-article bank, all five measured previews,
+  exact source preservation, three adaptation POST routes and version retrieval,
+  honest local/remote attribution, legacy read-only enrichment, contextual SGSS
+  selection, missing corpus fallback, syntax/negation/date guards, and idempotent
+  demo refresh with unchanged practice and resource totals.
+- The local SGSS file yielded **5,130 rows**, **7,876 indexed candidates** and
+  **397 curated pairs**. The 120-step checkpoint was inventoried without loading
+  its weights or automatically activating an unsuccessful training experiment.
+- Reproducible evaluation found strict five-level progression on **31/31 local
+  calibration articles**. The separate six-case EASIER sample achieved the legacy
+  double condition on **5/6** at level 1, but strict progression on **0/6**.
+  Neither sample is a held-out generalization or comprehension validation;
+  exact pedagogical score/length bands are not universally attained. See
+  [the measured report](pedagogical-simplification.md).
+- All **15 marked readings** in active PostgreSQL were refreshed. Adaptation IDs,
+  dates, comprehension, gem/XP balances and streak configuration were preserved;
+  the second refresh made zero changes. Genuine unmarked practice was excluded.
+- The existing JSON columns retain the added comparisons/previews. Schema remains
+  **0007_master_accounts**; `alembic check` reports no new operations.
+- Server restarted on **8000**, readiness **200**, database and deterministic
+  pipeline operational. Authenticated HTTP retrieval verified all fifteen retained
+  demo versions, actual measured gains, populated replacements and five previews.
+- Docker includes only the shared lightweight CSV reader in addition to runtime
+  code. Corpus/checkpoint mounts remain optional and excluded from Git/image
+  context. No Docker image build was performed in this environment.

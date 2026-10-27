@@ -157,6 +157,18 @@ async def persist(
         )
         db.add(content)
     response = schemas.AdaptationRead(
+        readability_gain=metrics["score_delta"],
+        original_avg_sentence_length=metrics["original_word_count"]
+        / metrics["original_sentence_count"],
+        adapted_avg_sentence_length=metrics["adapted_word_count"] / metrics["sentence_count"],
+        original_syllables_per_word=metrics["original_syllable_count"]
+        / metrics["original_word_count"],
+        adapted_syllables_per_word=metrics["syllable_count"] / metrics["adapted_word_count"],
+        lexical_replacements=result.lexical_replacements,
+        level_previews=result.level_previews,
+        level_progression_met=result.level_progression_met,
+        removed_fragments=result.removed_fragments,
+        engine_version=result.engine_version,
         id=content.id,
         original_text=result.original_text,
         original_readability_score=metrics["original_szigriszt_score"],
@@ -307,13 +319,18 @@ async def generate_lesson(
     result, digest = await process(
         entry.text, None, "text/plain", payload.simplification_level, child_age=child_age
     )
-    if result.adapted_text == result.original_text:
+    needs_local_reference = entry.provider == "wikipedia" and (
+        not result.level_progression_met
+        or (payload.simplification_level == 1 and result.metrics["score_delta"] < 15)
+    )
+    if result.adapted_text == result.original_text or needs_local_reference:
         fallback = local_article(resolve_topic(payload.category, payload.topic))
         if fallback is not None and fallback.text != entry.text:
             entry = fallback
             result, digest = await process(
                 entry.text, None, "text/plain", payload.simplification_level, child_age=child_age
             )
+            result.warnings.append("pedagogical_local_reference")
         if result.adapted_text == result.original_text:
             raise HTTPException(
                 503, "La fuente disponible no permite una simplificación fiel. Prueba otro tema."
@@ -357,10 +374,31 @@ async def get_adaptation(
     await accessible_document(content.document_id, user, db)
     if content.child_id is not None:
         await accessible_child(content.child_id, user, db)
-    return schemas.AdaptationRead.model_validate(
-        {
-            **content.response_payload,
-            "original_text": content.original_text,
-            "adapted_text": content.adapted_text,
-        }
-    )
+    payload = {
+        **content.response_payload,
+        "original_text": content.original_text,
+        "adapted_text": content.adapted_text,
+    }
+    if not payload.get("level_previews"):
+        # Old retained versions get truthful comparisons of their stored pair.
+        # GET enriches in RAM; it never silently rewrites their historical content.
+        from app.nlp.readability import measure
+        from app.services.pedagogy import choose_levels, replacements
+
+        _, previews, progressive = await asyncio.to_thread(choose_levels, content.original_text)
+        original = await asyncio.to_thread(measure, content.original_text)
+        adapted = await asyncio.to_thread(measure, content.adapted_text)
+        payload.update(
+            readability_gain=adapted.score - original.score,
+            original_avg_sentence_length=original.word_count / original.sentence_count,
+            adapted_avg_sentence_length=adapted.word_count / adapted.sentence_count,
+            original_syllables_per_word=original.syllable_count / original.word_count,
+            adapted_syllables_per_word=adapted.syllable_count / adapted.word_count,
+            lexical_replacements=await asyncio.to_thread(
+                replacements, content.original_text, content.adapted_text
+            ),
+            level_previews=previews,
+            level_progression_met=progressive,
+            engine_version="legacy_enriched",
+        )
+    return schemas.AdaptationRead.model_validate(payload)

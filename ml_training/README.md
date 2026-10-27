@@ -103,3 +103,19 @@ budget and 20–45 words) remains 0/12. Do not present in-sample rule calibratio
 as generalization or human semantic validation. Exact selection commands and
 six real base/checkpoint comparisons are recorded in docs/ml-evaluation.md and
 docs/easier-calibration-results.json. Previous numeric evidence remains unchanged.
+
+
+## Runtime lexical integration and graded evaluation
+
+`app/services/resources.py` reuses this package's SGSS reader to cache every valid
+locally supplied candidate with annotation context and frequency. Runtime replacements
+require sentence overlap and agreement-safe curated forms. The complete index
+includes contexts from the old six-case calibration subset: do not claim it as a
+held-out evaluation. No corpus or checkpoint is redistributed in Git.
+
+`python -m ml_training.evaluate_levels --output docs/pedagogical-evaluation-results.json`
+measures five actual outputs on the 31 authored/aligned bank references. Optional
+`--data` evaluates existing source JSON/JSONL separately. The script does not train
+on API traffic, load weights, store source text in its report, or declare clinical
+validity. The failed 120-step checkpoint is inventoried, not silently activated.
+See `docs/pedagogical-simplification.md` for calibration provenance and limits.

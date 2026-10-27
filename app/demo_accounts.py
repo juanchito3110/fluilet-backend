@@ -125,6 +125,7 @@ async def ensure_accounts(db):
         tutor.parental_pin_hash = await auth.hash_async(DEMO_PIN)
     pipeline = AdaptationPipeline(RulesOnly())
     today = auth.utcnow().date()
+    managed_ids = []
     for code, name, age, level, gems, xp, streak, keys, days, unlock in PRESETS:
         child = await db.scalar(
             select(models.ChildProfile)
@@ -148,6 +149,7 @@ async def ensure_accounts(db):
             db.add(child)
             await db.flush()
         child.is_active = True
+        managed_ids.append(child.id)
         control = await db.get(models.ProfileControl, child.id)
         existing = (
             await db.scalars(
@@ -230,3 +232,6 @@ async def ensure_accounts(db):
             )
             db.add(control)
     await db.commit()
+    from app.services.demo_refresh import refresh_marked
+
+    await refresh_marked(db, managed_ids)

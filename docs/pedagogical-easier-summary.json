@@ -1,0 +1,85 @@
+{
+  "engine_version": "pedagogical-es-v1",
+  "samples": 6,
+  "dataset_status": "supplied_material; corpus index may include evaluation annotations; not a held-out claim",
+  "mean_original_score": 32.14575574577862,
+  "progressive_count": 0,
+  "mean_inference_seconds_all_levels": 0.10110643750037222,
+  "levels": [
+    {
+      "level": 1,
+      "goal": [
+        82,
+        100,
+        6,
+        9
+      ],
+      "mean_score": 70.91846688046024,
+      "mean_gain": 38.77271113468162,
+      "mean_sentence_length": 17.38888888888889,
+      "gain_15_count": 5,
+      "goal_met_count": 1,
+      "double_condition_count": 5
+    },
+    {
+      "level": 2,
+      "goal": [
+        74,
+        84,
+        9,
+        12
+      ],
+      "mean_score": 70.91846688046024,
+      "mean_gain": 38.77271113468162,
+      "mean_sentence_length": 17.38888888888889,
+      "gain_15_count": 5,
+      "goal_met_count": 0,
+      "double_condition_count": 5
+    },
+    {
+      "level": 3,
+      "goal": [
+        65,
+        74,
+        11,
+        15
+      ],
+      "mean_score": 67.11880021379358,
+      "mean_gain": 34.973044468014955,
+      "mean_sentence_length": 19.97222222222222,
+      "gain_15_count": 4,
+      "goal_met_count": 0,
+      "double_condition_count": 4
+    },
+    {
+      "level": 4,
+      "goal": [
+        58,
+        66,
+        14,
+        18
+      ],
+      "mean_score": 66.3771335471269,
+      "mean_gain": 34.23137780134829,
+      "mean_sentence_length": 19.97222222222222,
+      "gain_15_count": 4,
+      "goal_met_count": 0,
+      "double_condition_count": 4
+    },
+    {
+      "level": 5,
+      "goal": [
+        50,
+        65,
+        16,
+        24
+      ],
+      "mean_score": 62.39104879064367,
+      "mean_gain": 30.24529304486505,
+      "mean_sentence_length": 19.72222222222222,
+      "gain_15_count": 3,
+      "goal_met_count": 0,
+      "double_condition_count": 3
+    }
+  ]
+}

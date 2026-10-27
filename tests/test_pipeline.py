@@ -57,7 +57,8 @@ async def test_missing_rule_coverage_attempts_model_before_best_effort():
 
     model = Loaded()
     result = await AdaptationPipeline(model).run(
-        "La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. " * 4
+        "La espectrointerferometría analiza matrices hiperdimensionales extraordinariamente sofisticadas. "
+        * 4
     )
     assert result.quality_status == "best_effort"
     assert model.calls == settings.MAX_GENERATION_ATTEMPTS
@@ -72,7 +73,10 @@ async def test_extremely_simple_input_maintenance():
 
 
 async def test_no_fabricated_success_when_rules_cannot_improve():
-    text = "La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. " * 4
+    text = (
+        "La espectrointerferometría analiza matrices hiperdimensionales extraordinariamente sofisticadas. "
+        * 4
+    )
     result = await AdaptationPipeline(Offline()).run(text)
     assert not result.meets_readability_target
     assert result.metrics["score_delta"] == 0
@@ -95,7 +99,10 @@ async def test_bounded_model_attempts_and_fidelity(monkeypatch):
 
     fake = Hallucinating()
     monkeypatch.setattr(settings, "ALLOW_RULE_BASED_FALLBACK", False)
-    source = "La neuropsicología analiza procesos cognitivos extraordinariamente sofisticados. " * 4
+    source = (
+        "La espectrointerferometría analiza matrices hiperdimensionales extraordinariamente sofisticadas. "
+        * 4
+    )
     result = await AdaptationPipeline(fake).run(source)
     assert result.adapted_text.strip() == source.strip()
     assert result.quality_status == "best_effort"
