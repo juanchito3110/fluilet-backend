@@ -51,15 +51,15 @@ def pdf_bytes(text):
 
 def test_real_checkpoint_fitted_weights_and_report():
     info = model_info()
-    assert info["active"] and info["epochs"] == 20
+    assert info["active"] and info["epochs"] == 60
     assert info["weights_sha256_before"] != info["weights_sha256_after"]
-    assert info["dataset_v1_size"] == 7704 and info["dataset_v2_size"] == 3220
+    assert info["dataset_v1_size"] == 7704 and info["dataset_v2_size"] == 4738
     assert len(info["history"]) == info["epochs"]
     assert info["val_loss"] < info["history"][0]["val_loss"]
     assert info["easier_benchmark_after"] == "6/6"
     assert info["sari_score"] == info["retrained_metrics"]["sari_score"]
     assert info["artifact_sha256"] == hashlib.sha256(ASSET.read_bytes()).hexdigest()
-    assert len(checkpoint()["lexical_weights"]) == 24
+    assert len(checkpoint()["joint_model"]["lexical"]) == 31
 
 
 def test_morphological_agreement_and_spelling():
@@ -78,8 +78,8 @@ def test_morphological_agreement_and_spelling():
 @pytest.mark.parametrize("row", EASIER + UNSEEN, ids=lambda row: row["document_id"])
 async def test_fixed_diagnostics_have_five_real_progressive_outputs(row):
     result = await pipeline.run(row["source"], 1)
-    assert result.model_version == "context-ranker-es-v2"
-    assert result.checkpoint_name == "context-ranker-v2"
+    assert result.model_version == "context-ranker-es-v2.1"
+    assert result.checkpoint_name == "context-ranker-v2.1"
     assert result.original_text == row["source"]
     scores = [measure(p["adapted_text"]).score for p in result.level_previews]
     assert scores == [p["readability_score"] for p in result.level_previews]
@@ -100,8 +100,8 @@ async def test_trained_model_applies_to_files_and_preserved_get(client, make_use
     )
     assert response.status_code == 200, response.text
     data = response.json()
-    assert data["model_version"] == "context-ranker-es-v2"
-    assert data["checkpoint_name"] == "context-ranker-v2"
+    assert data["model_version"] == "context-ranker-es-v2.1"
+    assert data["checkpoint_name"] == "context-ranker-v2.1"
     assert data["level_progression_met"] and data["lexical_replacements"]
     assert (await client.get("/api/v1/adaptations/" + data["id"], headers=headers)).json() == data
 
@@ -112,11 +112,11 @@ async def test_model_info_route_precedes_uuid_and_requires_auth(client, make_use
     response = await client.get("/api/v1/adaptations/model-info", headers=headers)
     assert response.status_code == 200
     info = response.json()
-    assert info["model_version"] == "context-ranker-es-v2"
+    assert info["model_version"] == "context-ranker-es-v2.1"
     assert info["easier_benchmark_before"] == "0/6"
     assert info["easier_benchmark_after"] == "6/6"
     assert info["benchmark_definition"].startswith("strict five-level")
-    assert info["retrained_metrics"]["lexical_selection"]["f1"] < 1
+    assert info["retrained_metrics"]["lexical_top1"] < 1
 
 
 def test_dataset_build_is_deterministic_and_has_no_group_leakage(tmp_path):

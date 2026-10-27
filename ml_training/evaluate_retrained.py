@@ -23,6 +23,10 @@ def main():
         }
 
     info = model_info()
+    if info.get("model_version") != "context-ranker-es-v2":
+        parser.error(
+            "El evaluador histórico requiere v2. Para v2.1 usa python -m ml_training.export_joint."
+        )
     report = {**info, "end_to_end": asyncio.run(run())}
     # Keep the zero-weight ablation distinct from the actual archived v1 system.
     report["initial_weight_ablation"] = info.get(

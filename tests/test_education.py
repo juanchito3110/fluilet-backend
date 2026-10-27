@@ -22,6 +22,8 @@ def assert_questions(data):
         options = question["options"]
         assert len(options) == len(set(option.casefold() for option in options)) == 3
         correct = options[question["correct_option_index"]]
+        if data.get("question_age_group") == "6-8":
+            correct = re.fullmatch(r"Dice «(.+)»", correct)[1]
         stem = re.search(r"«(.+)»", question["question"])
         if stem:
             assert stem[1].replace("___", correct) in text

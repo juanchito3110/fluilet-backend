@@ -1,3 +1,3 @@
 # Keep released artifact fingerprints identical on Windows, Linux and macOS.
-app/services/assets/context-ranker-v2.json text eol=lf
+app/services/assets/context-ranker-v2.1.json text eol=lf
 checkpoints/retraining_metrics.json text eol=lf

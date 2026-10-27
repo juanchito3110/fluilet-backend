@@ -5,12 +5,13 @@ Original/adapted lesson pairs and their educational response are retained in the
 owner-scoped database, as explicitly authorized on 26 October 2026.
 No commercial inference service is used. Android remains a separate repository.
 
-The current release adds a genuinely trained CPU contextual ranker (20 epochs,
-3,220 filtered/augmented examples) and compositional five-level rewriting.
-Authenticated `/api/v1/adaptations/model-info` exposes its measured results.
-[Training report](docs/model-retraining-report.md) distinguishes the 6/6 legacy
-diagnostic progression from exact score bands and independent generalization;
-the isolated learned ranker did not improve aggregate SARI in its ablation.
+The current v2.1 release trains a joint CPU ranker on 4,738 audited examples
+(35 SGD epochs and 25 residual-tree iterations), calibrates complete clauses and
+honors explicitly requested levels/ages across text, files and generated lessons.
+Authenticated `/api/v1/adaptations/model-info` exposes actual SARI, top-1 and band
+compliance. **Acceptance criteria remain unmet:** SARI 44.529 is below baseline
+44.544 and exact bands are not universal. See the [measured report](docs/model-retraining-report.md)
+and [DigitalOcean startup configuration](deploy/README.md).
 
 ## Local setup
 

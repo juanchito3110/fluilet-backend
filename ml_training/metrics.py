@@ -7,7 +7,7 @@ See https://github.com/huggingface/evaluate/tree/main/metrics/sari .
 from app.nlp.segmentation import words
 
 
-def sari(source, prediction, reference):
+def sari_components(source, prediction, reference):
     tokens = [words(value.casefold()) for value in (source, prediction, reference)]
     scores = []
     for n in range(1, 5):
@@ -23,10 +23,15 @@ def sari(source, prediction, reference):
 
         scores.append(
             (
-                f1(output - original, target - original)
-                + f1(output & original, target & original)
-                + precision(original - output, original - target)
+                f1(output & original, target & original),
+                f1(output - original, target - original),
+                precision(original - output, original - target),
             )
-            / 3
         )
-    return 100 * sum(scores) / 4
+    return {
+        name: sum(row[i] for row in scores) / 4 for i, name in enumerate(("keep", "add", "delete"))
+    }
+
+
+def sari(source, prediction, reference):
+    return 100 * sum(sari_components(source, prediction, reference).values()) / 3

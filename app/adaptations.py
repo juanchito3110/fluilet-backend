@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import uuid
+from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy import delete, select
@@ -20,6 +21,18 @@ from app.nlp.validation import InvalidText, TextTooLarge, validate_text
 router = APIRouter(prefix="/api/v1/adaptations", tags=["adaptations"])
 _slots = asyncio.Semaphore(settings.PROCESSING_CONCURRENCY)
 _adults = auth.require_roles(models.UserRole.TUTOR, models.UserRole.ADULTO_INDEPENDIENTE)
+
+
+def request_group(payload):
+    if payload.age_group is not None:
+        return payload.age_group
+    explicit = {"level", "target_level", "nivel_simplificacion_nlp", "simplification_level"}
+    if payload.child_id is None and payload.model_fields_set & explicit:
+        level = getattr(
+            payload, "simplification_level", getattr(payload, "nivel_simplificacion_nlp", 3)
+        )
+        return {1: "6-8", 2: "6-8", 3: "9-11", 4: "9-11", 5: "12+"}[level]
+    return None
 
 
 @router.get("/model-info")
@@ -102,9 +115,7 @@ async def persist(
         child = await accessible_child(child_id, user, db)
         child_age = education.age_years(child.birth_date)
         profile_age = education.teaching_age(child)
-    effective_age = (
-        profile_age if profile_age is not None else {"6-8": 7, "9-11": 10}.get(age_group)
-    )
+    effective_age = {"6-8": 7, "9-11": 10, "12+": 12}.get(age_group, profile_age)
     practice = await asyncio.to_thread(education.questions, result.adapted_text, effective_age)
     fact, terms = await asyncio.to_thread(
         vocabulary.enrich, result.adapted_text, article.fact_hint if article else ""
@@ -247,10 +258,12 @@ async def adapt_text(
     user: models.User = Depends(_adults),
     db: AsyncSession = Depends(get_db),
 ):
-    child_age = {"6-8": 7, "9-11": 10}.get(payload.age_group)
+    group = request_group(payload)
+    child_age = {"6-8": 7, "9-11": 10, "12+": 12}.get(group)
     if payload.child_id:
         child = await accessible_child(payload.child_id, user, db)
-        child_age = education.teaching_age(child)
+        if payload.age_group is None:
+            child_age = education.teaching_age(child)
     result, digest = await process(
         payload.text, None, "text/plain", payload.nivel_simplificacion_nlp, child_age=child_age
     )
@@ -263,7 +276,7 @@ async def adapt_text(
         user,
         db,
         level=payload.nivel_simplificacion_nlp,
-        age_group=payload.age_group,
+        age_group=group,
     )
 
 
@@ -275,7 +288,10 @@ async def adapt_text(
 )
 async def adapt_file(
     request: Request,
-    nivel_simplificacion_nlp: str = Query(default="INTERMEDIO"),
+    nivel_simplificacion_nlp: str | None = Query(default=None),
+    target_level: str | None = None,
+    level: str | None = None,
+    age_group: Literal["6-8", "9-11", "12+"] | None = None,
     child_id: uuid.UUID | None = None,
     user: models.User = Depends(_adults),
     db: AsyncSession = Depends(get_db),
@@ -284,20 +300,29 @@ async def adapt_file(
     if media_type not in {"text/plain", "application/pdf"}:
         raise HTTPException(415, "Solo se admite PDF o TXT UTF-8 como cuerpo binario.")
     try:
-        level = schemas.AdaptTextRequest(
-            text="placeholder",
-            nivel_simplificacion_nlp=(
-                int(nivel_simplificacion_nlp)
-                if nivel_simplificacion_nlp.isascii() and nivel_simplificacion_nlp.isdigit()
-                else nivel_simplificacion_nlp
-            ),
+        fields = {
+            key: int(value) if value.isascii() and value.isdigit() else value
+            for key, value in {
+                "nivel_simplificacion_nlp": nivel_simplificacion_nlp,
+                "target_level": target_level,
+                "level": level,
+            }.items()
+            if value is not None
+        }
+        selected_level = schemas.AdaptTextRequest(
+            text="placeholder", age_group=age_group, **fields
         ).nivel_simplificacion_nlp
     except ValueError:
         raise HTTPException(422, "Nivel NLP inválido.") from None
+    if age_group is None and child_id is None and fields:
+        age_group = {1: "6-8", 2: "6-8", 3: "9-11", 4: "9-11", 5: "12+"}[selected_level]
+    child_age = {"6-8": 7, "9-11": 10, "12+": 12}.get(age_group)
     if child_id:
-        await accessible_child(child_id, user, db)
+        child = await accessible_child(child_id, user, db)
+        if age_group is None:
+            child_age = education.teaching_age(child)
     data = await read_stream(request)
-    result, digest = await process(None, data, media_type, level)
+    result, digest = await process(None, data, media_type, selected_level, child_age=child_age)
     return await persist(
         result,
         digest,
@@ -306,7 +331,8 @@ async def adapt_file(
         child_id,
         user,
         db,
-        level=level,
+        level=selected_level,
+        age_group=age_group,
     )
 
 
@@ -316,10 +342,12 @@ async def generate_lesson(
     user: models.User = Depends(_adults),
     db: AsyncSession = Depends(get_db),
 ):
-    child_age = {"6-8": 7, "9-11": 10}.get(payload.age_group)
+    group = request_group(payload)
+    child_age = {"6-8": 7, "9-11": 10, "12+": 12}.get(group)
     if payload.child_id:
         child = await accessible_child(payload.child_id, user, db)
-        child_age = education.teaching_age(child)
+        if payload.age_group is None:
+            child_age = education.teaching_age(child)
     try:
         category, entry = await resolve_lesson(payload.category, payload.topic)
     except SourceUnavailable:
@@ -357,7 +385,7 @@ async def generate_lesson(
         level=payload.simplification_level,
         title=entry.title,
         article=entry,
-        age_group=payload.age_group,
+        age_group=group,
     )
 
 

@@ -102,11 +102,15 @@ async def _identity(db, email, password, marker, name, role):
 
 
 async def ensure_accounts(db):
+    from app.config import settings
+
     await admin_lock(db)
     await _identity(
         db,
         MASTER_EMAIL,
-        MASTER_PASSWORD,
+        settings.DEMO_MASTER_PASSWORD.get_secret_value()
+        if settings.DEMO_MASTER_PASSWORD
+        else MASTER_PASSWORD,
         "master_admin",
         "Administrador Maestro",
         models.UserRole.MASTER_ADMIN,
@@ -114,7 +118,9 @@ async def ensure_accounts(db):
     tutor = await _identity(
         db,
         TUTOR_EMAIL,
-        TUTOR_PASSWORD,
+        settings.DEMO_TUTOR_PASSWORD.get_secret_value()
+        if settings.DEMO_TUTOR_PASSWORD
+        else TUTOR_PASSWORD,
         "multi_phase_tutor",
         "Tutor de Demostración",
         models.UserRole.TUTOR,

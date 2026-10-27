@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -24,6 +24,11 @@ class Settings(BaseSettings):
     PROCESSING_CONCURRENCY: int = Field(default=2, ge=1, le=4)
     PROCESSING_TIMEOUT_SECONDS: float = Field(default=60, gt=0, le=180)
     DEMO_ACCOUNTS_ENABLED: bool = True
+    DEPLOYMENT_ENV: Literal["development", "production"] = "development"
+    DEMO_TUTOR_PASSWORD: SecretStr | None = Field(default=None, min_length=10, max_length=72)
+    DEMO_MASTER_PASSWORD: SecretStr | None = Field(default=None, min_length=10, max_length=72)
+    RANKER_CHECKPOINT: str | None = None
+    RANKER_CHECKPOINT_SHA256: str | None = Field(default=None, pattern=r"^[0-9a-f]{64}$")
     WIKIPEDIA_ENABLED: bool = True
     WIKIPEDIA_TIMEOUT_SECONDS: float = Field(default=3.5, gt=0, le=3.5)
     MAX_GENERATION_ATTEMPTS: int = Field(default=3, ge=1, le=5)
@@ -39,6 +44,23 @@ class Settings(BaseSettings):
     ALLOW_RULE_BASED_FALLBACK: bool = True
     REQUESTS_PER_MINUTE: int = Field(default=120, ge=1)
     AUTH_REQUESTS_PER_MINUTE: int = Field(default=15, ge=1)
+
+    @model_validator(mode="after")
+    def production_secrets(self):
+        if self.DEPLOYMENT_ENV == "production":
+            required = [self.SECRET_KEY]
+            if self.DEMO_ACCOUNTS_ENABLED:
+                required.extend([self.DEMO_TUTOR_PASSWORD, self.DEMO_MASTER_PASSWORD])
+            if any(
+                value is None
+                or value.get_secret_value() in {"Tutor2026!", "Master2026!"}
+                or value.get_secret_value().lower().startswith(("replace", "change"))
+                for value in required
+            ):
+                raise ValueError(
+                    "Producción requiere secretos propios para JWT y las cuentas gestionadas."
+                )
+        return self
 
 
 settings = Settings()

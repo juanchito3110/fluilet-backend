@@ -7,9 +7,12 @@ COPY ml_training/requirements.txt ./ml_training/requirements.txt
 RUN pip install -r requirements.txt && if [ "$INSTALL_ML" = "true" ]; then pip install -r ml_training/requirements.txt; fi
 RUN useradd --uid 10001 --no-create-home fluilet
 COPY app ./app
+COPY app/services/assets/context-ranker-v2.1.json ./checkpoints/context-ranker-v2.1/model.json
+ENV RANKER_CHECKPOINT=/srv/fluilet/checkpoints/context-ranker-v2.1/model.json
+ENV DEPLOYMENT_ENV=production
 COPY ml_training/__init__.py ml_training/prepare_easier.py ./ml_training/
 COPY alembic ./alembic
 COPY alembic.ini ./
 USER 10001:10001
 EXPOSE 8000
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--loop", "asyncio", "--no-access-log", "--log-level", "critical", "--no-proxy-headers", "--limit-concurrency", "32", "--backlog", "64"]
+CMD ["python", "-m", "app.bootstrap"]

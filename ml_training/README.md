@@ -143,3 +143,30 @@ training documents/families/targets. Full data derivatives remain ignored; no
 API traffic is training data. See [the complete report](../docs/model-retraining-report.md)
 for reproduction, held-out limitations, low lexical F1 and the absence of an
 aggregate SARI improvement from the learned weights alone.
+
+
+## Current v2.1 joint fit and release
+
+Use `build_enhanced_dataset`, `train_joint --epochs 35`, then `export_joint`.
+The builder now yields 4,738 pairs (4,108/402/228), with 21 explicitly regular verb
+families and grouped document/source/family split audits. Joint training fits
+keep/add/delete, multi-objective utility and lexical pairwise heads, followed by
+25 depth-3 shared residual-tree rounds. NumPy is training-only. Compression policy
+and SARI/utility mixture use validation; `joint_policy.frozen` runs the fc12a7a
+baseline in an isolated archived checkout. A full Git history containing that
+commit is required to reproduce it.
+
+`export_joint` selects the newly fitted checkpoint in a temporary evaluation
+context, independent of any serving checkpoint configured in the environment.
+It publishes the small JSON model, actual band counts and numeric report. Only
+`checkpoints/retraining_metrics.json` is whitelisted in that directory for Git;
+the release copy is `app/services/assets/context-ranker-v2.1.json`. Inference is
+pure Python and needs neither NumPy nor Torch.
+
+Results do **not** support a 100 percent closure: 44.529 SARI versus 44.544 baseline;
+top-1 and band distance improve, while exact five-band compliance remains 4/31
+local articles, 1/6 known EASIER diagnostics and 0/6 controlled developer inputs.
+The API exposes `acceptance_criteria_met=false`. The [v2.1 report](../docs/model-retraining-report.md)
+retains this negative result and separates it from 31/31 and 6/6 monotonicity.
+SGSS lexical proposals and synthetic inflections are not five reviewed child-age
+paraphrases of each source. Do not relabel them as independent gold supervision.

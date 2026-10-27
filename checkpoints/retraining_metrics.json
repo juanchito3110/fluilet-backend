@@ -1,607 +1,1272 @@
 {
+  "model_version": "context-ranker-es-v2.1",
   "dataset_v1_size": 7704,
-  "dataset_v2_size": 3220,
-  "baseline_metrics": {
-    "revision": "b3420760039936adce6ace614630d5b8e70756ee",
-    "corpus_sha256": "02aeb385fdfa8fd4f9ab3afbc5b0eeac84d514f33c8f20fa387e48068dddab06",
-    "end_to_end": {
-      "easier_diagnostic": {
-        "samples": 6,
-        "progressive_count": 0,
-        "double_condition_count": 5,
-        "mean_gain": 38.77271113468162,
-        "mean_sari_score": 25.96323703611696,
-        "mean_inference_seconds": 0.12342345833894797,
-        "results": [
-          {
-            "id": "120",
-            "progressive": false,
-            "original_score": 58.68500000000002,
-            "scores": [
-              85.933,
-              85.933,
-              63.135000000000005,
-              58.68500000000002,
-              58.68500000000002
-            ],
-            "gain": 27.24799999999999,
-            "double_condition_met": true,
-            "sari_score": 40.49094607130321,
-            "seconds": 0.4329967910016421
-          },
-          {
-            "id": "276",
-            "progressive": false,
-            "original_score": 27.559390243902442,
-            "scores": [
-              71.34284313725492,
-              71.34284313725492,
-              71.34284313725492,
-              71.34284313725492,
-              71.34284313725492
-            ],
-            "gain": 43.783452893352475,
-            "double_condition_met": true,
-            "sari_score": 25.22104503683451,
-            "seconds": 0.060082208015955985
-          },
-          {
-            "id": "68",
-            "progressive": false,
-            "original_score": 44.8324358974359,
-            "scores": [
-              44.8324358974359,
-              44.8324358974359,
-              44.8324358974359,
-              44.8324358974359,
-              44.8324358974359
-            ],
-            "gain": 0.0,
-            "double_condition_met": false,
-            "sari_score": 32.124556415767294,
-            "seconds": 0.04539358400506899
-          },
-          {
-            "id": "30",
-            "progressive": false,
-            "original_score": 36.606875,
-            "scores": [
-              72.5644117647059,
-              72.5644117647059,
-              72.5644117647059,
-              72.5644117647059,
-              48.64790322580646
-            ],
-            "gain": 35.95753676470589,
-            "double_condition_met": true,
-            "sari_score": 27.588665242117926,
-            "seconds": 0.08845183299854398
-          },
-          {
-            "id": "200",
-            "progressive": false,
-            "original_score": 14.10583333333335,
-            "scores": [
-              84.77203703703705,
-              84.77203703703705,
-              84.77203703703705,
-              84.77203703703705,
-              84.77203703703705
-            ],
-            "gain": 70.6662037037037,
-            "double_condition_met": true,
-            "sari_score": 11.489690864690862,
-            "seconds": 0.048942541994620115
-          },
-          {
-            "id": "84",
-            "progressive": false,
-            "original_score": 11.085000000000008,
-            "scores": [
-              66.06607344632768,
-              66.06607344632768,
-              66.06607344632768,
-              66.06607344632768,
-              66.06607344632768
-            ],
-            "gain": 54.98107344632767,
-            "double_condition_met": true,
-            "sari_score": 18.86451858598796,
-            "seconds": 0.06467379201785661
-          }
-        ]
-      },
-      "unseen_v2": {
-        "samples": 6,
-        "progressive_count": 0,
-        "double_condition_count": 1,
-        "mean_gain": 23.695120992534033,
-        "mean_sari_score": 79.66922572762178,
-        "mean_inference_seconds": 0.03503597883779245,
-        "results": [
-          {
-            "id": "fresh-science",
-            "progressive": false,
-            "original_score": 21.313260869565227,
-            "scores": [
-              40.43000000000001,
-              40.43000000000001,
-              37.315000000000026,
-              24.855000000000018,
-              24.855000000000018
-            ],
-            "gain": 19.11673913043478,
-            "double_condition_met": false,
-            "sari_score": 74.21619372386637,
-            "seconds": 0.032744541007559747
-          },
-          {
-            "id": "fresh-history",
-            "progressive": false,
-            "original_score": 9.262272727272745,
-            "scores": [
-              35.521956521739156,
-              35.521956521739156,
-              35.521956521739156,
-              35.521956521739156,
-              35.521956521739156
-            ],
-            "gain": 26.25968379446641,
-            "double_condition_met": false,
-            "sari_score": 70.85336325467905,
-            "seconds": 0.03661412501242012
-          },
-          {
-            "id": "fresh-legal",
-            "progressive": false,
-            "original_score": 52.251000000000005,
-            "scores": [
-              68.73045454545456,
-              68.73045454545456,
-              68.73045454545456,
-              68.73045454545456,
-              52.251000000000005
-            ],
-            "gain": 16.47945454545456,
-            "double_condition_met": true,
-            "sari_score": 92.5205708549234,
-            "seconds": 0.03146270799334161
-          },
-          {
-            "id": "fresh-medical",
-            "progressive": false,
-            "original_score": 24.489166666666705,
-            "scores": [
-              63.08166666666668,
-              63.08166666666668,
-              63.08166666666668,
-              63.08166666666668,
-              63.08166666666668
-            ],
-            "gain": 38.59249999999997,
-            "double_condition_met": false,
-            "sari_score": 81.76693107080546,
-            "seconds": 0.040991665999172255
-          },
-          {
-            "id": "fresh-sports",
-            "progressive": false,
-            "original_score": 14.10583333333335,
-            "scores": [
-              37.253181818181844,
-              37.253181818181844,
-              37.253181818181844,
-              37.253181818181844,
-              37.253181818181844
-            ],
-            "gain": 23.147348484848493,
-            "double_condition_met": false,
-            "sari_score": 92.8030303030303,
-            "seconds": 0.03481537499465048
-          },
-          {
-            "id": "fresh-school",
-            "progressive": false,
-            "original_score": 21.893333333333345,
-            "scores": [
-              40.468333333333334,
-              40.468333333333334,
-              43.43500000000003,
-              25.63499999999999,
-              25.63499999999999
-            ],
-            "gain": 18.57499999999999,
-            "double_condition_met": false,
-            "sari_score": 65.85526515842606,
-            "seconds": 0.033587458019610494
-          }
-        ]
-      }
-    }
-  },
-  "retrained_metrics": {
-    "sari_score": 44.500992817213465,
-    "mean_readability_gain": 10.554994124461945,
-    "samples": 228,
-    "protocol": "end_to_end_constrained_generation; references used only for scoring",
-    "lexical_selection": {
-      "accuracy": 0.6491228070175439,
-      "f1": 0.39086294416243655
-    }
-  },
-  "epochs": 20,
-  "selected_epoch": 20,
-  "train_loss": 0.4311357510828492,
-  "val_loss": 0.41888429713419056,
-  "sari_score": 44.500992817213465,
-  "metric_protocol": "end_to_end_constrained_generation; Unicode word set ngrams 1..4; single reference",
+  "dataset_v2_size": 4738,
+  "epochs": 60,
+  "sgd_epochs": 35,
+  "selected_epoch": 60,
+  "selected_base_epoch": 30,
   "history": [
     {
       "epoch": 1,
-      "train_loss": 0.4852495343987401,
-      "val_loss": 0.46967540253331685,
-      "lexical_selection": {
-        "accuracy": 0.7144039735099338,
-        "f1": 0.6341463414634146
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.04288964519683157,
+      "val_loss": 0.043102291677546624,
+      "lexical_top1": 0.8258706467661692
     },
     {
       "epoch": 2,
-      "train_loss": 0.4739905552221862,
-      "val_loss": 0.45267475000242785,
-      "lexical_selection": {
-        "accuracy": 0.6837748344370861,
-        "f1": 0.6789915966386555
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.04282001485571373,
+      "val_loss": 0.043121109280923664,
+      "lexical_top1": 0.8258706467661692
     },
     {
       "epoch": 3,
-      "train_loss": 0.46652895237877035,
-      "val_loss": 0.4451348329801851,
-      "lexical_selection": {
-        "accuracy": 0.6564569536423841,
-        "f1": 0.037122969837587005
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.04101084270304156,
+      "val_loss": 0.041171493397512395,
+      "lexical_top1": 0.8258706467661692
     },
     {
       "epoch": 4,
-      "train_loss": 0.466606042305052,
-      "val_loss": 0.4555872126715744,
-      "lexical_selection": {
-        "accuracy": 0.6663907284768212,
-        "f1": 0.45170068027210886
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.04047342481589007,
+      "val_loss": 0.04043198420870787,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 5,
-      "train_loss": 0.4504693765218366,
-      "val_loss": 0.4331888126979011,
-      "lexical_selection": {
-        "accuracy": 0.6241721854304636,
-        "f1": 0.17454545454545456
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.03969971492232529,
+      "val_loss": 0.040427380394608595,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 6,
-      "train_loss": 0.45197398070805583,
-      "val_loss": 0.4362403894293967,
-      "lexical_selection": {
-        "accuracy": 0.6804635761589404,
-        "f1": 0.6767169179229481
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.039011069396058994,
+      "val_loss": 0.039127376480666554,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 7,
-      "train_loss": 0.44554252453478216,
-      "val_loss": 0.43153192049972944,
-      "lexical_selection": {
-        "accuracy": 0.6283112582781457,
-        "f1": 0.15122873345935728
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.04043338702367581,
+      "val_loss": 0.04067231409827301,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 8,
-      "train_loss": 0.4427079871284523,
-      "val_loss": 0.4280284210593068,
-      "lexical_selection": {
-        "accuracy": 0.6299668874172185,
-        "f1": 0.18281535648994515
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.03882675292184604,
+      "val_loss": 0.03927546248788644,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 9,
-      "train_loss": 0.4410042814750398,
-      "val_loss": 0.4265853769339937,
-      "lexical_selection": {
-        "accuracy": 0.7243377483443708,
-        "f1": 0.6619289340101523
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.03854236070591792,
+      "val_loss": 0.03881949431999173,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 10,
-      "train_loss": 0.43984498040012443,
-      "val_loss": 0.42614733186679565,
-      "lexical_selection": {
-        "accuracy": 0.7135761589403974,
-        "f1": 0.6326963906581741
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.038896395686109024,
+      "val_loss": 0.0392514115672089,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 11,
-      "train_loss": 0.4386765525129094,
-      "val_loss": 0.4227173948281466,
-      "lexical_selection": {
-        "accuracy": 0.6937086092715232,
-        "f1": 0.5795454545454546
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.038388169204358634,
+      "val_loss": 0.03892580573181889,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 12,
-      "train_loss": 0.43663193014970725,
-      "val_loss": 0.4224584470501348,
-      "lexical_selection": {
-        "accuracy": 0.695364238410596,
-        "f1": 0.5799086757990868
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.038884595916195835,
+      "val_loss": 0.03934938601353277,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 13,
-      "train_loss": 0.4356909060626386,
-      "val_loss": 0.42232963810796514,
-      "lexical_selection": {
-        "accuracy": 0.6771523178807947,
-        "f1": 0.4715447154471545
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.03912144024188478,
+      "val_loss": 0.040106165494624584,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 14,
-      "train_loss": 0.442815586705656,
-      "val_loss": 0.43210579468073906,
-      "lexical_selection": {
-        "accuracy": 0.6581125827814569,
-        "f1": 0.02823529411764706
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.03942580283502557,
+      "val_loss": 0.039946069829405406,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 15,
-      "train_loss": 0.438060982865545,
-      "val_loss": 0.4231872632621329,
-      "lexical_selection": {
-        "accuracy": 0.6473509933774835,
-        "f1": 0.08189655172413793
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.03827602147588202,
+      "val_loss": 0.038880007351868355,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 16,
-      "train_loss": 0.43650707500722896,
-      "val_loss": 0.42528891350973086,
-      "lexical_selection": {
-        "accuracy": 0.6382450331125827,
-        "f1": 0.24784853700516352
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.038012750176379034,
+      "val_loss": 0.03846098098038547,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 17,
-      "train_loss": 0.4334675617490392,
-      "val_loss": 0.41905108808907565,
-      "lexical_selection": {
-        "accuracy": 0.6663907284768212,
-        "f1": 0.42998585572843
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.03899875653079092,
+      "val_loss": 0.03950554403956532,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 18,
-      "train_loss": 0.43468494652692125,
-      "val_loss": 0.423170117157473,
-      "lexical_selection": {
-        "accuracy": 0.6357615894039735,
-        "f1": 0.12698412698412698
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.037939160183129206,
+      "val_loss": 0.03872929773281334,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 19,
-      "train_loss": 0.43543465169301265,
-      "val_loss": 0.42124169842227027,
-      "lexical_selection": {
-        "accuracy": 0.6862582781456954,
-        "f1": 0.6785411365564037
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.03869609454199809,
+      "val_loss": 0.03961343508120041,
+      "lexical_top1": 0.8283582089552238
     },
     {
       "epoch": 20,
-      "train_loss": 0.4311357510828492,
-      "val_loss": 0.41888429713419056,
-      "lexical_selection": {
-        "accuracy": 0.6630794701986755,
-        "f1": 0.3952451708766716
-      },
-      "reference_ranking": {
-        "sari_score": 100.0,
-        "mean_readability_gain": 11.354923298071888,
-        "protocol": "two_candidate_reference_ranking; oracle reference available, not end-to-end generation"
-      },
-      "sari_score": 34.020419088077595,
-      "mean_readability_gain": 0.6975609032779779,
-      "samples": 24,
-      "protocol": "end_to_end_constrained_generation; references used only for scoring"
+      "train_loss": 0.0380075155435234,
+      "val_loss": 0.0386361220217633,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 21,
+      "train_loss": 0.03780606601125843,
+      "val_loss": 0.038377545512243226,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 22,
+      "train_loss": 0.039268359715540185,
+      "val_loss": 0.040332454444532366,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 23,
+      "train_loss": 0.03773452463170334,
+      "val_loss": 0.03847548298090779,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 24,
+      "train_loss": 0.037721480181377255,
+      "val_loss": 0.03832542564742252,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 25,
+      "train_loss": 0.040558695452893825,
+      "val_loss": 0.04190112260681655,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 26,
+      "train_loss": 0.03811670694982195,
+      "val_loss": 0.03858011447856896,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 27,
+      "train_loss": 0.037946280406659094,
+      "val_loss": 0.03877010835043828,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 28,
+      "train_loss": 0.037692794698654074,
+      "val_loss": 0.03866062318226094,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 29,
+      "train_loss": 0.03876309561961741,
+      "val_loss": 0.0397743457518169,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 30,
+      "train_loss": 0.037595142533344346,
+      "val_loss": 0.03828068935846439,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 31,
+      "train_loss": 0.03838017310882484,
+      "val_loss": 0.039416016401413095,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 32,
+      "train_loss": 0.038054888793735295,
+      "val_loss": 0.038725330983028994,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 33,
+      "train_loss": 0.03769260073043975,
+      "val_loss": 0.03842251208318904,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 34,
+      "train_loss": 0.038477869661524215,
+      "val_loss": 0.03950022541411885,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 35,
+      "train_loss": 0.03795860011384803,
+      "val_loss": 0.038829247614943614,
+      "lexical_top1": 0.8283582089552238
+    },
+    {
+      "epoch": 36,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.03675691485042453,
+      "val_loss": 0.037772305747245084
+    },
+    {
+      "epoch": 37,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.03610744458042794,
+      "val_loss": 0.03724395887203558
+    },
+    {
+      "epoch": 38,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.035521334729190134,
+      "val_loss": 0.03701676652899616
+    },
+    {
+      "epoch": 39,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.03506745126039158,
+      "val_loss": 0.03688846005904208
+    },
+    {
+      "epoch": 40,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.03467412959599885,
+      "val_loss": 0.03678465305017598
+    },
+    {
+      "epoch": 41,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.03437002326321854,
+      "val_loss": 0.03676664827116776
+    },
+    {
+      "epoch": 42,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.03409718934092731,
+      "val_loss": 0.03677051467123463
+    },
+    {
+      "epoch": 43,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.03389287008331553,
+      "val_loss": 0.03665666111010367
+    },
+    {
+      "epoch": 44,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.03368524083630468,
+      "val_loss": 0.03660683692713377
+    },
+    {
+      "epoch": 45,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.03292083707118083,
+      "val_loss": 0.03610330562393409
+    },
+    {
+      "epoch": 46,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.032184282003851254,
+      "val_loss": 0.03555379947507392
+    },
+    {
+      "epoch": 47,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.03161064630122494,
+      "val_loss": 0.03509875252012586
+    },
+    {
+      "epoch": 48,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.03144123685302245,
+      "val_loss": 0.03506663124670184
+    },
+    {
+      "epoch": 49,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.03133924360832636,
+      "val_loss": 0.03492769351384355
+    },
+    {
+      "epoch": 50,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.030776941837231037,
+      "val_loss": 0.03448319406830636
+    },
+    {
+      "epoch": 51,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.030355989537322714,
+      "val_loss": 0.03416605957865867
+    },
+    {
+      "epoch": 52,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.02999698518678455,
+      "val_loss": 0.03388556776915862
+    },
+    {
+      "epoch": 53,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.02972593670737695,
+      "val_loss": 0.03366428232797042
+    },
+    {
+      "epoch": 54,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.029374490710329437,
+      "val_loss": 0.0333691476990409
+    },
+    {
+      "epoch": 55,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.029260849682963472,
+      "val_loss": 0.0334120747985204
+    },
+    {
+      "epoch": 56,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.02911416546636271,
+      "val_loss": 0.03333124216487534
+    },
+    {
+      "epoch": 57,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.028883435243326372,
+      "val_loss": 0.0331488639342923
+    },
+    {
+      "epoch": 58,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.028774828155671905,
+      "val_loss": 0.03309103119492059
+    },
+    {
+      "epoch": 59,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.02866270423354447,
+      "val_loss": 0.03294189630364701
+    },
+    {
+      "epoch": 60,
+      "stage": "joint_residual_trees",
+      "train_loss": 0.028388737759678626,
+      "val_loss": 0.0327016886449906
     }
   ],
-  "weights_sha256_before": "b4b23e2f5de24397f87b49c227f2fb70b2669945881ed2ca71dce9dd08818231",
-  "weights_sha256_after": "622b0e4c49a121cbaee65dbfaac6b3ed5b604e8e8d526249a5ff4226da8d578a",
-  "training_seconds": 12.076668666006299,
+  "residual_training": {
+    "rounds_executed": 25,
+    "selected_trees": 25,
+    "val_loss": 0.0327016886449906
+  },
+  "train_loss": 0.028388737759678626,
+  "val_loss": 0.0327016886449906,
+  "baseline_metrics": {
+    "sari_score": 44.54384786845761,
+    "band_distance": 22.506361987524645,
+    "samples": 228,
+    "lexical_top1": 0.5307017543859649
+  },
+  "retrained_metrics": {
+    "sari_score": 44.529242697841156,
+    "band_distance": 22.456643579184956,
+    "samples": 228,
+    "lexical_top1": 0.618421052631579
+  },
+  "baseline_sari": 44.54384786845761,
+  "retrained_sari": 44.529242697841156,
+  "all_comparisons_improved": false,
+  "validation_baseline": {
+    "sari_score": 64.36841731041767,
+    "band_distance": 12.876027553426345,
+    "samples": 402
+  },
+  "validation_policy": {
+    "sari_score": 64.46408284238797,
+    "band_distance": 12.873789830348615,
+    "samples": 402
+  },
+  "policy_candidates": [
+    {
+      "mix": 0,
+      "policy": 0,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": 0.25,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": 0.5,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": 1,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": 2,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": 4,
+      "metrics": {
+        "sari_score": 65.35618067615295,
+        "band_distance": 12.97818688391651,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": 8,
+      "metrics": {
+        "sari_score": 65.35995899486804,
+        "band_distance": 12.93875107296844,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": 16,
+      "metrics": {
+        "sari_score": 65.38243446036645,
+        "band_distance": 12.89785699452772,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": 32,
+      "metrics": {
+        "sari_score": 64.46408284238797,
+        "band_distance": 12.873789830348615,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": 64,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": 128,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": 256,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": "nearest_band",
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": {
+        "band_tolerance": 0.05
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": {
+        "band_tolerance": 0.1
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": {
+        "band_tolerance": 0.25
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": {
+        "band_tolerance": 0.5
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0,
+      "policy": {
+        "band_tolerance": 1
+      },
+      "metrics": {
+        "sari_score": 64.4714199424872,
+        "band_distance": 12.877310107749489,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": 0,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": 0.25,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": 0.5,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": 1,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": 2,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.005187757924848,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": 4,
+      "metrics": {
+        "sari_score": 65.35618067615295,
+        "band_distance": 12.97818688391651,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": 8,
+      "metrics": {
+        "sari_score": 65.36063489989712,
+        "band_distance": 12.947606794361475,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": 16,
+      "metrics": {
+        "sari_score": 65.38243446036645,
+        "band_distance": 12.89785699452772,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": 32,
+      "metrics": {
+        "sari_score": 64.46408284238797,
+        "band_distance": 12.873789830348615,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": 64,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": 128,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": 256,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": "nearest_band",
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": {
+        "band_tolerance": 0.05
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": {
+        "band_tolerance": 0.1
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": {
+        "band_tolerance": 0.25
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": {
+        "band_tolerance": 0.5
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.25,
+      "policy": {
+        "band_tolerance": 1
+      },
+      "metrics": {
+        "sari_score": 64.4714199424872,
+        "band_distance": 12.877310107749489,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": 0,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": 0.25,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": 0.5,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": 1,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": 2,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 12.999608155934798,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": 4,
+      "metrics": {
+        "sari_score": 65.35618067615295,
+        "band_distance": 12.97818688391651,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": 8,
+      "metrics": {
+        "sari_score": 65.36063489989712,
+        "band_distance": 12.947606794361475,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": 16,
+      "metrics": {
+        "sari_score": 65.3900263980179,
+        "band_distance": 12.910422545152972,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": 32,
+      "metrics": {
+        "sari_score": 65.38243446036645,
+        "band_distance": 12.89785699452772,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": 64,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": 128,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": 256,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": "nearest_band",
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": {
+        "band_tolerance": 0.05
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": {
+        "band_tolerance": 0.1
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": {
+        "band_tolerance": 0.25
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": {
+        "band_tolerance": 0.5
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.5,
+      "policy": {
+        "band_tolerance": 1
+      },
+      "metrics": {
+        "sari_score": 64.4714199424872,
+        "band_distance": 12.877310107749489,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": 0,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": 0.25,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": 0.5,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": 1,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 12.999608155934798,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": 2,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 12.999608155934798,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": 4,
+      "metrics": {
+        "sari_score": 65.35618067615295,
+        "band_distance": 12.97818688391651,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": 8,
+      "metrics": {
+        "sari_score": 65.36423200153101,
+        "band_distance": 12.951481172470928,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": 16,
+      "metrics": {
+        "sari_score": 65.3900263980179,
+        "band_distance": 12.910422545152972,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": 32,
+      "metrics": {
+        "sari_score": 65.38243446036645,
+        "band_distance": 12.89785699452772,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": 64,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": 128,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": 256,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": "nearest_band",
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": {
+        "band_tolerance": 0.05
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": {
+        "band_tolerance": 0.1
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": {
+        "band_tolerance": 0.25
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": {
+        "band_tolerance": 0.5
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 0.75,
+      "policy": {
+        "band_tolerance": 1
+      },
+      "metrics": {
+        "sari_score": 64.4714199424872,
+        "band_distance": 12.877310107749489,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": 0,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 13.013384275337783,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": 0.25,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 12.999608155934798,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": 0.5,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 12.999608155934798,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": 1,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 12.999608155934798,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": 2,
+      "metrics": {
+        "sari_score": 65.35845972683617,
+        "band_distance": 12.999608155934798,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": 4,
+      "metrics": {
+        "sari_score": 65.35618067615295,
+        "band_distance": 12.97818688391651,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": 8,
+      "metrics": {
+        "sari_score": 65.36423200153101,
+        "band_distance": 12.960372243431912,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": 16,
+      "metrics": {
+        "sari_score": 65.3900263980179,
+        "band_distance": 12.910422545152972,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": 32,
+      "metrics": {
+        "sari_score": 65.38243446036645,
+        "band_distance": 12.89785699452772,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": 64,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": 128,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": 256,
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": "nearest_band",
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": {
+        "band_tolerance": 0.05
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": {
+        "band_tolerance": 0.1
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": {
+        "band_tolerance": 0.25
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": {
+        "band_tolerance": 0.5
+      },
+      "metrics": {
+        "sari_score": 64.36219743201985,
+        "band_distance": 12.86708668086607,
+        "samples": 402
+      }
+    },
+    {
+      "mix": 1,
+      "policy": {
+        "band_tolerance": 1
+      },
+      "metrics": {
+        "sari_score": 64.4714199424872,
+        "band_distance": 12.877310107749489,
+        "samples": 402
+      }
+    }
+  ],
+  "weights_sha256_before": "7ad58ed99dc41f40b7d369c59d8bd91c8cb0e14b625becaf913e0d3b43bb1df0",
+  "weights_sha256_after": "a717a6487db485fe643e811d91041140abdc3aceb4a751ffe773f84d80fd8e14",
+  "training_seconds": 64.90416274999734,
   "dataset_manifest": {
-    "version": "fluilet-dataset-v2",
+    "version": "fluilet-dataset-v2.1",
     "seed": 20261027,
     "source_sha256": "02aeb385fdfa8fd4f9ab3afbc5b0eeac84d514f33c8f20fa387e48068dddab06",
     "v1": {
@@ -610,38 +1275,38 @@
       "full_unfiltered_derived_pairs": 7704
     },
     "v2": {
-      "total_pairs": 3220,
-      "lexical_pairs": 3184,
+      "total_pairs": 4738,
+      "lexical_pairs": 4702,
       "syntactic_parallel": 36,
       "morphology": {
-        "observed": 2284,
-        "present": 168,
-        "past": 140,
-        "imperfect": 164,
-        "future": 168,
-        "conditional": 164,
-        "participle": 32,
-        "gerund": 28,
-        "infinitive": 28,
+        "observed": 2282,
+        "present": 456,
+        "past": 380,
+        "imperfect": 452,
+        "future": 456,
+        "conditional": 452,
+        "participle": 64,
+        "gerund": 76,
+        "infinitive": 76,
         "gender_number": 4,
         "nominalization": 4,
         "syntax": 36
       },
       "levels": {
-        "2": 271,
-        "5": 2162,
-        "4": 140,
-        "1": 420,
-        "3": 227
+        "2": 613,
+        "5": 2341,
+        "4": 154,
+        "1": 1177,
+        "3": 453
       },
       "partitions": {
-        "train": 2588,
-        "validation": 404,
+        "train": 4108,
+        "validation": 402,
         "test": 228
       },
       "provenance": {
-        "EASIER_filtered_annotation": 2284,
-        "authored_morphological_augmentation": 900,
+        "EASIER_filtered_annotation": 2282,
+        "authored_morphological_augmentation": 2420,
         "authored_syntactic_parallel": 36
       }
     },
@@ -650,12 +1315,12 @@
       "ambiguous_span": 63,
       "quarantined_family": 149,
       "quarantined_document": 197,
-      "cross_partition_family": 1189
+      "cross_partition_family": 1407
     },
     "split_sha256": {
-      "train": "52769a83df72f8500e8596ee33a41b6ae0031312d0bcf7a88e586d534be27b78",
-      "validation": "33d188a84f873afcaa7cb0ca5644233161cff2b1d6d2b7a3513004020dd546ab",
-      "test": "036a3d922ed02e3bd7668e97ec44fd4829928cec4693bffb55461e77c6ad1af4"
+      "train": "449d42a133680e5a11e14e7871d9be389a94a8850176a771497a51ae730333ed",
+      "validation": "84c33cc104ab401493c14895f78028ad32faf78db1ba1064bb2c68968328689b",
+      "test": "687503f103664cceea34be2d6b0e2192363cac653ad903c56785ca231b10bd8b"
     },
     "quarantine_documents": [
       "120",
@@ -674,233 +1339,2491 @@
     ],
     "license": "EASIER source declares CC BY-NC-ND 4.0; local research derivatives remain untracked"
   },
-  "architecture": "two linear logistic heads; 52 fitted coefficients; CPU SGD; constrained candidate generation",
+  "protocol": "v2 reference-free baseline pool; v2.1 expands minimal edits and complete clauses; lexical span-selection separate",
+  "limitations": [
+    "test partition was inspected during v2 development; no fitting or policy selection on its labels",
+    "not an independent blind or clinical evaluation; no universal band guarantee"
+  ],
+  "sari_score": 44.529242697841156,
+  "easier_benchmark_before": "0/6",
+  "easier_benchmark_after": "6/6",
+  "benchmark_definition": "strict five-level score progression; independent of exact band/length compliance",
+  "benchmark_status": "known diagnostic used during development; not an independent blind validation",
+  "environment": {
+    "python": "3.14.7",
+    "seed": 20261028
+  },
+  "architecture": "5 linear heads (155 coefficients) and shared depth-3 residual trees; validation-fitted compression policy; constrained candidates",
+  "band_compliance": {
+    "local_bank": {
+      "samples": 31,
+      "progressive": 31,
+      "all_five_bands_met": 4,
+      "levels": {
+        "1": {
+          "score_band_met": 7,
+          "full_target_met": 7
+        },
+        "2": {
+          "score_band_met": 18,
+          "full_target_met": 9
+        },
+        "3": {
+          "score_band_met": 26,
+          "full_target_met": 12
+        },
+        "4": {
+          "score_band_met": 24,
+          "full_target_met": 12
+        },
+        "5": {
+          "score_band_met": 25,
+          "full_target_met": 3
+        }
+      }
+    },
+    "easier_diagnostic": {
+      "samples": 6,
+      "progressive": 6,
+      "all_five_bands_met": 1,
+      "levels": {
+        "1": {
+          "score_band_met": 2,
+          "full_target_met": 1
+        },
+        "2": {
+          "score_band_met": 2,
+          "full_target_met": 1
+        },
+        "3": {
+          "score_band_met": 1,
+          "full_target_met": 0
+        },
+        "4": {
+          "score_band_met": 2,
+          "full_target_met": 1
+        },
+        "5": {
+          "score_band_met": 3,
+          "full_target_met": 1
+        }
+      }
+    },
+    "unseen_v2": {
+      "samples": 6,
+      "progressive": 6,
+      "all_five_bands_met": 0,
+      "levels": {
+        "1": {
+          "score_band_met": 0,
+          "full_target_met": 0
+        },
+        "2": {
+          "score_band_met": 0,
+          "full_target_met": 0
+        },
+        "3": {
+          "score_band_met": 1,
+          "full_target_met": 0
+        },
+        "4": {
+          "score_band_met": 1,
+          "full_target_met": 0
+        },
+        "5": {
+          "score_band_met": 1,
+          "full_target_met": 0
+        }
+      }
+    },
+    "managed_demos": {
+      "samples": 15,
+      "progressive": 15,
+      "levels": {
+        "1": {
+          "sample_count": 1,
+          "score_band_met": 1
+        },
+        "2": {
+          "sample_count": 3,
+          "score_band_met": 3
+        },
+        "4": {
+          "sample_count": 5,
+          "score_band_met": 4
+        },
+        "5": {
+          "sample_count": 6,
+          "score_band_met": 5
+        }
+      }
+    }
+  },
+  "all_bands_met": false,
+  "acceptance_criteria_met": false,
   "end_to_end": {
+    "local_bank": {
+      "samples": 31,
+      "progressive_count": 31,
+      "mean_original_score": 50.800593959268454,
+      "levels": [
+        {
+          "level": 1,
+          "goal": [
+            82,
+            100,
+            6,
+            9
+          ],
+          "mean_score": 75.56330105855943,
+          "mean_gain": 24.762707099290985,
+          "mean_sentence_length": 7.955017563082079,
+          "gain_15_count": 26,
+          "goal_met_count": 7,
+          "double_condition_count": 22
+        },
+        {
+          "level": 2,
+          "goal": [
+            74,
+            84,
+            9,
+            12
+          ],
+          "mean_score": 72.255786958844,
+          "mean_gain": 21.45519299957554,
+          "mean_sentence_length": 9.128826907859166,
+          "gain_15_count": 24,
+          "goal_met_count": 9,
+          "double_condition_count": 20
+        },
+        {
+          "level": 3,
+          "goal": [
+            65,
+            74,
+            11,
+            15
+          ],
+          "mean_score": 68.03844057743892,
+          "mean_gain": 17.23784661817046,
+          "mean_sentence_length": 10.967924100988617,
+          "gain_15_count": 17,
+          "goal_met_count": 12,
+          "double_condition_count": 13
+        },
+        {
+          "level": 4,
+          "goal": [
+            58,
+            66,
+            14,
+            18
+          ],
+          "mean_score": 61.9359427136313,
+          "mean_gain": 11.135348754362843,
+          "mean_sentence_length": 14.293113159242191,
+          "gain_15_count": 10,
+          "goal_met_count": 12,
+          "double_condition_count": 3
+        },
+        {
+          "level": 5,
+          "goal": [
+            50,
+            65,
+            16,
+            24
+          ],
+          "mean_score": 58.424947203232826,
+          "mean_gain": 7.624353243964372,
+          "mean_sentence_length": 14.460714285714285,
+          "gain_15_count": 5,
+          "goal_met_count": 3,
+          "double_condition_count": 0
+        }
+      ],
+      "results": [
+        {
+          "id": "tierra",
+          "original_score": 57.890000000000015,
+          "original_avg_sentence_length": 15.0,
+          "inference_seconds_all_levels": 0.5020745410001837,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 92.83651515151517,
+              "gain": 34.94651515151516,
+              "avg_sentence_length": 7.333333333333333,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 77.66833333333335,
+              "gain": 19.778333333333336,
+              "avg_sentence_length": 10.5,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 73.85435483870968,
+              "gain": 15.964354838709667,
+              "avg_sentence_length": 12.4,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 63.701666666666675,
+              "gain": 5.81166666666666,
+              "avg_sentence_length": 12.6,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 60.55166666666668,
+              "gain": 2.6616666666666617,
+              "avg_sentence_length": 15.75,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "luna",
+          "original_score": 64.27710526315792,
+          "original_avg_sentence_length": 11.4,
+          "inference_seconds_all_levels": 0.09030858398182318,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 94.21818318318319,
+              "gain": 29.941077920025265,
+              "avg_sentence_length": 8.222222222222221,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 83.09851351351352,
+              "gain": 18.821408250355603,
+              "avg_sentence_length": 18.5,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 67.27008771929826,
+              "gain": 2.9929824561403393,
+              "avg_sentence_length": 9.5,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 65.57136363636366,
+              "gain": 1.2942583732057358,
+              "avg_sentence_length": 11.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 65.37008771929825,
+              "gain": 1.0929824561403336,
+              "avg_sentence_length": 11.4,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "telescopio",
+          "original_score": 46.072500000000005,
+          "original_avg_sentence_length": 12.8,
+          "inference_seconds_all_levels": 0.08505387499462813,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 78.86558823529413,
+              "gain": 32.79308823529412,
+              "avg_sentence_length": 8.5,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 74.23746478873241,
+              "gain": 28.164964788732405,
+              "avg_sentence_length": 8.875,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 72.96960764587527,
+              "gain": 26.897107645875266,
+              "avg_sentence_length": 10.142857142857142,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 59.01608108108111,
+              "gain": 12.943581081081106,
+              "avg_sentence_length": 14.8,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 56.99986486486489,
+              "gain": 10.927364864864884,
+              "avg_sentence_length": 18.5,
+              "target_met": true,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "abejas",
+          "original_score": 58.80057377049182,
+          "original_avg_sentence_length": 12.2,
+          "inference_seconds_all_levels": 0.08311412500916049,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 86.95272151898735,
+              "gain": 28.152147748495523,
+              "avg_sentence_length": 7.9,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 76.18266666666668,
+              "gain": 17.382092896174854,
+              "avg_sentence_length": 9.375,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 73.23833333333334,
+              "gain": 14.43775956284152,
+              "avg_sentence_length": 11.666666666666666,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 64.24166666666667,
+              "gain": 5.441092896174851,
+              "avg_sentence_length": 23.333333333333332,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 61.723888888888915,
+              "gain": 2.923315118397092,
+              "avg_sentence_length": 12.6,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "bosques",
+          "original_score": 47.72854838709677,
+          "original_avg_sentence_length": 12.4,
+          "inference_seconds_all_levels": 0.09233833299367689,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 84.95737237237239,
+              "gain": 37.22882398527562,
+              "avg_sentence_length": 8.222222222222221,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 77.74159340659341,
+              "gain": 30.013045019496637,
+              "avg_sentence_length": 9.285714285714286,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 70.45500000000003,
+              "gain": 22.726451612903254,
+              "avg_sentence_length": 10.0,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 63.59863636363638,
+              "gain": 15.870087976539608,
+              "avg_sentence_length": 15.4,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 59.791666666666686,
+              "gain": 12.063118279569913,
+              "avg_sentence_length": 23.333333333333332,
+              "target_met": true,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "agua",
+          "original_score": 63.25589552238808,
+          "original_avg_sentence_length": 13.4,
+          "inference_seconds_all_levels": 0.09707379201427102,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 84.76890374331552,
+              "gain": 21.51300822092744,
+              "avg_sentence_length": 7.7272727272727275,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 79.96169376693769,
+              "gain": 16.705798244549605,
+              "avg_sentence_length": 9.11111111111111,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 73.66227272727274,
+              "gain": 10.406377204884656,
+              "avg_sentence_length": 11.0,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 65.88647058823533,
+              "gain": 2.630575065847246,
+              "avg_sentence_length": 13.6,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 65.41227272727274,
+              "gain": 2.156377204884656,
+              "avg_sentence_length": 19.25,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "arqueologia",
+          "original_score": 33.660806451612935,
+          "original_avg_sentence_length": 12.4,
+          "inference_seconds_all_levels": 0.08098066700040363,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 70.71019025875191,
+              "gain": 37.04938380713897,
+              "avg_sentence_length": 8.11111111111111,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 70.07029411764708,
+              "gain": 36.409487666034146,
+              "avg_sentence_length": 8.5,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 66.40558823529412,
+              "gain": 32.744781783681184,
+              "avg_sentence_length": 8.5,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 56.58638888888891,
+              "gain": 22.925582437275978,
+              "avg_sentence_length": 14.4,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 51.22764705882354,
+              "gain": 17.566840607210608,
+              "avg_sentence_length": 13.6,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "escritura",
+          "original_score": 36.64730769230772,
+          "original_avg_sentence_length": 13.0,
+          "inference_seconds_all_levels": 0.08604091699817218,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 69.24409090909091,
+              "gain": 32.596783216783194,
+              "avg_sentence_length": 8.090909090909092,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 69.04333333333335,
+              "gain": 32.39602564102563,
+              "avg_sentence_length": 8.0,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 66.75761904761906,
+              "gain": 30.11031135531134,
+              "avg_sentence_length": 10.285714285714286,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 59.473235294117664,
+              "gain": 22.825927601809944,
+              "avg_sentence_length": 13.6,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 51.45233333333334,
+              "gain": 14.805025641025622,
+              "avg_sentence_length": 15.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "mapas",
+          "original_score": 56.76378787878791,
+          "original_avg_sentence_length": 13.2,
+          "inference_seconds_all_levels": 0.08406091702636331,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 72.67722222222226,
+              "gain": 15.913434343434346,
+              "avg_sentence_length": 7.777777777777778,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 72.19307692307694,
+              "gain": 15.429289044289035,
+              "avg_sentence_length": 8.125,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 71.03236263736265,
+              "gain": 14.268574758574744,
+              "avg_sentence_length": 9.285714285714286,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 62.739545454545464,
+              "gain": 5.975757575757555,
+              "avg_sentence_length": 11.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 60.53954545454546,
+              "gain": 3.7757575757575523,
+              "avg_sentence_length": 13.2,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "futbol",
+          "original_score": 65.40115384615387,
+          "original_avg_sentence_length": 13.0,
+          "inference_seconds_all_levels": 0.0711340419948101,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 80.09786149162862,
+              "gain": 14.696707645474746,
+              "avg_sentence_length": 8.11111111111111,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 75.41039682539683,
+              "gain": 10.009242979242956,
+              "avg_sentence_length": 10.285714285714286,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 73.69611111111112,
+              "gain": 8.294957264957247,
+              "avg_sentence_length": 12.0,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 68.89970588235296,
+              "gain": 3.4985520361990865,
+              "avg_sentence_length": 17.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 67.7188235294118,
+              "gain": 2.3176696832579182,
+              "avg_sentence_length": 13.6,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "atletismo",
+          "original_score": 57.50542253521125,
+          "original_avg_sentence_length": 14.2,
+          "inference_seconds_all_levels": 0.0767285420151893,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 74.97731354642315,
+              "gain": 17.471891011211895,
+              "avg_sentence_length": 8.11111111111111,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 73.90166666666669,
+              "gain": 16.396244131455433,
+              "avg_sentence_length": 8.333333333333334,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 71.60507042253522,
+              "gain": 14.099647887323968,
+              "avg_sentence_length": 8.875,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 60.004999999999995,
+              "gain": 2.499577464788743,
+              "avg_sentence_length": 16.0,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 58.50311594202903,
+              "gain": 0.9976934068177741,
+              "avg_sentence_length": 13.8,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "baloncesto",
+          "original_score": 50.743064516129046,
+          "original_avg_sentence_length": 12.4,
+          "inference_seconds_all_levels": 0.07494649998261593,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 66.44629032258067,
+              "gain": 15.70322580645162,
+              "avg_sentence_length": 7.75,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 65.48954545454546,
+              "gain": 14.746480938416418,
+              "avg_sentence_length": 8.25,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 65.3391474654378,
+              "gain": 14.596082949308759,
+              "avg_sentence_length": 8.857142857142858,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 62.739545454545464,
+              "gain": 11.996480938416418,
+              "avg_sentence_length": 11.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 52.752741935483876,
+              "gain": 2.00967741935483,
+              "avg_sentence_length": 12.4,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "robots",
+          "original_score": 40.69467741935484,
+          "original_avg_sentence_length": 12.4,
+          "inference_seconds_all_levels": 0.08113991699065082,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 76.96227272727273,
+              "gain": 36.267595307917894,
+              "avg_sentence_length": 7.7,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 75.96555555555557,
+              "gain": 35.27087813620073,
+              "avg_sentence_length": 8.0,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 67.76927230046951,
+              "gain": 27.07459488111467,
+              "avg_sentence_length": 11.833333333333334,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 65.40260563380284,
+              "gain": 24.707928214447996,
+              "avg_sentence_length": 14.2,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 5,
+              "score": 61.2118115942029,
+              "gain": 20.51713417484806,
+              "avg_sentence_length": 13.8,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "internet",
+          "original_score": 54.762419354838734,
+          "original_avg_sentence_length": 12.4,
+          "inference_seconds_all_levels": 0.09872037501190789,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 81.81681818181819,
+              "gain": 27.054398826979458,
+              "avg_sentence_length": 7.7,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 74.97731354642315,
+              "gain": 20.214894191584413,
+              "avg_sentence_length": 8.11111111111111,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 71.5207142857143,
+              "gain": 16.75829493087557,
+              "avg_sentence_length": 10.714285714285714,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 65.14633333333335,
+              "gain": 10.383913978494611,
+              "avg_sentence_length": 18.75,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 63.785,
+              "gain": 9.022580645161263,
+              "avg_sentence_length": 14.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "energia solar",
+          "original_score": 41.43827868852459,
+          "original_avg_sentence_length": 12.2,
+          "inference_seconds_all_levels": 0.07314449999830686,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 59.29032786885247,
+              "gain": 17.85204918032788,
+              "avg_sentence_length": 7.625,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 58.91135467980299,
+              "gain": 17.4730759912784,
+              "avg_sentence_length": 8.285714285714286,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 57.83721674876849,
+              "gain": 16.3989380602439,
+              "avg_sentence_length": 8.285714285714286,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 55.6519491525424,
+              "gain": 14.21367046401781,
+              "avg_sentence_length": 11.8,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 50.50666666666666,
+              "gain": 9.06838797814207,
+              "avg_sentence_length": 12.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "julio verne",
+          "original_score": 52.09768656716421,
+          "original_avg_sentence_length": 13.4,
+          "inference_seconds_all_levels": 0.0730039170011878,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 66.4160810810811,
+              "gain": 14.318394513916893,
+              "avg_sentence_length": 7.4,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 65.59385885885888,
+              "gain": 13.49617229169467,
+              "avg_sentence_length": 8.222222222222221,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 65.46964912280701,
+              "gain": 13.371962555642803,
+              "avg_sentence_length": 12.666666666666666,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 62.93631578947368,
+              "gain": 10.838629222309471,
+              "avg_sentence_length": 15.2,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 61.778055555555575,
+              "gain": 9.680368988391365,
+              "avg_sentence_length": 14.4,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "vuelta mundo",
+          "original_score": 53.931969696969716,
+          "original_avg_sentence_length": 13.2,
+          "inference_seconds_all_levels": 0.08397779200458899,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 78.74981481481484,
+              "gain": 24.817845117845124,
+              "avg_sentence_length": 8.1,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 74.37447368421054,
+              "gain": 20.442503987240826,
+              "avg_sentence_length": 9.5,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 73.01733082706768,
+              "gain": 19.085361130097965,
+              "avg_sentence_length": 10.857142857142858,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 62.93631578947368,
+              "gain": 9.004346092503965,
+              "avg_sentence_length": 15.2,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 60.53954545454546,
+              "gain": 6.607575757575745,
+              "avg_sentence_length": 13.2,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "isla tesoro",
+          "original_score": 62.64333333333335,
+          "original_avg_sentence_length": 14.4,
+          "inference_seconds_all_levels": 0.08404083299683407,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 79.24443683409439,
+              "gain": 16.601103500761035,
+              "avg_sentence_length": 8.11111111111111,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 75.41039682539683,
+              "gain": 12.767063492063478,
+              "avg_sentence_length": 10.285714285714286,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 73.69611111111112,
+              "gain": 11.05277777777777,
+              "avg_sentence_length": 12.0,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 64.3738888888889,
+              "gain": 1.7305555555555472,
+              "avg_sentence_length": 14.4,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 62.77021126760566,
+              "gain": 0.12687793427230787,
+              "avg_sentence_length": 14.2,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "real madrid",
+          "original_score": 39.633039215686296,
+          "original_avg_sentence_length": 25.5,
+          "inference_seconds_all_levels": 0.12225466701784171,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 82.44997105045492,
+              "gain": 42.816931834768624,
+              "avg_sentence_length": 7.153846153846154,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 77.85130204657729,
+              "gain": 38.21826283089099,
+              "avg_sentence_length": 8.384615384615385,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 66.34816770186336,
+              "gain": 26.715128486177065,
+              "avg_sentence_length": 16.428571428571427,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 57.06601045296169,
+              "gain": 17.432971237275396,
+              "avg_sentence_length": 17.571428571428573,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 50.10430455635493,
+              "gain": 10.471265340668637,
+              "avg_sentence_length": 23.166666666666668,
+              "target_met": true,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "biologia marina",
+          "original_score": 47.82527982326951,
+          "original_avg_sentence_length": 13.857142857142858,
+          "inference_seconds_all_levels": 0.13908904200070538,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 79.99736559139785,
+              "gain": 32.17208576812834,
+              "avg_sentence_length": 8.266666666666667,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 75.14739316239319,
+              "gain": 27.322113339123675,
+              "avg_sentence_length": 9.75,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 67.6391666666667,
+              "gain": 19.813886843397185,
+              "avg_sentence_length": 12.0,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 64.6391666666667,
+              "gain": 16.813886843397185,
+              "avg_sentence_length": 15.0,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 64.03752293577983,
+              "gain": 16.212243112510322,
+              "avg_sentence_length": 13.625,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "tiburon",
+          "original_score": 48.09059845559845,
+          "original_avg_sentence_length": 10.571428571428571,
+          "inference_seconds_all_levels": 0.12030812498414889,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 70.51077282530557,
+              "gain": 22.420174369707112,
+              "avg_sentence_length": 8.23076923076923,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 69.56320993439553,
+              "gain": 21.472611478797077,
+              "avg_sentence_length": 8.818181818181818,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 66.17710526315793,
+              "gain": 18.086506807559473,
+              "avg_sentence_length": 9.5,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 65.50987684729064,
+              "gain": 17.41927839169219,
+              "avg_sentence_length": 12.428571428571429,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 5,
+              "score": 63.260000000000026,
+              "gain": 15.169401544401573,
+              "avg_sentence_length": 9.333333333333334,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "dinosaurios",
+          "original_score": 51.093943089430915,
+          "original_avg_sentence_length": 13.666666666666666,
+          "inference_seconds_all_levels": 0.08679183301865123,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 68.87136363636365,
+              "gain": 17.77742054693274,
+              "avg_sentence_length": 7.7,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 68.82489898989901,
+              "gain": 17.730955900468096,
+              "avg_sentence_length": 8.555555555555555,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 65.87424268502582,
+              "gain": 14.780299595594904,
+              "avg_sentence_length": 11.857142857142858,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 61.114166666666684,
+              "gain": 10.020223577235768,
+              "avg_sentence_length": 13.333333333333334,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 51.093943089430915,
+              "gain": 0.0,
+              "avg_sentence_length": 13.666666666666666,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "sistema solar",
+          "original_score": 64.51048500881835,
+          "original_avg_sentence_length": 11.571428571428571,
+          "inference_seconds_all_levels": 0.08804504197905771,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 77.68801204819279,
+              "gain": 13.17752703937444,
+              "avg_sentence_length": 8.3,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 76.46111111111114,
+              "gain": 11.950626102292787,
+              "avg_sentence_length": 8.88888888888889,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 72.36392857142857,
+              "gain": 7.853443562610224,
+              "avg_sentence_length": 11.428571428571429,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 66.91267857142857,
+              "gain": 2.402193562610222,
+              "avg_sentence_length": 11.428571428571429,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 66.01000000000002,
+              "gain": 1.4995149911816696,
+              "avg_sentence_length": 14.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "agujeros negros",
+          "original_score": 56.43970588235297,
+          "original_avg_sentence_length": 17.0,
+          "inference_seconds_all_levels": 0.08751466599642299,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 78.28500000000001,
+              "gain": 21.845294117647043,
+              "avg_sentence_length": 8.4,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 74.86240963855423,
+              "gain": 18.42270375620126,
+              "avg_sentence_length": 10.375,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 69.38801204819279,
+              "gain": 12.948306165839824,
+              "avg_sentence_length": 16.6,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 62.18932098765434,
+              "gain": 5.749615105301373,
+              "avg_sentence_length": 16.2,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 58.64782051282054,
+              "gain": 2.20811463046757,
+              "avg_sentence_length": 15.6,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "volcanes",
+          "original_score": 62.61265151515152,
+          "original_avg_sentence_length": 14.666666666666666,
+          "inference_seconds_all_levels": 0.08665574999758974,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 74.90413580246916,
+              "gain": 12.291484287317637,
+              "avg_sentence_length": 8.1,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 74.4679411764706,
+              "gain": 11.855289661319084,
+              "avg_sentence_length": 8.5,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 68.5004485049834,
+              "gain": 5.887796989831877,
+              "avg_sentence_length": 12.285714285714286,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 65.4444696969697,
+              "gain": 2.8318181818181856,
+              "avg_sentence_length": 14.666666666666666,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 64.00979674796748,
+              "gain": 1.3971452328159657,
+              "avg_sentence_length": 13.666666666666666,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "antiguo egipto",
+          "original_score": 42.42137873754154,
+          "original_avg_sentence_length": 12.285714285714286,
+          "inference_seconds_all_levels": 0.13981483300449327,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 64.81114906832299,
+              "gain": 22.389770330781452,
+              "avg_sentence_length": 8.214285714285714,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 64.35433333333334,
+              "gain": 21.932954595791806,
+              "avg_sentence_length": 6.666666666666667,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 62.520176282051295,
+              "gain": 20.098797544509758,
+              "avg_sentence_length": 7.384615384615385,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 58.563654970760226,
+              "gain": 16.142276233218688,
+              "avg_sentence_length": 10.555555555555555,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 50.24898176291792,
+              "gain": 7.8276030253763835,
+              "avg_sentence_length": 13.428571428571429,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "inteligencia artificial",
+          "original_score": 38.3775702811245,
+          "original_avg_sentence_length": 13.833333333333334,
+          "inference_seconds_all_levels": 0.09846929198829457,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 57.10250000000002,
+              "gain": 18.724929718875522,
+              "avg_sentence_length": 8.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 56.863205128205166,
+              "gain": 18.485634847080668,
+              "avg_sentence_length": 7.8,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 53.80608013937286,
+              "gain": 15.428509858248361,
+              "avg_sentence_length": 11.714285714285714,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 50.445488245931294,
+              "gain": 12.067917964806796,
+              "avg_sentence_length": 11.285714285714286,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 48.72666666666669,
+              "gain": 10.34909638554219,
+              "avg_sentence_length": 12.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "robots submarinos",
+          "original_score": 49.74480392156865,
+          "original_avg_sentence_length": 14.166666666666666,
+          "inference_seconds_all_levels": 0.10238591700908728,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 78.64754295532647,
+              "gain": 28.90273903375782,
+              "avg_sentence_length": 8.083333333333334,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 76.87758373205742,
+              "gain": 27.132779810488763,
+              "avg_sentence_length": 8.636363636363637,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 68.47672576832151,
+              "gain": 18.73192184675286,
+              "avg_sentence_length": 10.444444444444445,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 63.25450354609929,
+              "gain": 13.50969962453064,
+              "avg_sentence_length": 15.666666666666666,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 57.483717948717974,
+              "gain": 7.73891402714932,
+              "avg_sentence_length": 15.166666666666666,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "juegos olimpicos",
+          "original_score": 52.89517857142859,
+          "original_avg_sentence_length": 11.428571428571429,
+          "inference_seconds_all_levels": 0.08417958300560713,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 62.701791044776115,
+              "gain": 9.806612473347528,
+              "avg_sentence_length": 8.375,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 61.555000000000035,
+              "gain": 8.659821428571448,
+              "avg_sentence_length": 10.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 61.55271428571428,
+              "gain": 8.657535714285693,
+              "avg_sentence_length": 10.714285714285714,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 58.289545454545475,
+              "gain": 5.394366883116888,
+              "avg_sentence_length": 11.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 52.89517857142859,
+              "gain": 0.0,
+              "avg_sentence_length": 11.428571428571429,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "robots inteligencia artificial",
+          "original_score": 26.201666666666682,
+          "original_avg_sentence_length": 14.5,
+          "inference_seconds_all_levels": 0.10717750000185333,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 61.75704301075271,
+              "gain": 35.55537634408603,
+              "avg_sentence_length": 7.75,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 60.69181818181819,
+              "gain": 34.49015151515151,
+              "avg_sentence_length": 8.8,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 59.71404040404041,
+              "gain": 33.51237373737373,
+              "avg_sentence_length": 9.777777777777779,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 51.94362745098041,
+              "gain": 25.741960784313726,
+              "avg_sentence_length": 14.166666666666666,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 47.29516260162605,
+              "gain": 21.09349593495937,
+              "avg_sentence_length": 13.666666666666666,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        },
+        {
+          "id": "pequeno faro",
+          "original_score": 50.65758064516129,
+          "original_avg_sentence_length": 15.5,
+          "inference_seconds_all_levels": 0.13168712498736568,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 85.50368131868134,
+              "gain": 34.846100673520056,
+              "avg_sentence_length": 7.538461538461538,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 82.17765734265734,
+              "gain": 31.52007669749605,
+              "avg_sentence_length": 8.272727272727273,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 71.23500000000001,
+              "gain": 20.577419354838725,
+              "avg_sentence_length": 11.0,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 65.73500000000001,
+              "gain": 15.077419354838725,
+              "avg_sentence_length": 16.5,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 5,
+              "score": 64.72532258064518,
+              "gain": 14.067741935483895,
+              "avg_sentence_length": 15.5,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
+        }
+      ],
+      "mean_inference_seconds_all_levels": 0.10684695303244816
+    },
     "easier_diagnostic": {
       "samples": 6,
       "progressive_count": 6,
-      "double_condition_count": 5,
-      "mean_gain": 42.06906005373643,
-      "mean_sari_score": 24.649863667872864,
-      "mean_inference_seconds": 0.12815229867313369,
+      "mean_original_score": 32.14575574577862,
+      "levels": [
+        {
+          "level": 1,
+          "goal": [
+            82,
+            100,
+            6,
+            9
+          ],
+          "mean_score": 73.90222756422092,
+          "mean_gain": 41.75647181844231,
+          "mean_sentence_length": 14.13888888888889,
+          "gain_15_count": 6,
+          "goal_met_count": 1,
+          "double_condition_count": 5
+        },
+        {
+          "level": 2,
+          "goal": [
+            74,
+            84,
+            9,
+            12
+          ],
+          "mean_score": 65.73176217726727,
+          "mean_gain": 33.58600643148865,
+          "mean_sentence_length": 19.308333333333334,
+          "gain_15_count": 5,
+          "goal_met_count": 1,
+          "double_condition_count": 2
+        },
+        {
+          "level": 3,
+          "goal": [
+            65,
+            74,
+            11,
+            15
+          ],
+          "mean_score": 61.53145357466268,
+          "mean_gain": 29.385697828884055,
+          "mean_sentence_length": 22.02777777777778,
+          "gain_15_count": 4,
+          "goal_met_count": 0,
+          "double_condition_count": 1
+        },
+        {
+          "level": 4,
+          "goal": [
+            58,
+            66,
+            14,
+            18
+          ],
+          "mean_score": 53.54311276560049,
+          "mean_gain": 21.39735701982187,
+          "mean_sentence_length": 28.583333333333332,
+          "gain_15_count": 3,
+          "goal_met_count": 1,
+          "double_condition_count": 1
+        },
+        {
+          "level": 5,
+          "goal": [
+            50,
+            65,
+            16,
+            24
+          ],
+          "mean_score": 45.634259273151635,
+          "mean_gain": 13.488503527373018,
+          "mean_sentence_length": 28.583333333333332,
+          "gain_15_count": 2,
+          "goal_met_count": 1,
+          "double_condition_count": 0
+        }
+      ],
       "results": [
         {
           "id": "120",
-          "progressive": true,
           "original_score": 58.68500000000002,
-          "scores": [
-            87.80852941176472,
-            82.69928571428572,
-            71.85500000000002,
-            63.97637931034484,
-            58.68500000000002
-          ],
-          "gain": 29.123529411764707,
-          "double_condition_met": true,
-          "sari_score": 34.33726268285092,
-          "seconds": 0.4142005000030622
+          "original_avg_sentence_length": 28.0,
+          "inference_seconds_all_levels": 0.11439083400182426,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 85.933,
+              "gain": 27.24799999999999,
+              "avg_sentence_length": 12.5,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 82.69928571428572,
+              "gain": 24.014285714285705,
+              "avg_sentence_length": 12.25,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 71.85500000000002,
+              "gain": 13.170000000000002,
+              "avg_sentence_length": 17.5,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 63.97637931034484,
+              "gain": 5.291379310344823,
+              "avg_sentence_length": 29.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 58.68500000000002,
+              "gain": 0.0,
+              "avg_sentence_length": 28.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
         },
         {
           "id": "276",
-          "progressive": true,
           "original_score": 27.559390243902442,
-          "scores": [
-            71.34284313725492,
-            41.8626595744681,
-            40.53712765957448,
-            40.00388888888891,
-            37.26833333333336
-          ],
-          "gain": 43.783452893352475,
-          "double_condition_met": true,
-          "sari_score": 25.22104503683451,
-          "seconds": 0.08095866700750776
+          "original_avg_sentence_length": 41.0,
+          "inference_seconds_all_levels": 0.10330337498453446,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 71.34284313725492,
+              "gain": 43.783452893352475,
+              "avg_sentence_length": 17.0,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 41.8626595744681,
+              "gain": 14.303269330565655,
+              "avg_sentence_length": 47.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 40.53712765957448,
+              "gain": 12.977737415672038,
+              "avg_sentence_length": 47.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 40.00388888888891,
+              "gain": 12.444498644986467,
+              "avg_sentence_length": 45.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 37.26833333333336,
+              "gain": 9.708943089430917,
+              "avg_sentence_length": 42.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
         },
         {
           "id": "68",
-          "progressive": true,
           "original_score": 44.8324358974359,
-          "scores": [
-            62.735000000000014,
-            62.05121621621622,
-            61.13756410256413,
-            60.773888888888905,
-            59.04333333333335
-          ],
-          "gain": 17.902564102564114,
-          "double_condition_met": false,
-          "sari_score": 30.39799959475501,
-          "seconds": 0.0573122919886373
+          "original_avg_sentence_length": 39.0,
+          "inference_seconds_all_levels": 0.07229504198767245,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 62.735000000000014,
+              "gain": 17.902564102564114,
+              "avg_sentence_length": 19.5,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 62.05121621621622,
+              "gain": 17.21878031878032,
+              "avg_sentence_length": 18.5,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 61.5955263157895,
+              "gain": 16.7630904183536,
+              "avg_sentence_length": 19.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 60.773888888888905,
+              "gain": 15.941452991453005,
+              "avg_sentence_length": 18.0,
+              "target_met": true,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 59.04333333333335,
+              "gain": 14.21089743589745,
+              "avg_sentence_length": 18.0,
+              "target_met": true,
+              "double_condition_met": false
+            }
+          ]
         },
         {
           "id": "30",
-          "progressive": true,
           "original_score": 36.606875,
-          "scores": [
-            72.5644117647059,
-            60.705967741935495,
-            58.696290322580666,
-            56.686612903225836,
-            54.676935483871006
-          ],
-          "gain": 35.95753676470589,
-          "double_condition_met": true,
-          "sari_score": 27.588665242117926,
-          "seconds": 0.07036416602204554
+          "original_avg_sentence_length": 32.0,
+          "inference_seconds_all_levels": 0.08087200002046302,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 72.5644117647059,
+              "gain": 35.95753676470589,
+              "avg_sentence_length": 17.0,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 60.705967741935495,
+              "gain": 24.099092741935493,
+              "avg_sentence_length": 15.5,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 58.696290322580666,
+              "gain": 22.089415322580663,
+              "avg_sentence_length": 15.5,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 56.686612903225836,
+              "gain": 20.079737903225833,
+              "avg_sentence_length": 15.5,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 54.676935483871006,
+              "gain": 18.070060483871003,
+              "avg_sentence_length": 15.5,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
         },
         {
           "id": "200",
-          "progressive": true,
           "original_score": 14.10583333333335,
-          "scores": [
-            84.77203703703705,
-            42.28299999999999,
-            34.807000000000016,
-            32.2766666666667,
-            24.839000000000027
-          ],
-          "gain": 70.6662037037037,
-          "double_condition_met": true,
-          "sari_score": 11.489690864690862,
-          "seconds": 0.05850483401445672
+          "original_avg_sentence_length": 24.0,
+          "inference_seconds_all_levels": 0.0932009999814909,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 84.77203703703705,
+              "gain": 70.6662037037037,
+              "avg_sentence_length": 9.0,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 82.97203703703705,
+              "gain": 68.8662037037037,
+              "avg_sentence_length": 10.8,
+              "target_met": true,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 80.27203703703705,
+              "gain": 66.1662037037037,
+              "avg_sentence_length": 13.5,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 4,
+              "score": 75.77203703703705,
+              "gain": 61.6662037037037,
+              "avg_sentence_length": 18.0,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 5,
+              "score": 42.28299999999999,
+              "gain": 28.177166666666636,
+              "avg_sentence_length": 25.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
         },
         {
           "id": "84",
-          "progressive": true,
           "original_score": 11.085000000000008,
-          "scores": [
-            66.06607344632768,
-            24.0458695652174,
-            21.848953488372103,
-            20.621666666666698,
-            20.400116279069778
-          ],
-          "gain": 54.98107344632767,
-          "double_condition_met": true,
-          "sari_score": 18.86451858598796,
-          "seconds": 0.08757333300309256
+          "original_avg_sentence_length": 40.0,
+          "inference_seconds_all_levels": 0.11965304097975604,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 66.06607344632768,
+              "gain": 54.98107344632767,
+              "avg_sentence_length": 9.833333333333334,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 64.09940677966101,
+              "gain": 53.014406779661,
+              "avg_sentence_length": 11.8,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 56.232740112994335,
+              "gain": 45.14774011299433,
+              "avg_sentence_length": 19.666666666666668,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 24.0458695652174,
+              "gain": 12.960869565217394,
+              "avg_sentence_length": 46.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 21.848953488372103,
+              "gain": 10.763953488372096,
+              "avg_sentence_length": 43.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
         }
-      ]
+      ],
+      "mean_inference_seconds_all_levels": 0.09728588199262352
     },
     "unseen_v2": {
       "samples": 6,
       "progressive_count": 6,
-      "double_condition_count": 2,
-      "mean_gain": 26.574035133948176,
-      "mean_sari_score": 83.11951721445938,
-      "mean_inference_seconds": 0.05161267349224848,
+      "mean_original_score": 23.885811155028563,
+      "levels": [
+        {
+          "level": 1,
+          "goal": [
+            82,
+            100,
+            6,
+            9
+          ],
+          "mean_score": 53.68334708642491,
+          "mean_gain": 29.797535931396343,
+          "mean_sentence_length": 15.333333333333334,
+          "gain_15_count": 6,
+          "goal_met_count": 0,
+          "double_condition_count": 2
+        },
+        {
+          "level": 2,
+          "goal": [
+            74,
+            84,
+            9,
+            12
+          ],
+          "mean_score": 50.19785353535355,
+          "mean_gain": 26.312042380324993,
+          "mean_sentence_length": 16.666666666666668,
+          "gain_15_count": 6,
+          "goal_met_count": 0,
+          "double_condition_count": 1
+        },
+        {
+          "level": 3,
+          "goal": [
+            65,
+            74,
+            11,
+            15
+          ],
+          "mean_score": 46.14059170653909,
+          "mean_gain": 22.25478055151053,
+          "mean_sentence_length": 22.333333333333332,
+          "gain_15_count": 5,
+          "goal_met_count": 0,
+          "double_condition_count": 0
+        },
+        {
+          "level": 4,
+          "goal": [
+            58,
+            66,
+            14,
+            18
+          ],
+          "mean_score": 41.821426328502426,
+          "mean_gain": 17.935615173473867,
+          "mean_sentence_length": 24.166666666666668,
+          "gain_15_count": 4,
+          "goal_met_count": 0,
+          "double_condition_count": 0
+        },
+        {
+          "level": 5,
+          "goal": [
+            50,
+            65,
+            16,
+            24
+          ],
+          "mean_score": 40.83131701631703,
+          "mean_gain": 16.945505861288467,
+          "mean_sentence_length": 22.5,
+          "gain_15_count": 3,
+          "goal_met_count": 0,
+          "double_condition_count": 0
+        }
+      ],
       "results": [
         {
           "id": "fresh-science",
-          "progressive": true,
           "original_score": 21.313260869565227,
-          "scores": [
-            43.545000000000016,
-            40.43000000000001,
-            37.56543478260869,
-            37.315000000000026,
-            34.85673913043479
-          ],
-          "gain": 22.23173913043479,
-          "double_condition_met": false,
-          "sari_score": 81.50908545645387,
-          "seconds": 0.05301224999129772
+          "original_avg_sentence_length": 23.0,
+          "inference_seconds_all_levels": 0.06848458299646154,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 49.78236842105267,
+              "gain": 28.46910755148744,
+              "avg_sentence_length": 9.5,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 43.545000000000016,
+              "gain": 22.23173913043479,
+              "avg_sentence_length": 20.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 40.28236842105267,
+              "gain": 18.96910755148744,
+              "avg_sentence_length": 19.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 37.56543478260869,
+              "gain": 16.252173913043464,
+              "avg_sentence_length": 23.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 37.315000000000026,
+              "gain": 16.0017391304348,
+              "avg_sentence_length": 20.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
         },
         {
           "id": "fresh-history",
-          "progressive": true,
           "original_score": 9.262272727272745,
-          "scores": [
-            35.521956521739156,
-            31.9168181818182,
-            26.253181818181844,
-            23.42136363636365,
-            17.757727272727294
-          ],
-          "gain": 26.25968379446641,
-          "double_condition_met": false,
-          "sari_score": 70.85336325467905,
-          "seconds": 0.049865499982843176
+          "original_avg_sentence_length": 22.0,
+          "inference_seconds_all_levels": 0.06548404099885374,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 35.521956521739156,
+              "gain": 26.25968379446641,
+              "avg_sentence_length": 11.5,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 31.9168181818182,
+              "gain": 22.654545454545456,
+              "avg_sentence_length": 22.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 26.253181818181844,
+              "gain": 16.9909090909091,
+              "avg_sentence_length": 22.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 24.021956521739156,
+              "gain": 14.759683794466412,
+              "avg_sentence_length": 23.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 23.42136363636365,
+              "gain": 14.159090909090907,
+              "avg_sentence_length": 22.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
         },
         {
           "id": "fresh-legal",
-          "progressive": true,
           "original_score": 52.251000000000005,
-          "scores": [
-            68.73045454545456,
-            67.203,
-            60.235000000000014,
-            59.72700000000002,
-            52.251000000000005
-          ],
-          "gain": 16.47945454545456,
-          "double_condition_met": true,
-          "sari_score": 92.5205708549234,
-          "seconds": 0.04422291700029746
+          "original_avg_sentence_length": 25.0,
+          "inference_seconds_all_levels": 0.05822087501292117,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 74.39409090909092,
+              "gain": 22.143090909090915,
+              "avg_sentence_length": 22.0,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 68.73045454545456,
+              "gain": 16.47945454545456,
+              "avg_sentence_length": 22.0,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 3,
+              "score": 67.203,
+              "gain": 14.951999999999998,
+              "avg_sentence_length": 25.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 59.72700000000002,
+              "gain": 7.476000000000013,
+              "avg_sentence_length": 25.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 57.235000000000014,
+              "gain": 4.984000000000009,
+              "avg_sentence_length": 25.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
         },
         {
           "id": "fresh-medical",
-          "progressive": true,
           "original_score": 24.489166666666705,
-          "scores": [
-            65.15833333333336,
-            63.08166666666668,
-            56.235000000000014,
-            49.04653846153846,
-            47.85166666666669
-          ],
-          "gain": 40.669166666666655,
-          "double_condition_met": true,
-          "sari_score": 88.34892774455253,
-          "seconds": 0.0600873329967726
+          "original_avg_sentence_length": 24.0,
+          "inference_seconds_all_levels": 0.07851066699367948,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 65.15833333333336,
+              "gain": 40.669166666666655,
+              "avg_sentence_length": 15.0,
+              "target_met": false,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
+              "score": 63.08166666666668,
+              "gain": 38.59249999999997,
+              "avg_sentence_length": 15.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 56.235000000000014,
+              "gain": 31.74583333333331,
+              "avg_sentence_length": 26.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 50.15833333333336,
+              "gain": 25.669166666666655,
+              "avg_sentence_length": 30.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 49.04653846153846,
+              "gain": 24.557371794871756,
+              "avg_sentence_length": 26.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
         },
         {
           "id": "fresh-sports",
-          "progressive": true,
           "original_score": 14.10583333333335,
-          "scores": [
-            37.468333333333334,
-            37.253181818181844,
-            34.535000000000025,
-            28.601666666666688,
-            27.085000000000008
-          ],
-          "gain": 23.362499999999983,
-          "double_condition_met": false,
-          "sari_score": 80.1288833236791,
-          "seconds": 0.04747274998226203
+          "original_avg_sentence_length": 24.0,
+          "inference_seconds_all_levels": 0.06326916700345464,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 37.468333333333334,
+              "gain": 23.362499999999983,
+              "avg_sentence_length": 24.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 37.253181818181844,
+              "gain": 23.147348484848493,
+              "avg_sentence_length": 11.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 34.535000000000025,
+              "gain": 20.429166666666674,
+              "avg_sentence_length": 21.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 29.68083333333334,
+              "gain": 15.574999999999989,
+              "avg_sentence_length": 24.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 28.601666666666688,
+              "gain": 14.495833333333337,
+              "avg_sentence_length": 21.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
         },
         {
           "id": "fresh-school",
-          "progressive": true,
           "original_score": 21.893333333333345,
-          "scores": [
-            52.33500000000001,
-            49.36833333333334,
-            46.40166666666667,
-            43.43500000000003,
-            40.468333333333334
-          ],
-          "gain": 30.441666666666663,
-          "double_condition_met": false,
-          "sari_score": 85.3562726524683,
-          "seconds": 0.055015291000017896
+          "original_avg_sentence_length": 24.0,
+          "inference_seconds_all_levels": 0.07689433300402015,
+          "progressive": true,
+          "levels": [
+            {
+              "level": 1,
+              "score": 59.775000000000006,
+              "gain": 37.88166666666666,
+              "avg_sentence_length": 10.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 2,
+              "score": 56.660000000000025,
+              "gain": 34.76666666666668,
+              "avg_sentence_length": 10.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 3,
+              "score": 52.33500000000001,
+              "gain": 30.441666666666663,
+              "avg_sentence_length": 21.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 4,
+              "score": 49.775000000000006,
+              "gain": 27.88166666666666,
+              "avg_sentence_length": 20.0,
+              "target_met": false,
+              "double_condition_met": false
+            },
+            {
+              "level": 5,
+              "score": 49.36833333333334,
+              "gain": 27.474999999999994,
+              "avg_sentence_length": 21.0,
+              "target_met": false,
+              "double_condition_met": false
+            }
+          ]
         }
-      ]
+      ],
+      "mean_inference_seconds_all_levels": 0.06847727766823179
     }
   },
-  "easier_benchmark_before": "0/6",
-  "easier_benchmark_after": "6/6",
-  "benchmark_definition": "strict five-level score progression, not exact pedagogical bands or clinical accuracy",
-  "benchmark_status": "legacy six-case diagnostic informed v1 rules; excluded from v2 fitting; not independent generalization",
-  "initial_weight_ablation": {
-    "sari_score": 44.54384786845761,
-    "mean_readability_gain": 10.579505022920213,
-    "samples": 228,
-    "protocol": "end_to_end_constrained_generation; references used only for scoring"
-  },
-  "model_version": "context-ranker-es-v2",
-  "checkpoint_name": "context-ranker-v2",
-  "active": true,
-  "artifact_sha256": "bf6fed23c4461188711d92a5fd5cc0ad21188819484fe6aee7ac1f89a1a8dfe1"
+  "artifact_sha256": "08446d10d2998eb4ab4d67d378e95c7388ebbd783a8aa3c0a9bf9b30810c0fd2"
 }

@@ -300,3 +300,29 @@ The master-only `/api/v1/admin/overview` includes the same `model_info` object.
 five-level progression on the known six-case diagnostic. Read `benchmark_definition`
 and `benchmark_status`: these values do not mean exact per-age score bands,
 unseen vocabulary coverage, or independently validated semantic/clinical accuracy.
+
+
+## v2.1 requested level and teaching age
+
+JSON accepts `level` as well as `target_level` and each route's historical name.
+Explicit aliases must agree. With no explicit level, `age_group` selects 1 for
+6-8, 3 for 9-11 and 5 for 12+. Without either, historical defaults remain. File
+queries support the same aliases and age groups (`12+` must be URL-encoded).
+An explicit level wins over age when both are supplied. An explicit age group
+controls that lesson's questions, including on an owned profile; it does not
+change birth date or `child_age_years`. With neither override, profile age remains
+authoritative. An explicit level without profile/age supplies its teaching group.
+
+Primary `adapted_text`, `readability_score`, `target_level` and document snapshot
+match the requested preview. `readability_level` is computed from the actual
+score. `questions` aliases the unchanged `comprehension_questions` array.
+Retained GET stays at that version's level even after another level is generated.
+
+Model-info/admin overview identify `context-ranker-es-v2.1` and
+`context-ranker-v2.1`, expose dataset sizes, epochs/loss, `baseline_sari`,
+`retrained_sari`, `band_compliance`, `all_comparisons_improved` and
+`acceptance_criteria_met`. Here the latter flags are **false**: actual SARI is
+44.529242697841156 versus 44.54384786845761. Six-case monotonicity does not mean
+all five pedagogical bands, universal semantic fidelity or clinical validation.
+The readiness `model` field continues to describe optional mT5, while the loaded
+CPU ranker is identified by checksum/version in model-info.

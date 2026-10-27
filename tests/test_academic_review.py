@@ -331,7 +331,8 @@ async def test_retained_child_lesson_still_requires_active_profile_and_library(
             },
         )
     ).json()
-    assert data["age_group"] == "6-8"  # Trusted profile overrides the adult-supplied group.
+    # Explicit teaching group affects this lesson; the real birthday stays intact.
+    assert data["age_group"] == "12+" and data["child_age_years"] == 8
     account = await client.post(
         f"/api/v1/children/{profile}/account",
         headers=headers,

@@ -224,6 +224,7 @@ class LessonGenerate(InputModel):
     child_id: uuid.UUID | None = None
     custom_topic: str | None = Field(default=None, max_length=120)
     target_level: NlpLevel | None = None
+    level: NlpLevel | None = None
     age_group: Literal["6-8", "9-11", "12+"] | None = None
 
     @model_validator(mode="after")
@@ -232,13 +233,19 @@ class LessonGenerate(InputModel):
             if self.topic is not None and self.topic.casefold() != self.custom_topic.casefold():
                 raise ValueError("Los temas no coinciden.")
             self.topic = self.custom_topic
-        if self.target_level is not None:
+        explicit = [value for value in (self.target_level, self.level) if value is not None]
+        if len(set(explicit)) > 1:
+            raise ValueError("Los niveles no coinciden.")
+        if explicit:
+            selected = explicit[0]
             if (
                 "simplification_level" in self.model_fields_set
-                and self.simplification_level != self.target_level
+                and self.simplification_level != selected
             ):
                 raise ValueError("Los niveles no coinciden.")
-            self.simplification_level = self.target_level
+            self.simplification_level = selected
+        elif self.age_group and "simplification_level" not in self.model_fields_set:
+            self.simplification_level = {"6-8": 1, "9-11": 3, "12+": 5}[self.age_group]
         return self
 
     @field_validator("category")
@@ -284,17 +291,24 @@ class AdaptTextRequest(InputModel):
     nivel_simplificacion_nlp: NlpLevel = 3
     child_id: uuid.UUID | None = None
     target_level: NlpLevel | None = None
+    level: NlpLevel | None = None
     age_group: Literal["6-8", "9-11", "12+"] | None = None
 
     @model_validator(mode="after")
     def level_alias_agrees(self):
-        if self.target_level is not None:
+        explicit = [value for value in (self.target_level, self.level) if value is not None]
+        if len(set(explicit)) > 1:
+            raise ValueError("Los niveles no coinciden.")
+        if explicit:
+            selected = explicit[0]
             if (
                 "nivel_simplificacion_nlp" in self.model_fields_set
-                and self.nivel_simplificacion_nlp != self.target_level
+                and self.nivel_simplificacion_nlp != selected
             ):
                 raise ValueError("Los niveles no coinciden.")
-            self.nivel_simplificacion_nlp = self.target_level
+            self.nivel_simplificacion_nlp = selected
+        elif self.age_group and "nivel_simplificacion_nlp" not in self.model_fields_set:
+            self.nivel_simplificacion_nlp = {"6-8": 1, "9-11": 3, "12+": 5}[self.age_group]
         return self
 
 
@@ -357,6 +371,18 @@ class AdaptationRead(BaseModel):
     engine_version: str = "legacy"
     model_version: str = "unavailable"
     checkpoint_name: str | None = None
+
+    @computed_field
+    @property
+    def readability_level(self) -> str:
+        from app.services.pedagogy import label
+
+        return label(self.readability_score)
+
+    @computed_field
+    @property
+    def questions(self) -> list[ComprehensionQuestion]:
+        return self.comprehension_questions
 
     id: uuid.UUID
     original_text: str = Field(min_length=1)

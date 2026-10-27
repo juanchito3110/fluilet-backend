@@ -1,4 +1,4 @@
-"""Small genuinely trained two-head ranker; dependency-free, bounded JSON loading."""
+"""Versioned fitted rankers; dependency-free inference and bounded JSON loading."""
 
 import hashlib
 import json
@@ -11,7 +11,7 @@ from app.nlp.readability import measure
 from app.nlp.segmentation import words
 from app.nlp.syllables import count_syllables
 
-ASSET = Path(__file__).parent / "assets/context-ranker-v2.json"
+ASSET = Path(__file__).parent / "assets/context-ranker-v2.1.json"
 MODEL_VERSION = "context-ranker-es-v2"
 FEATURES = (
     "bias",
@@ -95,25 +95,71 @@ def predict(weights, features):
 
 @lru_cache(maxsize=1)
 def checkpoint():
-    if not ASSET.is_file():
+    from app.config import settings
+
+    path = Path(settings.RANKER_CHECKPOINT) if settings.RANKER_CHECKPOINT else ASSET
+    if not path.is_file():
+        if settings.RANKER_CHECKPOINT:
+            raise RuntimeError("Configured ranker checkpoint missing")
         return None
-    if ASSET.stat().st_size > 262144:
+    if path.stat().st_size > 1024 * 1024:
         raise RuntimeError("Invalid ranker artifact size")
-    data = json.loads(ASSET.read_text())
-    if data.get("model_version") != MODEL_VERSION or data.get("structural_features") != list(
-        FEATURES
-    ):
+    raw = path.read_bytes()
+    checksum = hashlib.sha256(raw).hexdigest()
+    if settings.RANKER_CHECKPOINT_SHA256 and checksum != settings.RANKER_CHECKPOINT_SHA256:
+        raise RuntimeError("Ranker checksum mismatch")
+    data = json.loads(raw)
+    if data.get("model_version") not in {MODEL_VERSION, "context-ranker-es-v2.1"}:
         raise RuntimeError("Incompatible ranker artifact")
+    if "joint_model" in data:
+        from app.services.joint import FEATURE_NAMES
+
+        joint = data["joint_model"]
+        if joint["features"] != list(FEATURE_NAMES):
+            raise RuntimeError("Incompatible joint features")
+        for weights in [joint["lexical"], *joint["heads"].values()]:
+            if len(weights) != len(FEATURE_NAMES) or not all(math.isfinite(v) for v in weights):
+                raise RuntimeError("Invalid joint weights")
+
+        def validate_tree(node, depth=0):
+            if depth > 8:
+                raise RuntimeError("Invalid tree depth")
+            if "value" in node:
+                if len(node["value"]) != 4 or not all(math.isfinite(v) for v in node["value"]):
+                    raise RuntimeError("Invalid tree leaf")
+            else:
+                if (
+                    not isinstance(node["feature"], int)
+                    or not 0 <= node["feature"] < len(FEATURE_NAMES)
+                    or not math.isfinite(node["threshold"])
+                ):
+                    raise RuntimeError("Invalid tree split")
+                validate_tree(node["left"], depth + 1)
+                validate_tree(node["right"], depth + 1)
+
+        if len(joint.get("trees", [])) > 100:
+            raise RuntimeError("Invalid tree count")
+        for tree in joint.get("trees", []):
+            validate_tree(tree)
+        data["_artifact_sha256"] = checksum
+        return data
+    if data.get("structural_features") != list(FEATURES):
+        raise RuntimeError("Incompatible legacy features")
     for key, size in (("lexical_weights", 24), ("structural_weights", len(FEATURES))):
         if len(data[key]) != size or not all(
             isinstance(v, (int, float)) and math.isfinite(v) for v in data[key]
         ):
             raise RuntimeError("Invalid ranker weights")
+    data["_artifact_sha256"] = checksum
     return data
 
 
 def lexical_probability(source, target, context):
     model = checkpoint()
+    if model and "joint_model" in model:
+        from app.services.joint import probability
+
+        return probability(model["joint_model"], source, target, context)
     return (
         predict(model["lexical_weights"], lexical_features(source, target, context))
         if model
@@ -121,8 +167,12 @@ def lexical_probability(source, target, context):
     )
 
 
-def quality(source, target, level):
+def quality(source, target, level, original=None, adapted=None):
     model = checkpoint()
+    if model and "joint_model" in model:
+        from app.services.joint import prediction
+
+        return prediction(model["joint_model"], source, target, level, original, adapted)
     return (
         predict(model["structural_weights"], structural_features(source, target, level))
         if model
@@ -136,8 +186,8 @@ def model_info():
         return {"model_version": "unavailable", "checkpoint_name": None, "active": False}
     return {
         **model["metrics"],
-        "model_version": MODEL_VERSION,
+        "model_version": model["model_version"],
         "checkpoint_name": model["checkpoint_name"],
         "active": True,
-        "artifact_sha256": hashlib.sha256(ASSET.read_bytes()).hexdigest(),
+        "artifact_sha256": model["_artifact_sha256"],
     }

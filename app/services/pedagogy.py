@@ -15,7 +15,7 @@ from app.services.lexicon_es import CURATED
 from app.services.local_plans import SIMPLE
 from app.services.resources import choose_corpus, resources
 
-VERSION = "pedagogical-es-v2"
+VERSION = "pedagogical-es-v2.1"
 GOALS = {
     1: (82, 100, 6, 9),
     2: (74, 84, 9, 12),
@@ -262,7 +262,7 @@ def _general_candidates(text, level, legacy):
     return variants
 
 
-def _loss(candidate, level, source=None):
+def _loss(candidate, level, source=None, original_metric=None):
     score = candidate.metric
     low, high, min_length, max_length = GOALS[level]
     target = (low + high) / 2
@@ -271,9 +271,15 @@ def _loss(candidate, level, source=None):
     length_distance = max(0, min_length - length, length - max_length)
     learned = 0.0
     if source is not None:
-        from app.services.ranker import quality
+        from app.services.ranker import checkpoint, quality
 
-        learned = 2 * (1 - quality(source, candidate.text, level))
+        estimate = quality(source, candidate.text, level, original_metric, score)
+        learned = 2 * (1 - estimate)
+        model = checkpoint()
+        if model and "joint_model" in model:
+            policy = model["joint_model"]["band_policy"]
+            weight = policy if isinstance(policy, (float, int)) else 100000
+            return weight * distance / 100 - estimate + length_distance * 0.002
     return distance * 2 + abs(score.score - target) * 0.08 + length_distance * 0.4 + learned
 
 
@@ -296,12 +302,17 @@ def choose_levels(text, legacy=None):
     from app.services.rewriting import candidates as learned_candidates
 
     learned = learned_candidates(text) if checkpoint() and not plan else []
+    from app.services.calibration import alternatives, minimal_edits
+
+    if not plan:
+        learned = sorted(set(learned) | set(minimal_edits(text)))
     costs = {}
+    candidates_by_text = {}
 
     def cost(item, level):
         key = (item.text, level)
         if key not in costs:
-            costs[key] = _loss(item, level, text)
+            costs[key] = _loss(item, level, text, source)
         return costs[key]
 
     groups = []
@@ -312,6 +323,12 @@ def choose_levels(text, legacy=None):
             else _general_candidates(text, level, legacy)
         )
         raw.extend(Candidate(value, "trained_context_ranker") for value in learned)
+        raw = list({item.text: item for item in raw}.values())
+        # Candidate expansion uses source-complete clauses; no tail truncation.
+        seeds = sorted(raw, key=lambda item: -item.metric.score)[:3]
+        expanded = alternatives(text, [item.text for item in seeds], glosses=level <= 2)
+        raw.extend(Candidate(value, "joint_calibrated") for value in expanded)
+        raw = [candidates_by_text.setdefault((item.text, item.removed), item) for item in raw]
         unique = {
             item.text: item
             for item in raw

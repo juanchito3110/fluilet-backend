@@ -127,7 +127,11 @@ async def test_custom_topic_returns_subject_facts_glossary_and_questions(
         assert item["word"] in data["adapted_text"] and item["word"] in item["example"]
         assert item["definition"].strip()
     for question in data["comprehension_questions"]:
-        assert question["options"][question["correct_option_index"]] in data["adapted_text"]
+        answer = question["options"][question["correct_option_index"]]
+        if data["question_age_group"] == "6-8":
+            assert answer.startswith("Dice «") and answer.endswith("»")
+            answer = answer[len("Dice «") : -1]
+        assert answer in data["adapted_text"]
         assert question["hint"] and question["explanation"]
 
 

@@ -82,8 +82,8 @@ async def test_http_comparison_and_previews_are_real_and_persisted(
     assert data["adapted_syllables_per_word"] < data["original_syllables_per_word"]
     assert data["lexical_replacements"] and len(data["level_previews"]) == 5
     assert data["engine_version"] == VERSION and data["level_progression_met"]
-    assert data["model_version"] == "context-ranker-es-v2"
-    assert data["checkpoint_name"] == "context-ranker-v2"
+    assert data["model_version"] == "context-ranker-es-v2.1"
+    assert data["checkpoint_name"] == "context-ranker-v2.1"
     assert data["adapted_text"] == data["level_previews"][0]["adapted_text"]
     assert (await client.get("/api/v1/adaptations/" + data["id"], headers=headers)).json() == data
 

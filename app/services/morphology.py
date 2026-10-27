@@ -16,6 +16,15 @@ VERBS = {
     "ejemplificar": "ilustrar",
     "obstaculizar": "frenar",
     "elaborar": "crear",
+    "examinar": "mirar",
+    "modificar": "cambiar",
+    "transformar": "cambiar",
+    "investigar": "estudiar",
+    "conservar": "guardar",
+    "completar": "acabar",
+    "emplear": "usar",
+    "ocasionar": "causar",
+    "enfatizar": "resaltar",
 }
 ENDINGS = {
     "present": ("o", "as", "a", "amos", "áis", "an"),

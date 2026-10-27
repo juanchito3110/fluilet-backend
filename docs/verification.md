@@ -263,3 +263,44 @@ history is not evidence of clinical efficacy. Android was not modified.
 
 See [model-retraining-report.md](model-retraining-report.md) for reproducible
 commands, all measured comparisons, source attribution and limitations.
+
+
+## v2.1 requested-level contract, joint fit and deployment bootstrap
+
+- Full PostgreSQL: **538 passed**. SQLite: **533 passed, 5 skipped**. Six bootstrap
+  tests passed again after using `sys.executable`. Ruff/format and `pip check`
+  pass. API cases cover levels 1..5 on every text/generation/file route, age-only
+  1/3/5 selection, explicit teaching age over profile defaults without changing
+  birthdays, conflicting aliases, and retained version isolation.
+- Joint dataset: **4,738 pairs**, partitions **4,108/402/228** with recorded-key
+  leakage checks. Actual training: **35 SGD epochs + 25 residual-tree rounds**,
+  31 features, 155 linear coefficients and shared depth-3 residual trees. Policy
+  and SARI mixture fit validation only; the frozen baseline executes fc12a7a.
+- Critical acceptance remains **false**: baseline SARI **44.543848**, trained
+  **44.529243**. Lexical top-1 improves **53.07% → 61.84%**, band distance improves
+  **22.506362 → 22.456644**. Neither metric is substituted for failed SARI.
+- Strict progression: local bank **31/31**, known EASIER **6/6**, controlled inputs
+  **6/6**. All five score bands: **4/31**, **1/6**, **0/6**, respectively. Managed
+  demo target levels meet their score band on **13/15** readings. This is known
+  diagnostic/developer calibration, not independent comprehension validation.
+- All **15 managed retained lessons** now use v2.1; **11 numeric snapshots** changed.
+  Dates, reading times, answers, resources and streak settings were verified
+  unchanged. Repeat refresh made zero changes. HTTP retrieval verified the real
+  primary text/score against each requested preview and retained content.
+- Local server started through `app.bootstrap`, readiness **200**. Authenticated
+  model-info/admin overview returned v2.1 with the released checksum and unmet
+  acceptance flag. Model loading validates JSON weights/trees, explicit paths and
+  optional SHA pins; source-layout testing succeeds without corpus/Torch/NumPy.
+- Production startup serializes `alembic upgrade head` before exec; eight actual
+  revisions were applied twice in an empty private PostgreSQL schema and checked
+  for drift. Head remains **0007_master_accounts**, no new columns/migration.
+- Production requires private tutor/master credentials instead of public academic
+  defaults. Local development retains the requested defaults. Compose rendering
+  and shell syntax pass. Docker's local daemon is unavailable; a new Linux CI job
+  builds the real image and smoke-tests migrations, demo login, checkpoint hash
+  and version retention on ephemeral PostgreSQL 18 with a read-only API container.
+- Corpus derivatives, secrets, environments and large weights stay ignored. The
+  small v2.1 JSON release and numeric `checkpoints/retraining_metrics.json` are
+  intentionally versioned. Android and DigitalOcean accounts were not modified.
+
+See [the v2.1 report](model-retraining-report.md) and [deployment notes](../deploy/README.md).

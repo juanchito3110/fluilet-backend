@@ -1,101 +1,107 @@
-# Reentrenamiento verificable del ranker contextual v2
+# v2.1: contrato final, entrenamiento conjunto y verificación
 
-Fecha: 27 de octubre de 2026. El modelo entrenado es **context-ranker-es-v2**: dos cabezas logísticas, **52 coeficientes ajustados por SGD en CPU**, con características de contexto, carga silábica, edición y estructura. No se presenta este trabajo como un nuevo fine-tuning de mT5. El antiguo checkpoint mT5 de 120 pasos sigue fuera de la activación automática.
+**El cierre académico al 100% no está demostrado.** Se corrigió el contrato de nivel/edad y se ejecutó un entrenamiento conjunto real, pero el modelo no supera el SARI del baseline y no cumple todas las bandas. La API publica `acceptance_criteria_met=false`; no se fuerza un `true` ni se redondean los valores para aparentar una mejora. El [informe v2 anterior](model-retraining-v2.md) se conserva como evidencia histórica.
 
-## Datos: depuración antes que volumen
+## Datos y separación
 
-Se conserva el CSV original y su SHA-256 `02aeb385fdfa8fd4f9ab3afbc5b0eeac84d514f33c8f20fa387e48068dddab06`. El v1 completo producía **7.704 pares derivados**; el ensayo antiguo entrenó únicamente con 34 pares entre sus tres particiones. El v2 contiene **3.220 pares** después de filtrar y aumentar: **2.284 propuestas EASIER**, **900 ejemplos morfológicos** y **36 pares sintácticos**. La reducción total respecto del corpus sin depurar es intencional; no se atribuyen miles de anotaciones humanas nuevas a la generación automática.
-
-Se descartan candidatos ruidosos, de longitud no menor o con carga silábica no menor. Las flexiones explícitas abarcan presente, pasado, imperfecto, futuro, condicional, participio, gerundio, infinitivo, género/número y nominalizaciones. Solo se conjugan los verbos regulares declarados; los cambios ortográficos como `utilicé` se tratan explícitamente. Los contextos ampliados cubren ciencia, historia, derecho, medicina, deporte y escuela, y se identifican como supervisión sintética débil.
-
-Las etiquetas de nivel proceden del puntaje medido del destino: >=82, >=74, >=65, >=58 y la banda restante. Son cinco clases ordenadas para entrenamiento, no certificaciones de comprensión por edad. La distribución es desigual y limita el aprendizaje de niveles.
+El CSV SGSS original no se modifica (SHA-256 `02aeb385fdfa8fd4f9ab3afbc5b0eeac84d514f33c8f20fa387e48068dddab06`). El v1 completo producía 7.704 pares derivados y el smoke anterior solo seleccionaba 34. El v2 tenía 3.220; **v2.1 tiene 4.738**: 2.282 propuestas EASIER filtradas, 2.420 ejemplos morfológicos sintéticos explícitos y 36 pares sintácticos. Se ampliaron las formas regulares de 12 a 21 verbos, con pasado, presente, imperfecto, futuro, condicional, participio y gerundio, variantes de género/número y nominalizaciones. No se adivinan flexiones de verbos irregulares desconocidos.
 
 | Partición | Pares |
 |---|---:|
-| train | 2588 |
-| validation | 404 |
+| train | 4108 |
+| validation | 402 |
 | test | 228 |
 
-| Nivel | Pares |
-|---|---:|
-| 1 | 420 |
-| 2 | 271 |
-| 3 | 227 |
-| 4 | 140 |
-| 5 | 2162 |
+La división agrupa documentos/fuentes repetidas y familias registradas, y purga cruces entre particiones. Cada JSONL tiene SHA-256 y se comprueba antes de entrenar. Los seis documentos EASIER del diagnóstico se excluyen del ajuste; el índice en producción restringe candidatos y frecuencias a documentos/familias/targets de entrenamiento. Se verifican intersecciones vacías de las claves auditadas, sin afirmar que eso detecte toda paráfrasis o familia no reconocida del español.
 
-## Separación y límites de la evaluación
+La partición test fue inspeccionada durante el desarrollo v2/v2.1; no se usa para gradientes ni para elegir época/política, pero **no es una prueba ciega externa**. Los seis casos conocidos informaron reglas y depuración del generador: el 6/6 no demuestra generalización independiente. Los seis textos controlados fueron redactados aparte y también se usaron para depurar concordancia/segmentación; no se presentan como un nuevo holdout.
 
-El constructor une fuentes repetidas en un componente documental, asigna grupos con semilla fija y purga familias que cruzan particiones. Las flexiones de un lema declarado comparten familia. La auditoría comprueba intersecciones vacías de documento, fuente normalizada y **familia registrada**. No es una prueba de ausencia universal de paráfrasis o parentesco morfológico no reconocido en todo el español.
+## Entrenamiento conjunto real
 
-Los documentos EASIER `120`, `276`, `68`, `30`, `200` y `84`, sus fuentes y 169 familias observadas se excluyen del ajuste v2. En producción, las propuestas del índice SGSS solo se usan cuando documento, familia y frecuencias pertenecen al entrenamiento; las etiquetas de validación/prueba no se consultan para elegir candidatos.
+`train_joint.py` ajusta cinco cabezas lineales sobre **31 características** (155 coeficientes): regresión directa de SARI keep/add/delete, utilidad conjunta y ranking léxico por pares. La utilidad combina SARI, cercanía a banda, reducción silábica y compatibilidad morfológica; las características incluyen retención, grupos de edición, concordancia conocida, números, negaciones y estructura. Las cabezas SARI proyectan fuera las variables de puntuación/edad/banda que no forman parte de su tokenización.
 
-Esos seis documentos habían informado las reglas del v1 y se usaron para diagnosticar el generador de candidatos v2. Por ello **no son una prueba independiente ni ciega de generalización**. Los seis textos nuevos son entradas controladas redactadas aparte, ausentes de los JSONL de entrenamiento; comparten vocabulario y construcciones soportadas. La prueba de 228 ejemplos también se inspeccionó durante el desarrollo: sus cifras se publican como diagnóstico reproducible, sin llamarla evaluación externa ciega.
+Se ejecutan **35 épocas SGD y 25 iteraciones de árboles residuales compartidos de profundidad 3**; `epochs=60` cuenta las dos fases, no 60 épocas neuronales. El modelo es un ranker de candidatos restringidos; no es un nuevo fine-tuning de mT5. La selección de época/árboles minimiza pérdida de validación. Una búsqueda solo en validación aprende el peso SARI/utilidad y la política de compresión/cercanía. Los logits y árboles se guardan en JSON, con pesos finitos y hashes antes/después.
 
-## Entrenamiento real y artefacto
+Pérdida MSE seleccionada: entrenamiento **0.028389**, validación **0.032702**. Época/iteración seleccionada: **60**. La política elegida usa peso de banda **32** y mezcla SARI directa **0**. La pérdida no se compara numéricamente con la entropía cruzada v2, que tiene otra escala.
 
-Se ejecutaron **20 épocas**, con seed `20261027`, pérdida logística y regularización. Los pesos se inicializan a cero; se comprueba que su SHA-256 cambie y que todos los coeficientes sean finitos. Se selecciona la época por `val_loss`, sin usar respuestas de prueba para el gradiente. Los JSONL se verifican contra sus hashes antes de entrenar.
+## Comparación congelada en test
 
-- Pérdida de entrenamiento: **0.485250 → 0.431136**.
-- Pérdida de validación: **0.469675 → 0.418884**.
-- Época seleccionada: **20**.
+El baseline sin entrenar se vuelve a ejecutar desde **fc12a7a** usando los mismos ejemplos/referencias. El conjunto generado no incorpora la referencia durante inferencia; solo entrenamiento usa destinos anotados. La política y sus umbrales se seleccionan con validation. El test de selección léxica proporciona un span y tres opciones (original, distractor de su propia partición, propuesta anotada): top-1 no equivale a generación libre.
 
-`checkpoints/context-ranker-v2/model.json` es el checkpoint local funcional. Su copia de distribución `app/services/assets/context-ranker-v2.json` es idéntica byte a byte e incluye los coeficientes y metadatos necesarios para reproducir la inferencia en GitHub Actions y Docker sin Torch. Los pesos binarios grandes permanecen ignorados. `checkpoints/retraining_metrics.json` se versiona expresamente y contiene historial por época, hashes, manifiesto y evaluación numérica; no contiene documentos privados.
+| Métrica, 228 casos | Baseline sin entrenar | v2.1 | Requisito logrado |
+|---|---:|---:|---|
+| SARI agregado | 44.543848 | 44.529243 | **No** |
+| Top-1 léxico | 53.07% | 61.84% | Sí |
+| Distancia media a banda (menor es mejor) | 22.506362 | 22.456644 | Sí |
 
-El historial de cada época incluye loss sobre entrenamiento/validación completos, clasificación binaria de candidatos y SARI/ganancia sobre las primeras 24 entradas de validación. La sección `reference_ranking` separada ofrece la referencia como candidato y da 100 en ese diagnóstico: **no mide generación** y no se usa como cifra de eficacia del sistema.
+La reducción de distancia y la mejora léxica incluyen la ampliación del generador; no se atribuyen solo a los coeficientes. SARI sigue **por debajo** del baseline. Hubo intentos lineales y residuales anteriores sin mejora conjunta; sus resultados no se ocultaron ni se eligió un checkpoint por su test. Se mantienen las referencias originales: no se reescriben para favorecer al modelo.
 
-## Comparación de los sistemas completos
+SARI utiliza conjuntos de n-gramas Unicode de palabras de 1 a 4, una referencia, keep-F1/add-F1/delete-precision y operación vacía/vacía igual a 1, en escala 0–100. Es una variante declarada, no equivalencia exacta con todos los tokenizadores de EASSE. [Definición primaria](https://github.com/huggingface/evaluate/tree/main/metrics/sari). SGSS aporta sustituciones de una palabra, no cinco paráfrasis completas por edad: las etiquetas de legibilidad calculadas y la supervisión sintética no reemplazan destinos multinivel revisados por personas. Las muestras léxicas aisladas tampoco constituyen una validación de comprensión.
 
-El baseline se volvió a ejecutar desde el commit `b342076`, en una extracción temporal de Git, con el mismo SGSS y los mismos textos/métrica. Se comparan salidas reales de ambas arquitecturas; la mejora incluye la composición de reglas y el ranker, y no se atribuye íntegramente a los pesos.
+## Cumplimiento medido del pipeline completo
 
-| Conjunto / sistema | Progresión estricta | Doble condición N1 | Ganancia media N1 | SARI | Segundos por cinco niveles |
+Los cinco textos se miden desde la salida real, sin clamp ni redondeo antes de decidir. Las bandas son N1 82–100, N2 74–84, N3 65–74, N4 58–66 y N5 50–65. `full_target_met` añade la longitud media de oración; no se confunde con pertenencia al intervalo de puntaje ni con la doble condición histórica.
+
+| Conjunto | Progresión estricta | Todas las cinco bandas |
+|---|---:|---:|
+| Banco local | 31/31 | **4/31** |
+| EASIER conocido | 6/6 | **1/6** |
+| Textos controlados | 6/6 | **0/6** |
+
+| Conjunto | N1 en banda | N2 | N3 | N4 | N5 |
 |---|---:|---:|---:|---:|---:|
-| easier_diagnostic / v1 | 0/6 | 5/6 | 38.773 | 25.963 | 0.1234 |
-| easier_diagnostic / v2 | 6/6 | 5/6 | 42.069 | 24.650 | 0.1282 |
-| unseen_v2 / v1 | 0/6 | 1/6 | 23.695 | 79.669 | 0.0350 |
-| unseen_v2 / v2 | 6/6 | 2/6 | 26.574 | 83.120 | 0.0516 |
+| Banco local | 7/31 | 18/31 | 26/31 | 24/31 | 25/31 |
+| EASIER conocido | 2/6 | 2/6 | 1/6 | 2/6 | 3/6 |
+| Textos controlados | 0/6 | 0/6 | 1/6 | 1/6 | 1/6 |
 
-**6/6** significa cinco textos con índices estrictamente descendentes, no cinco bandas pedagógicas exactas ni fidelidad clínica validada. En particular, algunos niveles intermedios EASIER siguen por debajo de las bandas solicitadas. La doble condición se cumple en 5/6 EASIER y 2/6 textos nuevos. En estos doce textos la ganancia de nivel 1 es >=15, pero no se garantiza ese umbral para entradas arbitrarias.
+Las 15 lecciones demo tienen progresión en sus cinco previews. En el nivel que corresponde a cada lectura, **13/15** cumplen la banda de puntaje: Sofía 1/1, Mateo 3/3, Diego 4/5 y Valentina 5/6. Se regeneraron las quince versiones retenidas; once snapshots numéricos cambiaron, conservando IDs, fechas, respuestas, tiempos, gemas, XP y rachas. Repetir refresh no modifica nada.
 
-| Documento EASIER | Original | N1 | N2 | N3 | N4 | N5 |
-|---|---:|---:|---:|---:|---:|---:|
-| 120 | 58.685 | 87.809 | 82.699 | 71.855 | 63.976 | 58.685 |
-| 276 | 27.559 | 71.343 | 41.863 | 40.537 | 40.004 | 37.268 |
-| 68 | 44.832 | 62.735 | 62.051 | 61.138 | 60.774 | 59.043 |
-| 30 | 36.607 | 72.564 | 60.706 | 58.696 | 56.687 | 54.677 |
-| 200 | 14.106 | 84.772 | 42.283 | 34.807 | 32.277 | 24.839 |
-| 84 | 11.085 | 66.066 | 24.046 | 21.849 | 20.622 | 20.400 |
+La palabra «Hola» o un original ya más fácil que la banda avanzada no permiten cumplir todas las bandas a la vez manteniendo fidelidad y la política de no dificultar la fuente. Se entrega mejor esfuerzo con 200 y flags reales; no se añade relleno ni se manipulan métricas. Para textos complejos nuevos tampoco hay garantía universal: el propio conjunto controlado muestra **0/6** con las cinco bandas.
 
-## Ablación del aprendizaje: resultado que no debe ocultarse
+## Contrato de nivel/edad corregido
 
-Sobre las 228 entradas separadas del v2, con el mismo generador de candidatos, SARI pasa de **44.544 con pesos iniciales a 44.501 con pesos entrenados**; la ganancia media pasa de **10.580 a 10.555**. La clasificación binaria de candidatos entrenada tiene exactitud **0.649** y F1 **0.391**. No se obtuvo una mejora agregada de SARI atribuible al entrenamiento. El ranker es real y reduce la pérdida, pero estos resultados no bastan para afirmar que resuelve la selección semántica abierta.
+- Se aceptan `level` y `target_level`, además de los nombres históricos de cada ruta y BASICO/INTERMEDIO/AVANZADO. Alias contradictorios producen error controlado sin reproducir texto.
+- Un nivel explícito tiene prioridad. Solo si falta, `age_group` selecciona 1/3/5 para 6-8/9-11/12+. La edad explícita decide las preguntas de esa lección, incluso si difiere del perfil; `child_age_years` y su cumpleaños real no se alteran. Sin contexto explícito se mantienen defaults y la edad del perfil.
+- `adapted_text` y `readability_score` principales corresponden al preview del nivel solicitado en texto, generación y TXT/PDF. GET de una versión conserva ese par; otra adaptación de nivel 5 no reemplaza una versión de nivel 1.
+- Se devuelven todas las métricas comparativas, `readability_level`, vocabulario, dato curioso y las dos preguntas. `questions` es un alias aditivo de `comprehension_questions`. Model-info y el resumen maestro incluyen las comparaciones, cumplimiento y el flag de criterios **false**.
 
-SARI se calcula en escala 0–100 con conjuntos de n-gramas de 1 a 4, tokenización Unicode de palabras y una referencia: F1 de adición, F1 de conservación y precisión de eliminación, con operación vacía frente a vacía igual a uno. Es una variante declarada de referencia única; no se afirma equivalencia exacta con todos los tokenizadores/contadores de EASSE. [Definición de referencia de Hugging Face](https://github.com/huggingface/evaluate/tree/main/metrics/sari). Las referencias EASIER cambian una palabra, por lo que una reescritura estructural fiel puede tener SARI bajo. Ningún índice sustituye la revisión humana de sentido y gramática.
+## Artefacto activo, PostgreSQL y DigitalOcean
 
-## Inferencia, API y demostración
+`checkpoints/context-ranker-v2.1/model.json` y `app/services/assets/context-ranker-v2.1.json` son copias idénticas; `checkpoints/retraining_metrics.json` es el reporte numérico versionado. No se publican el corpus completo, derivados JSONL, entornos, secretos ni pesos gigantes. Las seis filas públicas sin modificar del fixture EASIER conservan [procedencia y licencia declarada](https://github.com/LURMORENO/EASIER_CORPUS).
 
-El artefacto se carga con caché fuera del event loop. Los pesos ordenan sustituciones permitidas y puntúan candidatos estructurales; las reglas preservan números y contextos explícitos. La concordancia de las formas regulares es declarativa. No se afirma un analizador morfológico universal ni un generador neuronal de texto libre.
+`RANKER_CHECKPOINT` selecciona la ruta explícita y el pin SHA-256 opcional verifica el archivo. La carga usa caché fuera del event loop, valida coeficientes/árboles y no necesita NumPy/Torch para servir. El estado `model` de readiness sigue refiriéndose al mT5 opcional; el ranker activo se consulta con versión/checksum en `/api/v1/adaptations/model-info`.
 
-Texto manual, TXT/PDF y generación por tema usan el mismo pipeline. La API conserva originales completos y añade `model_version`, `checkpoint_name`, ganancias, sílabas, sustituciones y cinco previews. `GET /api/v1/adaptations/model-info` exige autenticación; `/api/v1/admin/overview` incorpora el mismo resumen con RBAC maestro. GET de una versión histórica no la etiqueta falsamente como producida por el modelo nuevo.
-
-Una entrada como «Hola» no puede ganar 15 puntos ni producir cinco dificultades fieles. Se mantiene `200 OK` con mejor esfuerzo y señales de meta/progresión incumplidas. El 6/6 del diagnóstico no convierte esta excepción matemática en una garantía universal.
-
-Las 15 lecciones gestionadas del tutor se regeneran con versión `pedagogical-es-v2`, conservando IDs, fechas, comprensión, gemas, XP y rachas. No se agregan columnas: se usan los JSON existentes. Android permanece sin cambios.
+La imagen usa `app.bootstrap`: bloqueo PostgreSQL, `alembic upgrade head` y exec de Uvicorn con el mismo intérprete. Se probaron las ocho revisiones existentes y el segundo arranque idempotente en un esquema PostgreSQL vacío; no se añadió una columna ni una migración ficticia. El lifespan asegura cuentas y demos. [Preparación DigitalOcean](../deploy/README.md) incluye secretos privados de producción y el checkpoint incorporado. Docker CLI está presente pero su daemon local no está operativo. Se añadió un job `container` que construye y prueba la imagen en CI contra PostgreSQL vacío, sin depender del daemon local. No se realizó un despliegue remoto en DigitalOcean.
 
 ## Reproducción
 
 ```sh
+# Requiere el SGSS local y el historial Git que contiene fc12a7a.
+python -m pip install 'numpy>=2,<3'
 python -m ml_training.build_enhanced_dataset
-python -m ml_training.train_ranker --epochs 20
-# Publicar el checkpoint recién entrenado antes de evaluarlo:
-python -c "from pathlib import Path; Path('app/services/assets/context-ranker-v2.json').write_bytes(Path('checkpoints/context-ranker-v2/model.json').read_bytes())"
-python -m ml_training.evaluate_baseline --ref b342076
-MT5_ENABLED=false python -m ml_training.evaluate_retrained
+python -m ml_training.train_joint --epochs 35
+MT5_ENABLED=false python -m ml_training.export_joint
 pytest -q
 ```
 
-Los derivados completos de entrenamiento y el corpus SGSS permanecen locales. El fixture público `easier_diagnostic.json` conserva sin modificar las seis filas del diagnóstico anterior, con procedencia EASIER; no se mezcla con los pares para ajuste. [Fuente y licencia declarada](https://github.com/LURMORENO/EASIER_CORPUS). Los textos `unseen_v2.json` son ejemplos de evaluación controlada redactados para este proyecto.
+Resultados exactos, hashes, búsquedas de validación y las 60 iteraciones se encuentran en `checkpoints/retraining_metrics.json`. El indicador de criterios pendientes es parte del resultado, no un error a eliminar con redondeos o pruebas que finjan superioridad.
 
-## Verificación de la entrega
 
-Suite completa: **494 pruebas aprobadas en PostgreSQL** y **490 aprobadas, 4 omitidas en SQLite**. Ruff, formato, `pip check` y `alembic check` aprobados; no se necesitó migración. El servidor activo en el puerto **8000** devolvió readiness **200**. La verificación HTTP autenticada confirmó el checkpoint v2, el resumen maestro y las 15 lecciones demo, con conservación de práctica y recursos. Las líneas LF del artefacto publicado mantienen su fingerprint al clonar en Windows, Linux o macOS.
+## Verificación funcional de la entrega
+
+Suite completa PostgreSQL: **538 aprobadas**. SQLite: **533 aprobadas y 5 omitidas**
+(comprobaciones exclusivas de PostgreSQL). Después del ajuste del intérprete de
+bootstrap se repitieron sus **6 pruebas PostgreSQL**, todas aprobadas. Ruff,
+formato y `pip check` pasan. Las pruebas nuevas verifican nivel/edad en todos los
+POST, versiones independientes, aliases, respuestas de preguntas y transparencia
+de los criterios no cumplidos. Se actualizó la antigua expectativa que ignoraba
+la edad solicitada: ahora cambia el grupo pedagógico, conservando el cumpleaños.
+
+El servidor local se reinició mediante el propio `app.bootstrap`, aplicó upgrade
+idempotente y devolvió readiness **200**. HTTP autenticado verificó model-info,
+resumen maestro y las 15 versiones demo: salida principal igual al preview de su
+nivel, puntajes medidos, preguntas y checksum v2.1, con recursos conservados.
+La configuración Compose se validó localmente. La construcción y smoke test
+reales de la imagen se ejecutan mediante el nuevo job Linux de GitHub Actions.
+Nada de esto convierte `acceptance_criteria_met=false` en una validación académica
+al 100%: siguen pendientes la superioridad SARI y el cumplimiento completo de bandas.

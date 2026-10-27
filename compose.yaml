@@ -9,7 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U fluilet -d fluilet"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U fluilet -d fluilet"]
       interval: 10s
       timeout: 3s
       retries: 10
@@ -21,10 +21,14 @@ services:
       context: .
       args:
         INSTALL_ML: ${INSTALL_ML:-false}
-    env_file: .env
+    env_file: ${FLUILET_ENV_FILE:-.env}
     environment:
-      DATABASE_URL: postgresql+psycopg://fluilet:${POSTGRES_PASSWORD}@db:5432/fluilet
+      DATABASE_URL: ${DATABASE_URL:?Set container DATABASE_URL with host db and URL-encoded password}
+      DEPLOYMENT_ENV: production
       HF_HOME: /tmp/huggingface
+      RANKER_CHECKPOINT: /srv/fluilet/checkpoints/context-ranker-v2.1/model.json
+      DEMO_ACCOUNTS_ENABLED: ${DEMO_ACCOUNTS_ENABLED:-true}
+      MT5_ENABLED: ${MT5_ENABLED:-false}
     ports: ["127.0.0.1:8000:8000"]
     depends_on:
       db:

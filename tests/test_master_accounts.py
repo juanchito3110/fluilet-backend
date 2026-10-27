@@ -120,7 +120,7 @@ async def test_master_identity_overview_grant_and_idempotent_unlock(client, db, 
     assert token["role"] == "master_admin" and token["is_master_admin"] is True
     assert (await client.get("/api/v1/auth/me", headers=master)).json()["is_master_admin"] is True
     data = (await client.get("/api/v1/admin/overview", headers=master)).json()
-    assert data["model_info"]["model_version"] == "context-ranker-es-v2"
+    assert data["model_info"]["model_version"] == "context-ranker-es-v2.1"
     assert data["model_info"]["easier_benchmark_after"] == "6/6"
     assert (data["total_tutors"], data["total_profiles"], data["total_reading_sessions"]) == (
         1,

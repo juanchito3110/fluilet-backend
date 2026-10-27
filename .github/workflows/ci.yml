@@ -34,6 +34,13 @@ jobs:
       - run: python -m pip check
       - run: python scripts/audit_dependencies.py
         if: runner.os == 'Linux'
+  container:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: docker build --build-arg INSTALL_ML=false -t fluilet-backend:ci .
+      - run: bash scripts/verify_container.sh fluilet-backend:ci
   postgres:
     runs-on: ubuntu-24.04
     timeout-minutes: 15

@@ -196,7 +196,7 @@ class AdaptationPipeline:
 
         chunks = await asyncio.to_thread(reading_chunks, text)
         local = await asyncio.to_thread(_local_plan, text)
-        legacy = None if local else await self._run_legacy(text, level, child_age=child_age)
+        legacy = None if local else await self._run_legacy(text, 1, child_age=child_age)
         # For large documents operate on the existing source chunks, preserving
         # their alignment and bounds; preview inference never loads mT5 five times.
         selections = []
