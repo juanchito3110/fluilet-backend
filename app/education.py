@@ -299,3 +299,13 @@ def questions(text: str, child_age_years: int | None = None) -> list[dict]:
                 f"¡Muy bien! El texto dice «{correct}». Por eso esa opción es correcta."
             )
     return result
+
+
+def profile_age_group(profile):
+    return profile.age_group_override or question_age_group(age_years(profile.birth_date))
+
+
+def teaching_age(profile):
+    return {"6-8": 7, "9-11": 10, "12+": 12}.get(
+        profile.age_group_override, age_years(profile.birth_date)
+    )

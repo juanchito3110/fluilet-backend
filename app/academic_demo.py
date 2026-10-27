@@ -31,7 +31,7 @@ async def seed_demo(
     db: AsyncSession = Depends(get_db),
 ):
     child = await accessible_child(profile_id, user, db)
-    age = education.age_years(child.birth_date)
+    age = education.teaching_age(child)
     # No external dependency or client-supplied text. These are authored public
     # lessons. All readability numbers come from the exact source/adapted pair.
     prepared = []

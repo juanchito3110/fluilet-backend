@@ -11,6 +11,7 @@ from app import auth, models, schemas
 from app.daily_missions import authorized_activity, record_activity, snapshot
 from app.database import get_db
 from app.educational_progress import EDUCATIONAL_FIELDS, summarize, update_practice
+from app.profile_controls import profile_summary
 
 router = APIRouter(prefix="/api/v1", tags=["activities"])
 
@@ -351,15 +352,7 @@ async def progress(
     db: AsyncSession = Depends(get_db),
 ):
     child = await accessible_child(child_id, user, db)
-    sessions = (
-        await db.scalars(
-            select(models.ReadingSession)
-            .where(models.ReadingSession.child_id == child_id)
-            .order_by(models.ReadingSession.started_at, models.ReadingSession.id)
-        )
-    ).all()
-    activity = await authorized_activity(db, child_id=child_id)
-    return summarize(sessions, child.nivel_simplificacion_nlp, activity_days=activity)
+    return await profile_summary(child, db)
 
 
 @router.get(

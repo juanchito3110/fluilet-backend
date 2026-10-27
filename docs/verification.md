@@ -148,3 +148,42 @@ remain below the combined readability target and are honestly marked best effort
 Synthetic comprehension and rewards are demonstration data, not validation of
 educational or clinical efficacy. Full client UI synchronization cannot be claimed
 without consuming the added original/claimed fields in Android.
+
+
+## Managed academic accounts and master administration — 27 October 2026
+
+- Full PostgreSQL suite: **429 passed**. SQLite: **425 passed, 4 skipped**
+  (PostgreSQL-only migrations/constraints/cross-session concurrency).
+- Real form login tests cover the tutor and master, normal public registration,
+  master claim denial at registration, email-only privilege denial and all admin
+  route access checks. Startup and concurrent restoration create one cohort and
+  preserve manual accounts/profiles, passwords, practice and resource changes.
+- Phase tests verify four profiles, stages 1..4, exact 45/160/340/900 gems and
+  40/190/460/980 XP, 1/3/6/12 configured streaks, 1/3/5/6 completed readings,
+  Valentina's 95 percent synthetic comprehension and unlocked rewards, and all
+  fifteen real retained lesson comparisons/questions/glossaries/facts.
+- Master tests cover all four stage changes, signed grants, level/teaching-age
+  overrides, zero-balance validation, future earned resources, one-time unlock
+  rewards, hashed parental PIN reset/verification, physical profile/user cascades
+  including linked NINO identities/tokens, and protected-master deletion.
+- Migration tests verify additive MASTER_ADMIN enum, schema consistency, safe
+  legacy upgrade and refusal to downgrade populated master/demo controls. Ruff,
+  format check and `pip check` passed.
+- Active local PostgreSQL: private schema-only backup verified; migration
+  **0007_master_accounts** applied; `alembic check` reports no drift. Reserved
+  demo addresses were absent before provisioning; existing manual users were not
+  converted or deleted.
+- Server restarted on **8000**. Startup created the two accounts and four phase
+  profiles in the active database. Actual HTTP form login verified TUTOR/false and
+  master_admin/true, parental PIN validity, global overview and all four exact
+  phase summaries. All fifteen retained demo readings were fetched over HTTP and
+  verified complete and at their own profile levels. Explicit restoration then
+  returned **200 with identical profiles/history/resource totals**.
+- Readiness returned **200**, database and deterministic engine operational,
+  optional model still not loaded. No test account or synthetic history was added
+  to the application database beyond the expressly requested managed demo cohort.
+
+`docs/demo-accounts.md` explains why the requested resource/streak presets require
+explicit adjustments over the normal reward formula. `has_admin_adjustments`
+discloses them; no readability score or birth date is falsified. Synthetic account
+history is not evidence of clinical efficacy. Android was not modified.

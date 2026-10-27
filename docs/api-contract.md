@@ -233,3 +233,36 @@ idempotent claim cannot remove that client-local duplicate: the client must cons
 server `claimed` and avoid a local second payout before claiming end-to-end reward
 synchronization. New response fields are additive and ignored by its current Gson
 DTOs. Backend tests cover the wire contract, not an unmodified emulator's new UI.
+
+
+## Master accounts and curated phases — 27 October 2026
+
+`0007_master_accounts` adds `master_admin` as an internal role. Existing public
+TUTOR/ADULTO registration and all previous role strings are unchanged. The internal
+role and reserved demo emails are rejected by public registration. Login/refresh
+responses add `is_master_admin`; `/users/me` and the additive `/auth/me` expose it
+and `has_parental_pin`. Master authorization checks the stored role **and** managed
+identity, not an email supplied by a client. No password/PIN hash is exposed.
+
+Startup ensures two marked academic accounts and four phase profiles. Read
+[demo-accounts.md](demo-accounts.md) for the exact credentials and preservation
+policy. New master routes are `GET /admin/overview`, POST `/admin/ensure-demo-accounts`,
+POST `/admin/profiles/{id}/grant`, DELETE `/admin/profiles/{id}`, DELETE
+`/admin/tutors/{id}`, POST `/admin/tutors/{id}/reset-pin`. All require the real master;
+tutor/adult/child roles receive 403. The maestro's deletion returns 400. Deletions
+are physical cascades, unlike existing self/profile deactivation routes.
+
+Profile/progress responses add `age_group` and `current_level`; progress also adds
+`has_admin_adjustments`. Profile controls persist signed gem/XP differences,
+optional exact level/streak and reward unlock overrides. Totals may now be zero
+instead of always at least 30 after a master adjustment. Readability snapshots,
+measured completion counts and birth dates are never rewritten to simulate grants.
+The optional age override affects teaching and questions, while reported calendar
+age stays truthful. Normal future practice still earns rewards above the adjusted
+balance. Existing Android fields remain available; this update does not add client
+screens or client handling of the new master role.
+
+POST `/auth/verify-parental-pin` is authenticated as tutor, accepts a 4–6 digit PIN,
+and returns a validity boolean. Existing authentication rate limiting also covers
+this route. All default academic passwords/PINs are hashed and use the normal
+login verifier; there is no hardcoded demo-login bypass.

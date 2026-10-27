@@ -6,6 +6,7 @@ from datetime import date, datetime
 
 from sqlalchemy import (
     JSON,
+    BigInteger,
     Boolean,
     CheckConstraint,
     Date,
@@ -36,6 +37,7 @@ class Base(DeclarativeBase):
 
 
 class UserRole(enum.StrEnum):
+    MASTER_ADMIN = "master_admin"
     TUTOR = "TUTOR"
     NINO = "NINO"
     ADULTO_INDEPENDIENTE = "ADULTO_INDEPENDIENTE"
@@ -85,6 +87,21 @@ class User(Base):
         SAEnum(UserRole, name="user_role", native_enum=True), nullable=False
     )
 
+    demo_identity: Mapped[str | None] = mapped_column(String(32), unique=True)
+    parental_pin_hash: Mapped[str | None] = mapped_column(String(255))
+
+    @property
+    def is_master_admin(self):
+        return (
+            self.role == UserRole.MASTER_ADMIN
+            and self.demo_identity == "master_admin"
+            and self.email == "admin@fluilet.com"
+        )
+
+    @property
+    def has_parental_pin(self):
+        return self.parental_pin_hash is not None
+
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     auth_version: Mapped[int] = mapped_column(
         Integer, default=0, server_default="0", nullable=False
@@ -119,6 +136,11 @@ class User(Base):
 class ChildProfile(Base):
     __tablename__ = "child_profiles"
     __table_args__ = (
+        UniqueConstraint("tutor_id", "demo_identity", name="uq_tutor_demo_identity"),
+        CheckConstraint(
+            "age_group_override IS NULL OR age_group_override IN ('6-8','9-11','12+')",
+            name="ck_child_age_override",
+        ),
         CheckConstraint("nivel_simplificacion_nlp BETWEEN 1 AND 5", name="ck_nivel_nlp_rango"),
         CheckConstraint("tamano_fuente BETWEEN 14 AND 28", name="ck_tamano_fuente_rango"),
         CheckConstraint("interlineado BETWEEN 1.5 AND 2.5", name="ck_interlineado_rango"),
@@ -134,6 +156,8 @@ class ChildProfile(Base):
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     birth_date: Mapped[date] = mapped_column(Date, nullable=False)
+    demo_identity: Mapped[str | None] = mapped_column(String(32))
+    age_group_override: Mapped[str | None] = mapped_column(String(8))
 
     # RF02: tipo de dificultad y nivel de simplificación NLP configurados por el tutor
     tipo_dificultad: Mapped[DifficultyType] = mapped_column(
@@ -158,6 +182,16 @@ class ChildProfile(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+    @property
+    def age_group(self):
+        from app.education import profile_age_group
+
+        return profile_age_group(self)
+
+    @property
+    def current_level(self):
+        return self.nivel_simplificacion_nlp
 
     tutor: Mapped["User"] = relationship(back_populates="children", foreign_keys=[tutor_id])
     reading_sessions: Mapped[list["ReadingSession"]] = relationship(
@@ -434,3 +468,32 @@ class AdaptationContent(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class ProfileControl(Base):
+    """Explicit master/demo adjustments; never falsify a measured text score."""
+
+    __tablename__ = "profile_controls"
+    __table_args__ = (
+        CheckConstraint(
+            "level_override IS NULL OR level_override BETWEEN 1 AND 5", name="ck_control_level"
+        ),
+        CheckConstraint(
+            "streak_override IS NULL OR streak_override BETWEEN 0 AND 36500",
+            name="ck_control_streak",
+        ),
+    )
+    child_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("child_profiles.id", ondelete="CASCADE"), primary_key=True
+    )
+    gems_offset: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, default=0, server_default="0"
+    )
+    xp_offset: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, default=0, server_default="0"
+    )
+    level_override: Mapped[int | None] = mapped_column(Integer)
+    streak_override: Mapped[int | None] = mapped_column(Integer)
+    unlock_all_rewards: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )

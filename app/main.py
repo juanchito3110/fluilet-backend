@@ -16,8 +16,9 @@ from app import auth, models, schemas
 from app.academic_demo import router as academic_demo_router
 from app.activities import router as activities_router
 from app.adaptations import router as adaptations_router
+from app.admin import router as admin_router
 from app.config import settings
-from app.database import engine, get_db
+from app.database import SessionLocal, engine, get_db
 from app.health import router as health_router
 from app.nlp.mt5 import runtime
 from app.privacy import PrivacyMiddleware, validation_error
@@ -25,6 +26,17 @@ from app.privacy import PrivacyMiddleware, validation_error
 
 @asynccontextmanager
 async def lifespan(app):
+    if settings.DEMO_ACCOUNTS_ENABLED:
+        from app.demo_accounts import ensure_accounts
+
+        async with SessionLocal() as db:
+            try:
+                await ensure_accounts(db)
+            except Exception:
+                await db.rollback()
+                raise RuntimeError(
+                    "No se pudieron preparar las cuentas de demostración. Verifica las migraciones y las identidades reservadas."
+                ) from None
     yield
     await runtime.close()
     await auth.close()
@@ -63,6 +75,10 @@ async def lock_user(user, db):
 
 @app.post("/api/v1/auth/register", response_model=schemas.UserRead, status_code=201, tags=["auth"])
 async def register(payload: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
+    from app.demo_accounts import RESERVED_EMAILS
+
+    if str(payload.email).lower() in RESERVED_EMAILS:
+        raise HTTPException(409, "La dirección está reservada para la demostración.")
     user = models.User(
         email=str(payload.email).lower(),
         full_name=payload.full_name,
@@ -134,6 +150,7 @@ async def change_password(
     return Response(status_code=204)
 
 
+@app.get("/api/v1/auth/me", response_model=schemas.UserRead, tags=["auth"])
 @app.get("/api/v1/users/me", response_model=schemas.UserRead, tags=["users"])
 async def read_current_user(user: models.User = Depends(auth.get_current_user)):
     return user
@@ -318,4 +335,13 @@ async def open_child_session(
 app.include_router(activities_router)
 app.include_router(adaptations_router)
 app.include_router(academic_demo_router)
+app.include_router(admin_router)
 app.include_router(health_router)
+
+
+@app.post("/api/v1/auth/verify-parental-pin", tags=["auth"])
+async def verify_parental_pin(
+    payload: schemas.VerifyParentalPin,
+    user: models.User = Depends(auth.require_roles(models.UserRole.TUTOR)),
+):
+    return {"valid": await auth.verify_async(payload.pin, user.parental_pin_hash)}

@@ -89,10 +89,14 @@ async def persist(
     )
     await auth.validate_identity(locked_user, db)
     child_age = None
+    profile_age = None
     if child_id is not None:
         child = await accessible_child(child_id, user, db)
         child_age = education.age_years(child.birth_date)
-    effective_age = child_age if child_age is not None else {"6-8": 7, "9-11": 10}.get(age_group)
+        profile_age = education.teaching_age(child)
+    effective_age = (
+        profile_age if profile_age is not None else {"6-8": 7, "9-11": 10}.get(age_group)
+    )
     practice = await asyncio.to_thread(education.questions, result.adapted_text, effective_age)
     fact, terms = await asyncio.to_thread(
         vocabulary.enrich, result.adapted_text, article.fact_hint if article else ""
@@ -201,6 +205,7 @@ async def persist(
         if article
         else None,
     )
+    content.updated_at = auth.utcnow()
     content.original_text = response.original_text
     content.adapted_text = response.adapted_text
     content.response_payload = response.model_dump(
@@ -223,7 +228,7 @@ async def adapt_text(
     child_age = {"6-8": 7, "9-11": 10}.get(payload.age_group)
     if payload.child_id:
         child = await accessible_child(payload.child_id, user, db)
-        child_age = education.age_years(child.birth_date)
+        child_age = education.teaching_age(child)
     result, digest = await process(
         payload.text, None, "text/plain", payload.nivel_simplificacion_nlp, child_age=child_age
     )
@@ -292,7 +297,7 @@ async def generate_lesson(
     child_age = {"6-8": 7, "9-11": 10}.get(payload.age_group)
     if payload.child_id:
         child = await accessible_child(payload.child_id, user, db)
-        child_age = education.age_years(child.birth_date)
+        child_age = education.teaching_age(child)
     try:
         category, entry = await resolve_lesson(payload.category, payload.topic)
     except SourceUnavailable:

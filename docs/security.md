@@ -171,3 +171,36 @@ refuses when retained content or demo markers exist; it does not delete content 
 history to force a schema rollback. Claim acknowledges already-derived rewards and
 has no second payout. No unrelated data or test account is inserted in the manual
 application database during automated tests.
+
+
+## Master/demo identities — revision 0007
+
+The owner explicitly requested fixed academic accounts and physical deletion
+capabilities. Startup provisioning is enabled by default and can be omitted with
+`DEMO_ACCOUNTS_ENABLED=false`. The two known demonstration passwords and parental
+PIN are intentionally public defaults, processed by the same bcrypt/form/JWT
+code as every account. The flag controls provisioning, not deletion of existing
+accounts. No generated runtime secret or database credential is committed.
+
+Public registration cannot create a master, set its managed marker, or claim
+reserved emails. An unmarked conflicting address fails closed instead of being
+promoted. Master routes require active stored identity/role/marker/email; a claimed
+email or forged client flag is insufficient. JWT role/version checks, refresh
+rotation and identity lookup are preserved. Startup restoring a changed demo
+password/reactivating its account revokes old tokens. PIN hashes never leave the
+API; verification is under the existing authentication throttle.
+
+PostgreSQL transaction advisory locks serialize provisioning and admin mutations;
+profile grants additionally lock the owner/profile in the same order as content
+persistence. Markers/unique constraints prevent duplicate identities/cohorts.
+Resources are bounded, persisted differences over real reward history, explicitly
+flagged in the response. Readability scores and birth dates are not falsified.
+SQL/body logs remain suppressed. Overview exposes global account/profile metadata
+only to the master. Cascade deletions remove profile content, activity, controls,
+linked child identities and tokens without deleting shared lessons from other
+profiles. The protected master cannot delete itself, including ordinary self-delete
+routes. Account/profile deactivation contracts remain unchanged for ordinary users.
+
+The role enum is extended additively. Downgrade refuses to discard populated
+master markers, PINs, age overrides or controls. An unused PostgreSQL enum label
+is retained on clean downgrade to avoid destructive type replacement.

@@ -189,3 +189,26 @@ existing glossary/fact/mission field names, but does not yet parse `original_tex
 or `claimed`, call claim/seed/retrieval, or suppress local mission payouts. Its
 source was inspected without modification; backend compatibility alone does not
 change that client behavior. See [the exact contract](docs/api-contract.md) and [academic demo guide](docs/academic-demo.md).
+
+
+## Preconfigured academic accounts and master administration
+
+Apply `0007_master_accounts` before startup. The default startup seed creates
+`tutor@fluilet.com` / `Tutor2026!` (parental PIN `1234`) with Sofía, Mateo, Diego and
+Valentina at FluiBot stages 1..4, plus `admin@fluilet.com` / `Master2026!` with real
+`master_admin` authority. Login and `/users/me` add `is_master_admin`; the existing
+form login and public normal registration are preserved. Reserved identities and
+master role cannot be claimed through registration.
+
+`/api/v1/admin` exposes overview, persistent profile grants, physical profile/user
+deletion, parental PIN reset and idempotent `ensure-demo-accounts`. Startup/restore
+preserves manually created accounts/profiles and existing administrative changes.
+Demo credentials are restored only on marked academic identities. The maestro
+cannot be deleted. `DEMO_ACCOUNTS_ENABLED=false` skips automatic provisioning.
+
+Resources/streaks requested for the four demo phases require explicit persisted
+adjustments to the normal reward formula; responses identify them with
+`has_admin_adjustments`. Readability scores remain measured from actual texts.
+See [demo-accounts.md](docs/demo-accounts.md) for credentials, exact phases, endpoint
+contracts, restoration semantics and the distinction between adjustments and real
+practice. Android was not modified by this backend update.

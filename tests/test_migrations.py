@@ -189,7 +189,7 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
         async with engine.connect() as connection:
             assert (
                 await connection.scalar(text("SELECT version_num FROM alembic_version"))
-                == "0006_academic_review"
+                == "0007_master_accounts"
             )
             assert await connection.scalar(text("SELECT score_delta FROM reading_sessions")) == 0
         async with engine.begin() as connection:
@@ -210,7 +210,7 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
             assert await connection.scalar(text("SELECT COUNT(*) FROM reading_activity_days")) == 1
             assert (
                 await connection.scalar(text("SELECT version_num FROM alembic_version"))
-                == "0006_academic_review"
+                == "0007_master_accounts"
             )
         async with engine.begin() as connection:
             await connection.execute(text("UPDATE reading_sessions SET demo_slot='academic-v1-0'"))
@@ -230,6 +230,21 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
         assert "retained adaptations require the current schema" in content_rollback.stderr
         async with engine.connect() as connection:
             assert await connection.scalar(text("SELECT COUNT(*) FROM adaptation_contents")) == 1
+        async with engine.begin() as connection:
+            await connection.execute(
+                text(
+                    "INSERT INTO profile_controls (child_id,gems_offset,xp_offset) VALUES (:child,10,20)"
+                ),
+                {"child": child_id},
+            )
+        master_rollback = await migrate("downgrade", "0006_academic_review")
+        assert master_rollback.returncode != 0
+        assert "master/demo data requires the current schema" in master_rollback.stderr
+        async with engine.connect() as connection:
+            assert await connection.scalar(text("SELECT gems_offset FROM profile_controls")) == 10
+            assert "MASTER_ADMIN" in await connection.scalar(
+                text("SELECT enum_range(NULL::user_role)::text")
+            )
         drift = await migrate("check")
         assert drift.returncode == 0, drift.stdout + drift.stderr
     finally:

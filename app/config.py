@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     MAX_PDF_PAGES: int = Field(default=100, ge=1, le=500)
     PROCESSING_CONCURRENCY: int = Field(default=2, ge=1, le=4)
     PROCESSING_TIMEOUT_SECONDS: float = Field(default=60, gt=0, le=180)
+    DEMO_ACCOUNTS_ENABLED: bool = True
     WIKIPEDIA_ENABLED: bool = True
     WIKIPEDIA_TIMEOUT_SECONDS: float = Field(default=3.5, gt=0, le=3.5)
     MAX_GENERATION_ATTEMPTS: int = Field(default=3, ge=1, le=5)

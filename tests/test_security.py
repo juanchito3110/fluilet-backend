@@ -83,7 +83,8 @@ async def test_login_rotation_and_replay_revokes_session(client, make_user, db):
     )
     assert login.status_code == 200
     first = login.json()
-    assert set(first) == {"access_token", "refresh_token", "token_type", "role"}
+    assert set(first) == {"access_token", "refresh_token", "token_type", "role", "is_master_admin"}
+    assert first["is_master_admin"] is False
     assert first["role"] == "TUTOR" and first["token_type"] == "bearer"
     refresh = await client.post(
         "/api/v1/auth/refresh", json={"refresh_token": first["refresh_token"]}

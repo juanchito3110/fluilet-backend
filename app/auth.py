@@ -197,7 +197,12 @@ async def issue_pair(user: User, db: AsyncSession, family_id: uuid.UUID | None =
             expires_at=utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
         )
     )
-    return Token(access_token=access, refresh_token=refresh, role=user.role)
+    return Token(
+        access_token=access,
+        refresh_token=refresh,
+        role=user.role,
+        is_master_admin=user.is_master_admin,
+    )
 
 
 async def revoke_all(user: User, db: AsyncSession):

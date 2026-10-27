@@ -77,7 +77,7 @@ class UserCreate(UserBase):
     @field_validator("role")
     @classmethod
     def public_roles(cls, value):
-        if value == UserRole.NINO:
+        if value not in {UserRole.TUTOR, UserRole.ADULTO_INDEPENDIENTE}:
             raise ValueError("Las cuentas infantiles solo puede crearlas su tutor.")
         return value
 
@@ -86,6 +86,8 @@ class UserRead(UserBase):
     model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID
     role: UserRole
+    is_master_admin: bool
+    has_parental_pin: bool
     is_active: bool
     is_verified: bool
     created_at: datetime
@@ -119,6 +121,7 @@ class Token(BaseModel):
     refresh_token: str
     token_type: str = "bearer"
     role: UserRole
+    is_master_admin: bool = False
 
 
 class TokenRefreshRequest(InputModel):
@@ -169,6 +172,8 @@ class ChildProfileUpdate(NoNullPatch):
 
 
 class ChildProfileRead(ChildProfileBase):
+    age_group: Literal["6-8", "9-11", "12+"]
+    current_level: int
     model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID
     tutor_id: uuid.UUID
@@ -488,12 +493,15 @@ class EducationalProgress(BaseModel):
     level_progression: list[LessonProgress]
     badges: list[EducationalBadge]
     current_streak_days: int = Field(ge=0)
+    age_group: Literal["6-8", "9-11", "12+"] | None = None
+    current_level: int | None = None
+    has_admin_adjustments: bool = False
     demo_data: bool = False
     demo_lessons: list[AdaptationRead] = Field(default_factory=list)
     streak_days: int = Field(ge=0)
-    total_gems: int = Field(ge=30)
+    total_gems: int = Field(ge=0)
     total_xp: int = Field(ge=0)
-    total_stars: int = Field(ge=30)
+    total_stars: int = Field(ge=0)
     current_rank_title: str
     next_rank_stars: int
     mascot: FluiBotState
@@ -507,3 +515,75 @@ class SessionProgress(BaseModel):
     sessionLabel: str
     accumulatedMinutes: float
     completionPercent: int
+
+
+class MasterGrant(NoNullPatch):
+    add_gems: int = Field(default=0, ge=-1000000000, le=1000000000, strict=True)
+    set_gems: int | None = Field(default=None, ge=0, le=1000000000, strict=True)
+    add_xp: int = Field(default=0, ge=-1000000000, le=1000000000, strict=True)
+    set_evolution_stage: int | None = Field(default=None, ge=1, le=4, strict=True)
+    set_level: NlpLevel | None = None
+    set_age_group: Literal["6-8", "9-11", "12+"] | None = None
+    set_streak_days: int | None = Field(default=None, ge=0, le=36500, strict=True)
+    unlock_all_rewards: bool = Field(default=False, strict=True)
+
+    @model_validator(mode="after")
+    def compatible_fields(self):
+        if not self.model_fields_set:
+            raise ValueError("Indica al menos un cambio.")
+        if self.set_gems is not None and self.add_gems:
+            raise ValueError("Usa set_gems o add_gems.")
+        if self.set_evolution_stage is not None and self.add_xp:
+            raise ValueError("Usa set_evolution_stage o add_xp.")
+        if (
+            self.unlock_all_rewards
+            and self.set_evolution_stage is not None
+            and self.set_evolution_stage < 4
+        ):
+            raise ValueError("Desbloquear todas las recompensas requiere etapa 4.")
+        return self
+
+
+class ResetParentalPin(InputModel):
+    pin: str = Field(default="1234", pattern=r"^[0-9]{4,6}$")
+
+
+class VerifyParentalPin(InputModel):
+    pin: str = Field(pattern=r"^[0-9]{4,6}$")
+
+
+class AdminUser(BaseModel):
+    user_id: uuid.UUID
+    email: str
+    role: UserRole
+    is_master_admin: bool
+    is_active: bool
+    profiles_count: int
+    created_at: datetime
+
+
+class AdminProfile(BaseModel):
+    profile_id: uuid.UUID
+    name: str
+    tutor_id: uuid.UUID
+    tutor_email: str
+    is_active: bool
+    age_group: Literal["6-8", "9-11", "12+"]
+    current_level: int
+    total_gems: int
+    total_xp: int
+    evolution_stage: int
+    evolution_title: str
+    current_streak_days: int
+    completed_lessons_count: int
+    unlocked_badges_count: int
+
+
+class AdminOverview(BaseModel):
+    total_tutors: int
+    total_profiles: int
+    total_adaptations: int
+    total_reading_sessions: int
+    average_comprehension: float
+    users: list[AdminUser]
+    profiles: list[AdminProfile]

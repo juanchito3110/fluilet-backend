@@ -89,6 +89,9 @@ async def test_complete_educational_flow_and_exact_progress_contract(
         "daily_missions",
         "current_streak_days",
         "demo_data",
+        "has_admin_adjustments",
+        "age_group",
+        "current_level",
         "demo_lessons",
     }
     assert data["total_lessons"] == 4
