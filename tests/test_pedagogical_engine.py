@@ -39,7 +39,13 @@ async def test_reviewed_bank_has_five_measured_progressive_versions(key):
         scores.append(metric.score)
     assert all(left > right for left, right in zip(scores, scores[1:], strict=False))
     assert len({item["adapted_text"] for item in result.level_previews}) == 5
-    assert scores[-1] >= measure(original).score
+    # Bidirectional advanced calibration is explicitly requested: an easy
+    # original may have a richer level 5. Level 1 still never degrades it.
+    assert scores[0] >= measure(original).score
+    advanced = await pipeline.run(original, 5)
+    assert ("advanced_level_harder_than_source" in advanced.warnings) == (
+        scores[-1] < measure(original).score
+    )
 
 
 @pytest.mark.parametrize(
@@ -82,8 +88,8 @@ async def test_http_comparison_and_previews_are_real_and_persisted(
     assert data["adapted_syllables_per_word"] < data["original_syllables_per_word"]
     assert data["lexical_replacements"] and len(data["level_previews"]) == 5
     assert data["engine_version"] == VERSION and data["level_progression_met"]
-    assert data["model_version"] == "context-ranker-es-v2.1"
-    assert data["checkpoint_name"] == "context-ranker-v2.1"
+    assert data["model_version"] == "context-ranker-es-v2.2"
+    assert data["checkpoint_name"] == "context-ranker-v2.2"
     assert data["adapted_text"] == data["level_previews"][0]["adapted_text"]
     assert (await client.get("/api/v1/adaptations/" + data["id"], headers=headers)).json() == data
 
@@ -217,6 +223,7 @@ async def test_refresh_marked_preserves_activity_scores_resources_and_ids(
         content.response_payload = {**content.response_payload, "engine_version": "old-engine"}
     await db.commit()
     await refresh_marked(db)
+    assert await refresh_marked(db, force=True) == 0
     refreshed = (
         await client.get(f"/api/v1/profiles/{profile}/educational-progress", headers=headers)
     ).json()

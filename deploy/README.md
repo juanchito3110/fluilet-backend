@@ -24,7 +24,7 @@ una migración ficticia. Después, el lifespan carga el checkpoint y asegura las
 cuentas/perfiles demo de forma idempotente. Un error de migración impide abrir HTTP.
 
 La imagen incluye el JSON reentrenado en
-`/srv/fluilet/checkpoints/context-ranker-v2.1/model.json`, idéntico al artefacto de
+`/srv/fluilet/checkpoints/context-ranker-v2.2/model.json`, idéntico al artefacto de
 `app/services/assets/`. `RANKER_CHECKPOINT` permite una ruta explícita; un archivo
 configurado ausente o un SHA-256 distinto del pin impide cargar el modelo. La
 imagen no descarga modelos ni necesita Torch/NumPy para inferencia. El lector
@@ -35,7 +35,8 @@ Tras el arranque, comprueba con un token válido
 `GET /api/v1/adaptations/model-info`: versión, checksum, `baseline_sari`,
 `retrained_sari`, `band_compliance` y `acceptance_criteria_met`. Readiness 200
 comprueba disponibilidad operativa; **no significa que las metas académicas estén
-cumplidas**. En esta entrega no se superó el baseline SARI ni todas las bandas:
+cumplidas**. El SARI léxico se mide por separado de la calibración estructural.
+En esta entrega no se superó el baseline SARI ni todas las bandas:
 consulta `docs/model-retraining-report.md` antes de presentar un cierre al 100%.
 
 PostgreSQL usa volumen persistente; API y proxy tienen filesystem de solo lectura,
@@ -54,3 +55,18 @@ el 1. El cleanup elimina solo esos contenedores/red. Puede ejecutarse desde la r
 con `bash scripts/verify_container.sh fluilet-backend:ci` después de construir la
 imagen y tener Docker operativo. `FLUILET_ENV_FILE` selecciona un archivo de
 entorno alternativo para Compose sin sobrescribir el `.env` local.
+
+## Conexión Android desde fuera del Droplet
+
+El cliente nativo Retrofit/OkHttp puede usar `https://api.tu-dominio.example/`
+(con `/` final). Expón TCP 443 en el firewall del Droplet y asigna el DNS y un
+certificado cuyo nombre coincida con ese dominio. También puede usarse una IP
+pública si el certificado incluye esa IP como SAN. La API interna queda en
+`127.0.0.1:8000`; el proxy publica HTTPS en 443. No es necesario exponer PostgreSQL.
+
+Android nativo no aplica CORS ni suele enviar `Origin`: la autenticación Bearer
+funciona con ese host público sin ampliar la lista de orígenes. Para un cliente
+web/WebView, configura `CORS_ORIGINS=["https://tu-front.example"]` con sus orígenes
+exactos (esquema y puerto, sin ruta). Se permiten Authorization y Content-Type y
+el preflight OPTIONS. No se usa `*` con credenciales. CORS no sustituye TLS, DNS,
+firewall ni el `BASE_URL` de Android. Esta entrega no ha creado un Droplet remoto.

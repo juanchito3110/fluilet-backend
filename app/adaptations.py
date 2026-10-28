@@ -313,7 +313,9 @@ async def adapt_file(
             text="placeholder", age_group=age_group, **fields
         ).nivel_simplificacion_nlp
     except ValueError:
-        raise HTTPException(422, "Nivel NLP inválido.") from None
+        raise HTTPException(
+            422, "El nivel debe ser un entero entre 1 y 5 o BASICO, INTERMEDIO o AVANZADO."
+        ) from None
     if age_group is None and child_id is None and fields:
         age_group = {1: "6-8", 2: "6-8", 3: "9-11", 4: "9-11", 5: "12+"}[selected_level]
     child_age = {"6-8": 7, "9-11": 10, "12+": 12}.get(age_group)

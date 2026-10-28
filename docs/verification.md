@@ -1,3 +1,39 @@
+# Verification — 2026-10-27, v2.2
+
+Final local release: Python 3.14, macOS arm64 and PostgreSQL 18.
+
+| Check | Observed result |
+|---|---|
+| Full PostgreSQL suite, private test schemas | **562 passed**, 347.16 s |
+| Full SQLite suite | **557 passed, 5 PostgreSQL-only skips**, 307.82 s |
+| Ruff check and format | 106 source files passed |
+| pip check | No broken requirements |
+| Alembic check / current | No drift; 0007_master_accounts, eight existing revisions |
+| Live port 8000, through app.bootstrap | **200 OK**, DB and adaptation pipeline operational |
+| Authenticated retained demo GET | **15/15** actual texts/scores/previews/versions/questions verified |
+| Managed demo refresh | Four profiles; 15 readings; UUIDs, practice, dates, answers, gems, XP and streaks preserved; second refresh 0 |
+| Hash seed stability | Identical five-level outputs from independent PYTHONHASHSEED=1 and 2 processes |
+| Long repeated reading | One 20-copy Text B block: 12.84 s to 0.78 s in local timing |
+| Input validation | Clear sanitized 422 messages; unsupported uploads 415; native requests and CORS preflight verified |
+
+The final seed value recorded in model metadata was corrected to 20261027 after
+these full runs. Weights, predictions, partitions and thresholds did not change;
+checkpoint integrity tests were repeated afterward. No .env, virtual environment,
+raw corpus, JSONL or large neural weights are staged. The released CPU JSON is
+under 2 MB. Docker/Compose and the container smoke workflow use v2.2. The remote
+workflow builds and exercises the actual image; no local Docker daemon or remote
+DigitalOcean deployment is claimed here.
+
+**Academic acceptance remains false.** SARI 44.53966472310678 is below baseline
+44.54384786845761. Lexical top-1 is 73.25% versus 53.07%; all five score bands
+hold for 13/31 catalog articles, 2/6 known EASIER cases, 5/6 controlled inputs and
+7/15 demos. All demos meet their assigned level's band, and all these groups have
+strict progression. These distinctions and limitations are exposed in model-info
+and master overview; passing tests is not an assertion of academic or clinical
+validation. See [the measured report](model-retraining-report.md).
+
+## Historical verification records
+
 # Verification — 2026-10-20
 
 Observed locally on macOS arm64, Python 3.14.7 and PostgreSQL 18.6 (Postgres.app).

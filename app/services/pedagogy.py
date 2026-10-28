@@ -15,7 +15,7 @@ from app.services.lexicon_es import CURATED
 from app.services.local_plans import SIMPLE
 from app.services.resources import choose_corpus, resources
 
-VERSION = "pedagogical-es-v2.1"
+VERSION = "pedagogical-es-v2.2.1"
 GOALS = {
     1: (82, 100, 6, 9),
     2: (74, 84, 9, 12),
@@ -113,6 +113,10 @@ def cleanup(text):
 def lexical(text, level):
     def replace(match):
         source = match[0]
+        if source.casefold() in {"impide", "impiden", "impedir"} and re.search(
+            r"\bno\s+$", text[: match.start()], re.I
+        ):
+            return source
         target = CURATED[source.casefold()]
         # Richer levels retain domain terms. Long academic locutions still simplify.
         syllables = sum(count_syllables(token) for token in words(source))
@@ -262,25 +266,19 @@ def _general_candidates(text, level, legacy):
     return variants
 
 
-def _loss(candidate, level, source=None, original_metric=None):
+def _loss(candidate, level, estimate=0.0):
     score = candidate.metric
     low, high, min_length, max_length = GOALS[level]
     target = (low + high) / 2
     length = score.word_count / score.sentence_count
     distance = max(0, low - score.score, score.score - high)
     length_distance = max(0, min_length - length, length - max_length)
-    learned = 0.0
-    if source is not None:
-        from app.services.ranker import checkpoint, quality
-
-        estimate = quality(source, candidate.text, level, original_metric, score)
-        learned = 2 * (1 - estimate)
-        model = checkpoint()
-        if model and "joint_model" in model:
-            policy = model["joint_model"]["band_policy"]
-            weight = policy if isinstance(policy, (float, int)) else 100000
-            return weight * distance / 100 - estimate + length_distance * 0.002
-    return distance * 2 + abs(score.score - target) * 0.08 + length_distance * 0.4 + learned
+    return (
+        distance * 1000
+        + abs(score.score - target) * 0.01
+        + length_distance * 0.002
+        - estimate * 0.01
+    )
 
 
 def _safe_numbers(source, candidate):
@@ -295,6 +293,108 @@ def _safe_numbers(source, candidate):
 
 
 def choose_levels(text, legacy=None):
+    from app.nlp.readability import measurement_session
+
+    with measurement_session():
+        original = measure(text)
+        if original.score > 128.535:
+            item = Candidate(text, "original")
+            return (
+                [item] * 5,
+                [
+                    dict(
+                        level=level,
+                        adapted_text=text,
+                        readability_score=original.score,
+                        readability_level=label(original.score),
+                        avg_sentence_length=original.word_count / original.sentence_count,
+                        target_met=False,
+                        method="original",
+                    )
+                    for level in range(1, 6)
+                ],
+                False,
+            )
+        units = sentences(text)
+        if len(words(text)) > 250 and len(units) > 1:
+            return _compose_levels(text, units)
+        return _choose_levels(text, legacy)
+
+
+def _compose_levels(text, units):
+    """Analyze complete source clauses once, then measure the whole output.
+
+    Long readings often repeat the same teaching statements. This request-local
+    memo avoids quadratic full-document diffs for every repeated occurrence;
+    it never stores input text beyond the chunk or truncates any source clause.
+    """
+    import math
+
+    from app.services.calibration import regroup
+
+    memo = {unit: _choose_levels(unit)[0] for unit in dict.fromkeys(units)}
+    seeds = [" ".join(memo[unit][level].text for unit in units) for level in range(5)]
+    groups = []
+    for level in range(1, 6):
+        removed = tuple(fragment for unit in units for fragment in memo[unit][level - 1].removed)
+        variants = {text, *seeds}
+        lo, hi, *_ = GOALS[level]
+        for seed in seeds:
+            m = measure(seed)
+            base = 206.835 - 62.3 * m.syllable_count / m.word_count
+            for target in (lo, (lo + hi) / 2, hi):
+                if base > target:
+                    n = m.word_count / (base - target)
+                    for count in (math.floor(n), math.ceil(n)):
+                        variants.add(regroup(seed, max(1, min(m.sentence_count, count))))
+        candidates = [
+            Candidate(value, "composed_clause_calibration", removed) for value in sorted(variants)
+        ]
+        source_score = measure(text).score
+        candidates = [
+            c
+            for c in candidates
+            if _safe_numbers(text, c) and (level > 1 or c.metric.score >= source_score)
+        ]
+        groups.append(
+            sorted(
+                candidates or [Candidate(text, "original")], key=lambda c: (_loss(c, level), c.text)
+            )[:20]
+        )
+    paths = [(_loss(c, 1), [c]) for c in groups[0]]
+    for level in range(2, 6):
+        following = []
+        for item in groups[level - 1]:
+            options = [
+                (loss + _loss(item, level), path + [item])
+                for loss, path in paths
+                if path[-1].metric.score > item.metric.score + 0.001
+            ]
+            if options:
+                following.append(min(options, key=lambda pair: pair[0]))
+        paths = following
+    progressive = bool(paths)
+    selected = min(paths, key=lambda pair: pair[0])[1] if progressive else [g[0] for g in groups]
+    previews = []
+    for level, item in enumerate(selected, 1):
+        m = item.metric
+        lo, hi, min_words, max_words = GOALS[level]
+        average = m.word_count / m.sentence_count
+        previews.append(
+            dict(
+                level=level,
+                adapted_text=item.text,
+                readability_score=m.score,
+                readability_level=label(m.score),
+                avg_sentence_length=average,
+                target_met=lo <= m.score <= hi and min_words <= average <= max_words,
+                method=item.method,
+            )
+        )
+    return selected, previews, progressive
+
+
+def _choose_levels(text, legacy=None):
     resources()  # no-op after startup warm-up
     plan = _local_plan(text)
     source = measure(text)
@@ -302,17 +402,22 @@ def choose_levels(text, legacy=None):
     from app.services.rewriting import candidates as learned_candidates
 
     learned = learned_candidates(text) if checkpoint() and not plan else []
-    from app.services.calibration import alternatives, minimal_edits
+    from app.services.calibration import alternatives, calibrate_density, minimal_edits
 
     if not plan:
         learned = sorted(set(learned) | set(minimal_edits(text)))
     costs = {}
+    qualities = {}
     candidates_by_text = {}
 
     def cost(item, level):
         key = (item.text, level)
         if key not in costs:
-            costs[key] = _loss(item, level, text, source)
+            from app.services.ranker import quality
+
+            if item.text not in qualities:
+                qualities[item.text] = quality(text, item.text, level, source, item.metric)
+            costs[key] = _loss(item, level, qualities[item.text])
         return costs[key]
 
     groups = []
@@ -328,19 +433,48 @@ def choose_levels(text, legacy=None):
         seeds = sorted(raw, key=lambda item: -item.metric.score)[:3]
         expanded = alternatives(text, [item.text for item in seeds], glosses=level <= 2)
         raw.extend(Candidate(value, "joint_calibrated") for value in expanded)
+        density_seeds = sorted(raw, key=lambda item: -item.metric.score)[:3]
+        density = calibrate_density(text, [item.text for item in density_seeds], level)
+        raw.extend(Candidate(value, "analytic_closed_loop") for value in density)
         raw = [candidates_by_text.setdefault((item.text, item.removed), item) for item in raw]
         unique = {
             item.text: item
             for item in raw
-            if item.text and words(item.text) and _safe_numbers(text, item)
+            if item.text
+            and words(item.text)
+            and _safe_numbers(text, item)
+            and not re.search(r"\b(no no|el el|la la|que están que)\b", item.text, re.I)
         }
-        # A reading never becomes harder than its actual original to hit a band.
-        candidates = [item for item in unique.values() if item.metric.score >= source.score]
-        groups.append(
-            sorted(candidates or [Candidate(text, "original")], key=lambda item: cost(item, level))[
-                :20
-            ]
+        if plan and len(unique) > 1:
+            # Catalog lessons have authored alternatives at every level. Keep
+            # the selected reading distinct from its retained source, including
+            # when the original already happens to lie near a band's centre.
+            unique = {
+                key: item
+                for key, item in unique.items()
+                if source_hash(key.casefold()) != source_hash(text.casefold())
+            }
+        # Bidirectional calibration is explicit for richer levels. An already
+        # easy source may yield a lower (truthfully reported) advanced score;
+        # no fabricated complexity/filler is introduced to reach that band.
+        candidates = [
+            item for item in unique.values() if level > 1 or item.metric.score >= source.score
+        ]
+        ranked = sorted(
+            candidates or [Candidate(text, "original")],
+            key=lambda item: (_loss(item, level), item.text),
         )
+        # Structural search needs measurements, not a learned call per variant.
+        # Keep interval-centred choices and score extremes for the monotone DP.
+        shortlist = list(
+            {
+                item.text: item
+                for item in ranked[:16]
+                + sorted(ranked, key=lambda c: (c.metric.score, c.text))[:2]
+                + sorted(ranked, key=lambda c: (-c.metric.score, c.text))[:2]
+            }.values()
+        )
+        groups.append(sorted(shortlist, key=lambda item: (cost(item, level), item.text)))
     paths = [(cost(item, 1), [item]) for item in groups[0]]
     for level in range(2, 6):
         next_paths = []

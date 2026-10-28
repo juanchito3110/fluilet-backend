@@ -31,16 +31,24 @@ def operations(text, weights=None):
         re.I,
     )
     result = []
+    confidences = {}
     for match in pattern.finditer(text):
         source = match[0]
+        if source.casefold() in {"impide", "impiden", "impedir"} and re.search(
+            r"\bno\s+$", text[: match.start()], re.I
+        ):
+            continue
         target = mapping[source.lower()]
         if source[0].isupper():
             target = target.capitalize()
-        confidence = (
-            predict(weights, lexical_features(source, target, text))
-            if weights is not None
-            else lexical_probability(source, target, text)
-        )
+        key = (source, target)
+        if key not in confidences:
+            confidences[key] = (
+                predict(weights, lexical_features(source, target, text))
+                if weights is not None
+                else lexical_probability(source, target, text)
+            )
+        confidence = confidences[key]
         # This dictionary is an allow-list; learned confidence orders its edits.
         # A poorly calibrated probability must not turn a reviewed pair into an
         # unsupported synonym. Unknown synonyms are never invented here.

@@ -11,7 +11,7 @@ from app.nlp.readability import measure
 from app.nlp.segmentation import words
 from app.nlp.syllables import count_syllables
 
-ASSET = Path(__file__).parent / "assets/context-ranker-v2.1.json"
+ASSET = Path(__file__).parent / "assets/context-ranker-v2.2.json"
 MODEL_VERSION = "context-ranker-es-v2"
 FEATURES = (
     "bias",
@@ -102,15 +102,81 @@ def checkpoint():
         if settings.RANKER_CHECKPOINT:
             raise RuntimeError("Configured ranker checkpoint missing")
         return None
-    if path.stat().st_size > 1024 * 1024:
+    if path.stat().st_size > 4 * 1024 * 1024:
         raise RuntimeError("Invalid ranker artifact size")
     raw = path.read_bytes()
     checksum = hashlib.sha256(raw).hexdigest()
     if settings.RANKER_CHECKPOINT_SHA256 and checksum != settings.RANKER_CHECKPOINT_SHA256:
         raise RuntimeError("Ranker checksum mismatch")
     data = json.loads(raw)
-    if data.get("model_version") not in {MODEL_VERSION, "context-ranker-es-v2.1"}:
+    if data.get("model_version") not in {
+        MODEL_VERSION,
+        "context-ranker-es-v2.1",
+        "context-ranker-es-v2.2",
+    }:
         raise RuntimeError("Incompatible ranker artifact")
+    if "sari_ranker" in data:
+        from app.services.residual import NAMES
+
+        model = data["sari_ranker"]
+        if model["features"] != list(NAMES):
+            raise RuntimeError("Incompatible separated features")
+        for name in ("weights", "lexical_weights"):
+            if len(model[name]) != len(NAMES) or not all(
+                isinstance(v, (int, float)) and math.isfinite(v) for v in model[name]
+            ):
+                raise RuntimeError("Invalid separated weights")
+        if not all(
+            isinstance(model.get(name), (int, float))
+            and math.isfinite(model[name])
+            and model[name] >= 0
+            for name in ("rate", "margin", "lexical_blend", "edit_cost")
+        ):
+            raise RuntimeError("Invalid separated policy")
+
+        def validate(node, depth=0):
+            if depth > 8:
+                raise RuntimeError("Invalid tree depth")
+            if "value" in node:
+                if len(node["value"]) != 4 or not all(
+                    isinstance(v, (int, float)) and math.isfinite(v) for v in node["value"]
+                ):
+                    raise RuntimeError("Invalid tree leaf")
+            else:
+                if (
+                    not isinstance(node["feature"], int)
+                    or not 0 <= node["feature"] < len(NAMES)
+                    or not math.isfinite(node["threshold"])
+                ):
+                    raise RuntimeError("Invalid tree split")
+                validate(node["left"], depth + 1)
+                validate(node["right"], depth + 1)
+
+        if len(model["trees"]) > 100:
+            raise RuntimeError("Invalid tree count")
+        for tree in model["trees"]:
+            validate(tree)
+
+        def counts(values):
+            return isinstance(values, dict) and all(
+                re.fullmatch(r"[0-9a-f]{64}", key)
+                and isinstance(value, int)
+                and not isinstance(value, bool)
+                and value > 0
+                for key, value in values.items()
+            )
+
+        priors = model["priors"]
+        if (
+            not counts(priors["counts"])
+            or not counts(priors["word_counts"])
+            or not all(
+                re.fullmatch(r"[0-9a-f]{64}", k) and counts(v) for k, v in priors["pairs"].items()
+            )
+        ):
+            raise RuntimeError("Invalid training priors")
+        data["_artifact_sha256"] = checksum
+        return data
     if "joint_model" in data:
         from app.services.joint import FEATURE_NAMES
 
@@ -156,6 +222,18 @@ def checkpoint():
 
 def lexical_probability(source, target, context):
     model = checkpoint()
+    if model and "sari_ranker" in model:
+        from app.services.residual import vector
+
+        candidate = re.sub(
+            r"(?<!\w)" + re.escape(source) + r"(?!\w)",
+            lambda _: target,
+            context,
+            count=1,
+            flags=re.I,
+        )
+        x = vector(context, candidate, model["sari_ranker"]["priors"], span=(source, target))
+        return predict(model["sari_ranker"]["lexical_weights"], x)
     if model and "joint_model" in model:
         from app.services.joint import probability
 
@@ -169,6 +247,10 @@ def lexical_probability(source, target, context):
 
 def quality(source, target, level, original=None, adapted=None):
     model = checkpoint()
+    if model and "sari_ranker" in model:
+        from app.services.residual import quality as independent_quality
+
+        return independent_quality(model["sari_ranker"], source, target)
     if model and "joint_model" in model:
         from app.services.joint import prediction
 

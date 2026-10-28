@@ -64,7 +64,7 @@ async def refreshed_lesson(db, tutor, child, key, level, previous=None):
     return response, result
 
 
-async def refresh_marked(db, profile_ids=None):
+async def refresh_marked(db, profile_ids=None, *, force=False):
     """Only marked public demo readings; practice, dates and rewards stay intact."""
     import asyncio
 
@@ -115,7 +115,7 @@ async def refresh_marked(db, profile_ids=None):
             (row for row in candidates if row.response_payload.get("engine_version") == VERSION),
             None,
         )
-        if current is None:
+        if current is None or force:
             previous = await db.scalar(
                 select(models.AdaptationContent).where(
                     models.AdaptationContent.document_id == old_doc,
@@ -123,9 +123,14 @@ async def refresh_marked(db, profile_ids=None):
                     models.AdaptationContent.target_level == reading.simplification_level,
                 )
             )
-            response, _ = await refreshed_lesson(
-                db, tutor, child, key, reading.simplification_level, previous
+            # A second practice day may use level 4 of the same stored lesson
+            # whose main reading is level 1. Refresh its existing five previews
+            # without inventing a seventh lesson/version in the demo library.
+            previous = previous or current
+            lesson_level = (
+                previous.target_level if previous is not None else reading.simplification_level
             )
+            response, _ = await refreshed_lesson(db, tutor, child, key, lesson_level, previous)
             current = await db.get(models.AdaptationContent, response.id)
         preview = next(
             row

@@ -45,8 +45,8 @@ async def test_requested_level_is_actual_primary_and_persisted(client, make_user
         == label(data["readability_score"])
     )
     assert data["questions"] == data["comprehension_questions"] and len(data["questions"]) == 2
-    assert data["model_version"] == "context-ranker-es-v2.1"
-    assert data["checkpoint_name"] == "context-ranker-v2.1"
+    assert data["model_version"] == "context-ranker-es-v2.2"
+    assert data["checkpoint_name"] == "context-ranker-v2.2"
     assert (await client.get("/api/v1/adaptations/" + data["id"], headers=headers)).json() == data
 
 
@@ -140,6 +140,11 @@ def test_benchmark_and_band_success_are_not_fabricated():
     assert info["all_comparisons_improved"] == expected
     assert info["baseline_sari"] == before["sari_score"]
     assert info["retrained_sari"] == after["sari_score"]
-    assert not info["acceptance_criteria_met"] or (expected and info["all_bands_met"])
+    expected_bands = all(
+        group["all_five_bands_met"] == group["samples"] and group["progressive"] == group["samples"]
+        for group in info["band_compliance"].values()
+    )
+    assert info["all_bands_met"] == expected_bands
+    assert info["acceptance_criteria_met"] == (expected and expected_bands)
     assert info["band_compliance"]["local_bank"]["samples"] == 31
     assert info["easier_benchmark_after"] == "6/6"

@@ -1,5 +1,7 @@
 # Simplificación pedagógica de cinco niveles
 
+> Estado actual v2.2: ranker léxico y calibrador estructural separados. SARI 44,5396647 sigue por debajo de 44,5438479; top-1 mejora a 73,25%. Cinco bandas simultáneas: 13/31 catálogo, 2/6 EASIER, 5/6 controlados y 7/15 demos. Progresión estricta en todos esos conjuntos; las 15 demos cumplen su nivel asignado. `acceptance_criteria_met=false`. [Informe vigente](model-retraining-report.md). Las secciones v1/v2/v2.1 siguientes son históricas, incluida la antigua política de no dificultar ningún nivel.
+
 > **Entrega v2.1:** se corrigieron `level`/edad, el texto principal por nivel y la recuperación de versiones, y se ejecutó entrenamiento conjunto sobre 4.738 pares. La progresión sigue en 31/31 artículos y 6/6 EASIER, pero solo 4/31 y 1/6, respectivamente, cumplen las cinco bandas. SARI 44,529 no supera el baseline 44,544. `acceptance_criteria_met=false`. Véase [el informe actual](model-retraining-report.md). Las tablas inferiores se conservan como historial v1/v2.
 
 > Actualización v2 (27 de octubre de 2026): el ranker contextual fue entrenado realmente en 20 épocas sobre 3.220 pares depurados/ampliados. La progresión del diagnóstico EASIER pasa de 0/6 a 6/6; eso no implica bandas exactas ni una garantía universal. El aprendizaje aislado no mejoró SARI agregado frente a su ablación. Véase [el informe completo y las limitaciones](model-retraining-report.md). Las cifras siguientes describen la calibración histórica v1.

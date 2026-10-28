@@ -61,7 +61,7 @@ python3 - "$fluilet_tmp" <<'PY'
 import json,sys
 from pathlib import Path
 root=Path(sys.argv[1]); model=json.loads((root/'model.json').read_text())
-assert model['model_version']=='context-ranker-es-v2.1' and model['active']
+assert model['model_version']=='context-ranker-es-v2.2' and model['active']
 expected=json.loads(Path('checkpoints/retraining_metrics.json').read_text())
 assert model['artifact_sha256']==expected['artifact_sha256']
 for level in (1,5):

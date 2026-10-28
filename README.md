@@ -5,13 +5,14 @@ Original/adapted lesson pairs and their educational response are retained in the
 owner-scoped database, as explicitly authorized on 26 October 2026.
 No commercial inference service is used. Android remains a separate repository.
 
-The current v2.1 release trains a joint CPU ranker on 4,738 audited examples
-(35 SGD epochs and 25 residual-tree iterations), calibrates complete clauses and
-honors explicitly requested levels/ages across text, files and generated lessons.
-Authenticated `/api/v1/adaptations/model-info` exposes actual SARI, top-1 and band
-compliance. **Acceptance criteria remain unmet:** SARI 44.529 is below baseline
-44.544 and exact bands are not universal. See the [measured report](docs/model-retraining-report.md)
-and [DigitalOcean startup configuration](deploy/README.md).
+The current v2.2 release separates lexical/SARI ranking from measured structural
+calibration on 4,738 audited examples. Text, files and generated lessons honor the
+requested level/age and expose five real previews with comparative metrics.
+Lexical top-1 improves from 53.07% to 73.25%. **Acceptance criteria remain unmet:**
+SARI 44.539665 is below baseline 44.543848; five-band compliance is still partial.
+Authenticated model-info and master overview publish the real failed criteria.
+See the [measured report](docs/model-retraining-report.md) and
+[DigitalOcean startup configuration](deploy/README.md).
 
 ## Local setup
 

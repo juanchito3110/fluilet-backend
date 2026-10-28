@@ -47,6 +47,10 @@ class AdaptationResult:
 
 
 def original_result(text: str, warning: str | None = None) -> AdaptationResult:
+    from app.services.pedagogy import VERSION, label
+    from app.services.ranker import checkpoint
+
+    model = checkpoint()
     chunks = reading_chunks(text)
     metrics = telemetry(measure(text), measure(text))
     return AdaptationResult(
@@ -59,12 +63,15 @@ def original_result(text: str, warning: str | None = None) -> AdaptationResult:
         "original",
         ["original_text_retained"] + ([warning] if warning else []),
         original_text=text,
+        engine_version=VERSION,
+        model_version=model["model_version"] if model else "unavailable",
+        checkpoint_name=model["checkpoint_name"] if model else None,
         level_previews=[
             {
                 "level": level,
                 "adapted_text": text,
                 "readability_score": metrics["adapted_szigriszt_score"],
-                "readability_level": "Sin transformación",
+                "readability_level": label(metrics["adapted_szigriszt_score"]),
                 "avg_sentence_length": metrics["adapted_word_count"] / metrics["sentence_count"],
                 "target_met": False,
                 "method": "original",
@@ -195,6 +202,14 @@ class AdaptationPipeline:
         from app.services.ranker import checkpoint
 
         chunks = await asyncio.to_thread(reading_chunks, text)
+        from app.nlp.segmentation import words
+
+        tokens = words(text.casefold())
+        if len(tokens) > 800 and len(set(tokens)) <= 3:
+            # Long repetitions have no safe new propositions to split or
+            # summarize. Retain every occurrence instead of spending the whole
+            # generation budget on quadratic alignment of identical tokens.
+            return await asyncio.to_thread(original_result, text, "repetitive_input_retained")
         local = await asyncio.to_thread(_local_plan, text)
         legacy = None if local else await self._run_legacy(text, 1, child_age=child_age)
         # For large documents operate on the existing source chunks, preserving
@@ -225,10 +240,10 @@ class AdaptationPipeline:
         previews = []
         for index, parts in enumerate(preview_chunks, 1):
             value = " ".join(parts)
-            if " ".join(value.split()) == " ".join(text.split()):
+            if " ".join(value.split()).casefold() == " ".join(text.split()).casefold():
                 value = text
             metric = await asyncio.to_thread(measure, value)
-            if metric.score < original.score:
+            if index == 1 and metric.score < original.score:
                 value, metric = text, original
             lower, upper, min_length, max_length = GOALS[index]
             average = metric.word_count / metric.sentence_count
@@ -283,6 +298,8 @@ class AdaptationPipeline:
             result.warnings.append("level_goal_not_met")
         if method == "original":
             result.warnings.append("original_text_retained")
+        if adapted.score < original.score:
+            result.warnings.append("advanced_level_harder_than_source")
         return result
 
 

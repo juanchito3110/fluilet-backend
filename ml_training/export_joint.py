@@ -25,10 +25,11 @@ def release_context(path):
         checkpoint.cache_clear()
 
 
-def package():
-    directory = Path("checkpoints/context-ranker-v2.1")
+def package(version="v2.1"):
+    directory = Path("checkpoints/context-ranker-" + version)
     info = json.loads((directory / "training_manifest.json").read_text())
-    joint = json.loads((directory / "joint.json").read_text())
+    separated = version == "v2.2"
+    joint = json.loads((directory / ("selection.json" if separated else "joint.json")).read_text())
     path = Path("ml_training/data/enhanced-v2/train.jsonl")
     assert (
         hashlib.sha256(path.read_bytes()).hexdigest()
@@ -41,13 +42,30 @@ def package():
         easier_benchmark_after=None,
         benchmark_definition="strict five-level score progression; independent of exact band/length compliance",
         benchmark_status="known diagnostic used during development; not an independent blind validation",
-        environment={"python": platform.python_version(), "seed": 20261028},
-        architecture="5 linear heads (155 coefficients) and shared depth-3 residual trees; validation-fitted compression policy; constrained candidates",
+        environment={
+            "python": platform.python_version(),
+            "seed": 20261027 if separated else 20261028,
+        },
+        architecture=(
+            "independent train-fitted lexical/SARI residual ranker, train-only corpus priors, validation-only confidence/margin; measured structural calibration in a separate stage"
+            if separated
+            else "5 linear heads (155 coefficients) and shared depth-3 residual trees; validation-fitted compression policy; constrained candidates"
+        ),
     )
+    if separated:
+        for record in info["history"]:
+            record["val_loss"] = record["validation_loss"]
+        experiment = Path("checkpoints/expected-sari-validation/fit_manifest.json")
+        if experiment.is_file():
+            trial = json.loads(experiment.read_text())
+            info["expected_sari_experiment"] = {
+                **trial,
+                "activated": False,
+                "reason": "no validation SARI improvement over the frozen parent; test not evaluated",
+            }
     artifact = dict(
-        model_version="context-ranker-es-v2.1",
-        checkpoint_name="context-ranker-v2.1",
-        joint_model=joint,
+        model_version="context-ranker-es-" + version,
+        checkpoint_name="context-ranker-" + version,
         metrics=info,
         training_document_hashes=sorted(
             {hashlib.sha256(r["document_id"].encode()).hexdigest() for r in rows}
@@ -59,11 +77,14 @@ def package():
             Counter(hashlib.sha256(r["replacement"].casefold().encode()).hexdigest() for r in rows)
         ),
     )
+    artifact["sari_ranker" if separated else "joint_model"] = joint["model"] if separated else joint
 
     def write():
         raw = json.dumps(artifact, ensure_ascii=False, indent=2) + "\n"
         (directory / "model.json").write_text(raw, encoding="utf-8")
-        Path("app/services/assets/context-ranker-v2.1.json").write_text(raw, encoding="utf-8")
+        Path("app/services/assets/context-ranker-" + version + ".json").write_text(
+            raw, encoding="utf-8"
+        )
 
     write()
     from app.services.ranker import checkpoint
@@ -122,15 +143,50 @@ def package():
                         level,
                         response.metrics["adapted_szigriszt_score"],
                         response.level_progression_met,
+                        all(
+                            GOALS[p["level"]][0] <= p["readability_score"] <= GOALS[p["level"]][1]
+                            for p in response.level_previews
+                        ),
                     )
                 )
         return rows
 
     with release_context(directory / "model.json"):
         demo = asyncio.run(demos())
+    if separated:
+        # Compare structural distance on the very same 228 frozen examples.
+        # Level is supplied only to calibration, never to lexical selection.
+        from statistics import mean
+
+        from app.services.pedagogy import choose_levels
+
+        records = [
+            json.loads(line)
+            for line in Path("ml_training/data/enhanced-v2/test.jsonl").read_text().splitlines()
+        ]
+        assert (
+            hashlib.sha256(Path("ml_training/data/enhanced-v2/test.jsonl").read_bytes()).hexdigest()
+            == info["dataset_manifest"]["split_sha256"]["test"]
+        )
+        distances = []
+        with release_context(directory / "model.json"):
+            for row in records:
+                preview = choose_levels(row["source"])[1][row["level"] - 1]
+                lo, hi, *_ = GOALS[row["level"]]
+                distances.append(
+                    max(0, lo - preview["readability_score"], preview["readability_score"] - hi)
+                )
+        info["retrained_metrics"]["band_distance"] = mean(distances)
+        info["structural_distance_protocol"] = (
+            "same test sources and supplied levels; structural stage after frozen lexical model; no fitting"
+        )
+        info["all_comparisons_improved"] &= (
+            mean(distances) < info["baseline_metrics"]["band_distance"]
+        )
     compliance["managed_demos"] = dict(
         samples=len(demo),
         progressive=sum(row[2] for row in demo),
+        all_five_bands_met=sum(row[3] for row in demo),
         levels={
             str(level): dict(
                 sample_count=sum(row[0] == level for row in demo),
@@ -147,6 +203,10 @@ def package():
         row["score_band_met"] == row.get("sample_count", group["samples"])
         for group in compliance.values()
         for row in group["levels"].values()
+    )
+    info["all_bands_met"] &= all(
+        group["all_five_bands_met"] == group["samples"] and group["progressive"] == group["samples"]
+        for group in compliance.values()
     )
     info["acceptance_criteria_met"] = bool(
         info["all_comparisons_improved"] and info["all_bands_met"]

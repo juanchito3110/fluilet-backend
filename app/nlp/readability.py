@@ -1,9 +1,27 @@
 """Raw, unclamped Szigriszt-Pazos scores. Never round acceptance decisions."""
 
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 
 from app.nlp.segmentation import sentences, words
 from app.nlp.syllables import count_syllables
+
+_SYLLABLES = ContextVar("readability_request_syllables", default=None)
+
+
+@contextmanager
+def measurement_session():
+    """Memoize syllables only within a synchronous chunk, with guaranteed cleanup.
+
+    Search measures many variants of the same source. No user words or texts are
+    retained in a global cache after this request/chunk returns or raises.
+    """
+    token = _SYLLABLES.set({})
+    try:
+        yield
+    finally:
+        _SYLLABLES.reset(token)
 
 
 @dataclass(frozen=True)
@@ -19,7 +37,16 @@ def measure(text: str) -> Readability:
     sentence_count = len(sentences(text))
     if not tokens or not sentence_count:
         raise ValueError("empty_text")
-    syllables = sum(count_syllables(token) for token in tokens)
+    cache = _SYLLABLES.get()
+    if cache is None:
+        syllables = sum(count_syllables(token) for token in tokens)
+    else:
+        syllables = 0
+        for word in tokens:
+            key = word.lower()
+            if key not in cache:
+                cache[key] = count_syllables(word)
+            syllables += cache[key]
     return Readability(
         206.835 - 62.3 * (syllables / len(tokens)) - len(tokens) / sentence_count,
         len(tokens),

@@ -145,7 +145,7 @@ for reproduction, held-out limitations, low lexical F1 and the absence of an
 aggregate SARI improvement from the learned weights alone.
 
 
-## Current v2.1 joint fit and release
+## Historical v2.1 joint fit and release
 
 Use `build_enhanced_dataset`, `train_joint --epochs 35`, then `export_joint`.
 The builder now yields 4,738 pairs (4,108/402/228), with 21 explicitly regular verb
@@ -166,7 +166,40 @@ pure Python and needs neither NumPy nor Torch.
 Results do **not** support a 100 percent closure: 44.529 SARI versus 44.544 baseline;
 top-1 and band distance improve, while exact five-band compliance remains 4/31
 local articles, 1/6 known EASIER diagnostics and 0/6 controlled developer inputs.
-The API exposes `acceptance_criteria_met=false`. The [v2.1 report](../docs/model-retraining-report.md)
+The API exposes `acceptance_criteria_met=false`. The [v2.1 report](../docs/model-retraining-v2.1.md)
 retains this negative result and separates it from 31/31 and 6/6 monotonicity.
 SGSS lexical proposals and synthetic inflections are not five reviewed child-age
 paraphrases of each source. Do not relabel them as independent gold supervision.
+
+
+## Current v2.2: independent lexical/SARI selection
+
+```sh
+python -m pip install 'numpy>=2,<3'
+python -m ml_training.build_enhanced_dataset
+python -m ml_training.train_separated
+python -m ml_training.calibrate_lexical
+MT5_ENABLED=false python -m ml_training.export_separated
+```
+
+The unchanged 4,108/402/228 partitions are hash-audited. Fit uses train only;
+validation selects residual-tree count, lexical epoch, confidence weights, edit
+cost and margin. Corpus candidate ranks and word frequencies come exclusively
+from train. Frequencies are sample counts, not a representative Spanish norm.
+The selected source candidates never contain an inserted validation/test label.
+Structural calibration is a separate measured search over complete clauses and
+explicit Spanish periphrases. Its target bands and requested age/level never
+enter the lexical scoring features. NumPy is only needed to train; the released
+JSON runs with the lightweight API dependencies.
+
+The new asset is `app/services/assets/context-ranker-v2.2.json`, copied unchanged
+to `checkpoints/context-ranker-v2.2/model.json`. The report includes failed trials
+and exact comparisons. The test split has been observed repeatedly during this
+project; no test label is used for gradients, priors, epoch or margin fitting,
+but these results are not an independent blind evaluation. Obtain a newly locked
+external test set before claiming generalization or efficacy. SGSS lexical
+annotations and synthetic inflections do not validate child comprehension.
+
+Final SARI remains below baseline (44.5396647 vs 44.5438479), while lexical top-1
+improves to 73.25%. The API keeps `acceptance_criteria_met=false`. Full report:
+[model-retraining-report.md](../docs/model-retraining-report.md).

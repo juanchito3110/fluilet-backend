@@ -7,8 +7,8 @@ COPY ml_training/requirements.txt ./ml_training/requirements.txt
 RUN pip install -r requirements.txt && if [ "$INSTALL_ML" = "true" ]; then pip install -r ml_training/requirements.txt; fi
 RUN useradd --uid 10001 --no-create-home fluilet
 COPY app ./app
-COPY app/services/assets/context-ranker-v2.1.json ./checkpoints/context-ranker-v2.1/model.json
-ENV RANKER_CHECKPOINT=/srv/fluilet/checkpoints/context-ranker-v2.1/model.json
+COPY app/services/assets/context-ranker-v2.2.json ./checkpoints/context-ranker-v2.2/model.json
+ENV RANKER_CHECKPOINT=/srv/fluilet/checkpoints/context-ranker-v2.2/model.json
 ENV DEPLOYMENT_ENV=production
 COPY ml_training/__init__.py ml_training/prepare_easier.py ./ml_training/
 COPY alembic ./alembic

@@ -61,8 +61,15 @@ def features(source, target, level, original=None, adapted=None):
 
     a, b = original or measure(source), adapted or measure(target)
     before, after = words(source.lower()), words(target.lower())
-    matcher = SequenceMatcher(a=before, b=after, autojunk=len(before) > 2000)
-    edits = [op for op in matcher.get_opcodes() if op[0] != "equal"]
+    edits = (
+        []
+        if before == after
+        else [
+            op
+            for op in SequenceMatcher(a=before, b=after, autojunk=len(before) > 2000).get_opcodes()
+            if op[0] != "equal"
+        ]
+    )
     fraction = sum(max(j - i, end - k) for _, i, j, k, end in edits) / max(1, len(before))
     morph, known, plural = morphology(source, target)
     if len(edits) == 1:
