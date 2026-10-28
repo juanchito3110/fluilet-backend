@@ -48,6 +48,32 @@ fluilet_token=$(curl --silent --show-error --fail -X POST "http://$fluilet_addre
   | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')
 curl --silent --show-error --fail "http://$fluilet_address/api/v1/adaptations/model-info" \
   -H "Authorization: Bearer $fluilet_token" > "$fluilet_tmp/model.json"
+# Verify actual first-start provisioning and a second idempotent ensure.
+docker exec -i "$fluilet_api" python - <<'PYCODE'
+import asyncio
+from sqlalchemy import select
+from app import models
+from app.database import SessionLocal, engine
+from app.demo_accounts import ensure_accounts
+
+async def verify():
+    async with SessionLocal() as db:
+        async def identities():
+            users=(await db.scalars(select(models.User).where(models.User.demo_identity.is_not(None)))).all()
+            profiles=(await db.scalars(select(models.ChildProfile).where(models.ChildProfile.demo_identity.is_not(None)))).all()
+            readings=(await db.scalars(select(models.ReadingSession).where(models.ReadingSession.demo_slot.is_not(None)))).all()
+            lessons=(await db.scalars(select(models.AdaptationContent))).all()
+            assert len(users)==2 and len(profiles)==4 and len(readings)==15 and len(lessons)==15
+            assert all(c.response_payload['model_version']=='context-ranker-es-v2.3' for c in lessons)
+            return tuple(sorted(str(row.id) for row in group) for group in (users,profiles,readings,lessons))
+        before=await identities()
+        await ensure_accounts(db)
+        assert await identities()==before
+    await engine.dispose()
+asyncio.run(verify())
+print('Production startup: two accounts, four profiles, fifteen lessons; repeat ensure PASS')
+PYCODE
+
 for fluilet_level in 5 1; do
   curl --silent --show-error --fail -X POST "http://$fluilet_address/api/v1/adaptations/generate" \
     -H "Authorization: Bearer $fluilet_token" -H 'Content-Type: application/json' \
@@ -75,29 +101,3 @@ assert json.loads((root/'retained.json').read_text())==json.loads((root/'level-5
 print('Production container: migrations, demo login, checkpoint and retained levels PASS')
 PY
 docker exec "$fluilet_api" python -m alembic check
-
-# Verify actual first-start provisioning and a second idempotent ensure.
-docker exec -i "$fluilet_api" python - <<'PYCODE'
-import asyncio
-from sqlalchemy import select
-from app import models
-from app.database import SessionLocal, engine
-from app.demo_accounts import ensure_accounts
-
-async def verify():
-    async with SessionLocal() as db:
-        async def identities():
-            users=(await db.scalars(select(models.User).where(models.User.demo_identity.is_not(None)))).all()
-            profiles=(await db.scalars(select(models.ChildProfile).where(models.ChildProfile.demo_identity.is_not(None)))).all()
-            readings=(await db.scalars(select(models.ReadingSession).where(models.ReadingSession.demo_slot.is_not(None)))).all()
-            lessons=(await db.scalars(select(models.AdaptationContent))).all()
-            assert len(users)==2 and len(profiles)==4 and len(readings)==15 and len(lessons)==15
-            assert all(c.response_payload['model_version']=='context-ranker-es-v2.3' for c in lessons)
-            return tuple(sorted(str(row.id) for row in group) for group in (users,profiles,readings,lessons))
-        before=await identities()
-        await ensure_accounts(db)
-        assert await identities()==before
-    await engine.dispose()
-asyncio.run(verify())
-print('Production startup: two accounts, four profiles, fifteen lessons; repeat ensure PASS')
-PYCODE

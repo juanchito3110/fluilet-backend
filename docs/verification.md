@@ -8,6 +8,7 @@ was frozen before both full suites; no checkpoint was rewritten during testing.
 | Full PostgreSQL suite in dedicated database/private schemas | **573 passed**, 261.52 s |
 | Full SQLite suite | **568 passed, 5 PostgreSQL-only skips**, 227.77 s |
 | Focused contract, controller and provenance suite | **114 passed**, 44.64 s |
+| Independent repeat fit, isolated output | **Identical frozen selection SHA-256**, train/validation only |
 | Ruff lint / format | **118 Python files**, passed |
 | pip check | No broken requirements |
 | Active PostgreSQL Alembic check/current | No drift; **0007_master_accounts**, eight existing revisions |
@@ -24,7 +25,9 @@ were preserved. Only the explicitly marked demo readings were refreshed. Private
 numeric snapshots live under ignored Git metadata; no user content was exported.
 Docker and Compose use `context-ranker-v2.3/model.json`; production startup
 migrates, then ensures two managed accounts, four children and fifteen lessons.
-The container workflow additionally checks a second idempotent ensure.
+The container workflow additionally checks a second idempotent ensure before
+creating its two test lessons. An initial ordering error counted those generated
+lessons against the expected seed count; the smoke check was moved before them.
 
 Artifact SHA-256:
 `67e79bf3c13381cc8d000575e6e57b4f9787f895cbfb8cfc4569fb9ae3ba2507`.
