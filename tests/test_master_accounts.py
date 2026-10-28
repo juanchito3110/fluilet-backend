@@ -15,6 +15,7 @@ from app.demo_accounts import (
     ensure_accounts,
 )
 from app.nlp.readability import measure
+from app.services.pedagogy import GOALS
 
 
 @pytest_asyncio.fixture
@@ -90,6 +91,12 @@ async def test_accounts_phases_real_lesson_payloads_and_regular_registration(cli
             )
             assert lesson["fun_fact"] and len(lesson["key_vocabulary"]) in (3, 4)
             assert len(lesson["comprehension_questions"]) == 2
+            assert lesson["level_progression_met"]
+            for preview in lesson["level_previews"]:
+                actual = measure(preview["adapted_text"]).score
+                low, high, *_ = GOALS[preview["level"]]
+                assert low <= actual <= high
+                assert actual == preview["readability_score"]
     assert (
         await client.post("/api/v1/auth/verify-parental-pin", headers=headers, json={"pin": "1234"})
     ).json() == {"valid": True}
@@ -120,7 +127,7 @@ async def test_master_identity_overview_grant_and_idempotent_unlock(client, db, 
     assert token["role"] == "master_admin" and token["is_master_admin"] is True
     assert (await client.get("/api/v1/auth/me", headers=master)).json()["is_master_admin"] is True
     data = (await client.get("/api/v1/admin/overview", headers=master)).json()
-    assert data["model_info"]["model_version"] == "context-ranker-es-v2.2"
+    assert data["model_info"]["model_version"] == "context-ranker-es-v2.3"
     assert data["model_info"]["easier_benchmark_after"] == "6/6"
     assert (data["total_tutors"], data["total_profiles"], data["total_reading_sessions"]) == (
         1,

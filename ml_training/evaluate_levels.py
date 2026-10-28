@@ -42,6 +42,14 @@ async def evaluate(rows):
                         "gain": item["readability_score"] - original.score,
                         "avg_sentence_length": item["avg_sentence_length"],
                         "target_met": item["target_met"],
+                        "support_count": len(item.get("pedagogical_support", [])),
+                        "support_word_count": sum(
+                            measure(f["text"]).word_count
+                            for f in item.get("pedagogical_support", [])
+                        ),
+                        "pre_support_score": item.get(
+                            "pre_support_readability_score", item["readability_score"]
+                        ),
                         "double_condition_met": item["readability_score"] >= 65
                         and item["readability_score"] - original.score >= 15,
                     }

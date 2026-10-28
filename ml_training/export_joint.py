@@ -28,7 +28,7 @@ def release_context(path):
 def package(version="v2.1"):
     directory = Path("checkpoints/context-ranker-" + version)
     info = json.loads((directory / "training_manifest.json").read_text())
-    separated = version == "v2.2"
+    separated = version in {"v2.2", "v2.3"}
     joint = json.loads((directory / ("selection.json" if separated else "joint.json")).read_text())
     path = Path("ml_training/data/enhanced-v2/train.jsonl")
     assert (
@@ -44,7 +44,7 @@ def package(version="v2.1"):
         benchmark_status="known diagnostic used during development; not an independent blind validation",
         environment={
             "python": platform.python_version(),
-            "seed": 20261027 if separated else 20261028,
+            "seed": 20261027 if version == "v2.2" else 20261028,
         },
         architecture=(
             "independent train-fitted lexical/SARI residual ranker, train-only corpus priors, validation-only confidence/margin; measured structural calibration in a separate stage"
@@ -53,10 +53,24 @@ def package(version="v2.1"):
         ),
     )
     if separated:
+        if version == "v2.3":
+            info["architecture"] = (
+                "frozen contextual lexical head plus train-fitted source-pair residual gate; validation-only dual margins and syllable floor; independent grounded structural controller"
+            )
+            info["prior_gate_trials"] = [
+                {
+                    "name": name,
+                    "test_sari": json.loads((directory / (name + ".json")).read_text())[
+                        "retrained_sari"
+                    ],
+                }
+                for name in ("linear_trial", "residual_trial", "syllable_trial", "balanced_trial")
+                if (directory / (name + ".json")).is_file()
+            ]
         for record in info["history"]:
             record["val_loss"] = record["validation_loss"]
         experiment = Path("checkpoints/expected-sari-validation/fit_manifest.json")
-        if experiment.is_file():
+        if version == "v2.2" and experiment.is_file():
             trial = json.loads(experiment.read_text())
             info["expected_sari_experiment"] = {
                 **trial,

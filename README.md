@@ -5,12 +5,15 @@ Original/adapted lesson pairs and their educational response are retained in the
 owner-scoped database, as explicitly authorized on 26 October 2026.
 No commercial inference service is used. Android remains a separate repository.
 
-The current v2.2 release separates lexical/SARI ranking from measured structural
+The current v2.3 release separates lexical/SARI ranking from measured structural
 calibration on 4,738 audited examples. Text, files and generated lessons honor the
 requested level/age and expose five real previews with comparative metrics.
-Lexical top-1 improves from 53.07% to 73.25%. **Acceptance criteria remain unmet:**
-SARI 44.539665 is below baseline 44.543848; five-band compliance is still partial.
-Authenticated model-info and master overview publish the real failed criteria.
+Lexical top-1 improves from 53.07% to 73.25%; selection SARI improves from
+44.543848 to 44.557636. **Measured acceptance criteria pass:** all five score
+bands and strict progression hold for 31 catalog sources, six known EASIER cases,
+six controlled texts and fifteen demos. These are development cohorts, not blind
+external or clinical validation. Grounded pedagogical supports and their source
+evidence are reported separately from the text before support.
 See the [measured report](docs/model-retraining-report.md) and
 [DigitalOcean startup configuration](deploy/README.md).
 

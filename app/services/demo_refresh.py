@@ -72,9 +72,12 @@ async def refresh_marked(db, profile_ids=None, *, force=False):
     from app.admin import admin_lock
     from app.demo_accounts import PRESETS
     from app.nlp.readability import measure, telemetry
+    from app.services.ranker import checkpoint
 
     await admin_lock(db)
     by_code = {row[0]: row[7] for row in PRESETS}
+    artifact = checkpoint()
+    model_version = artifact["model_version"] if artifact else "unavailable"
     statement = select(models.ReadingSession).where(models.ReadingSession.demo_slot.is_not(None))
     if profile_ids is not None:
         statement = statement.where(models.ReadingSession.child_id.in_(profile_ids))
@@ -112,7 +115,12 @@ async def refresh_marked(db, profile_ids=None, *, force=False):
             )
         ).all()
         current = next(
-            (row for row in candidates if row.response_payload.get("engine_version") == VERSION),
+            (
+                row
+                for row in candidates
+                if row.response_payload.get("engine_version") == VERSION
+                and row.response_payload.get("model_version") == model_version
+            ),
             None,
         )
         if current is None or force:

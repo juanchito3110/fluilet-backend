@@ -61,7 +61,8 @@ python3 - "$fluilet_tmp" <<'PY'
 import json,sys
 from pathlib import Path
 root=Path(sys.argv[1]); model=json.loads((root/'model.json').read_text())
-assert model['model_version']=='context-ranker-es-v2.2' and model['active']
+assert model['model_version']=='context-ranker-es-v2.3' and model['active']
+assert model['acceptance_criteria_met'] is True
 expected=json.loads(Path('checkpoints/retraining_metrics.json').read_text())
 assert model['artifact_sha256']==expected['artifact_sha256']
 for level in (1,5):
@@ -74,3 +75,29 @@ assert json.loads((root/'retained.json').read_text())==json.loads((root/'level-5
 print('Production container: migrations, demo login, checkpoint and retained levels PASS')
 PY
 docker exec "$fluilet_api" python -m alembic check
+
+# Verify actual first-start provisioning and a second idempotent ensure.
+docker exec -i "$fluilet_api" python - <<'PYCODE'
+import asyncio
+from sqlalchemy import select
+from app import models
+from app.database import SessionLocal, engine
+from app.demo_accounts import ensure_accounts
+
+async def verify():
+    async with SessionLocal() as db:
+        async def identities():
+            users=(await db.scalars(select(models.User).where(models.User.demo_identity.is_not(None)))).all()
+            profiles=(await db.scalars(select(models.ChildProfile).where(models.ChildProfile.demo_identity.is_not(None)))).all()
+            readings=(await db.scalars(select(models.ReadingSession).where(models.ReadingSession.demo_slot.is_not(None)))).all()
+            lessons=(await db.scalars(select(models.AdaptationContent))).all()
+            assert len(users)==2 and len(profiles)==4 and len(readings)==15 and len(lessons)==15
+            assert all(c.response_payload['model_version']=='context-ranker-es-v2.3' for c in lessons)
+            return tuple(sorted(str(row.id) for row in group) for group in (users,profiles,readings,lessons))
+        before=await identities()
+        await ensure_accounts(db)
+        assert await identities()==before
+    await engine.dispose()
+asyncio.run(verify())
+print('Production startup: two accounts, four profiles, fifteen lessons; repeat ensure PASS')
+PYCODE

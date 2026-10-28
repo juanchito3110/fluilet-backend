@@ -216,6 +216,9 @@ class AdaptationPipeline:
         # their alignment and bounds; preview inference never loads mT5 five times.
         selections = []
         preview_chunks = [[] for _ in range(5)]
+        preview_core_chunks = [[] for _ in range(5)]
+        preview_support = [[] for _ in range(5)]
+        preview_methods = [set() for _ in range(5)]
         progressive = True
         removed = []
         if len(chunks) == 1:
@@ -226,6 +229,11 @@ class AdaptationPipeline:
             removed.extend(chosen[level - 1].removed)
             for index, item in enumerate(chosen):
                 preview_chunks[index].append(item.text)
+                preview_core_chunks[index].append(item.pre_support_text or item.text)
+                preview_support[index].extend(
+                    dict(text=f.text, evidence=f.evidence, kind=f.kind) for f in item.support
+                )
+                preview_methods[index].add(item.method)
         else:
             for chunk in chunks:
                 chosen, _, ordered = await asyncio.to_thread(choose_levels, chunk)
@@ -234,6 +242,11 @@ class AdaptationPipeline:
                 removed.extend(chosen[level - 1].removed)
                 for index, item in enumerate(chosen):
                     preview_chunks[index].append(item.text)
+                    preview_core_chunks[index].append(item.pre_support_text or item.text)
+                    preview_support[index].extend(
+                        dict(text=f.text, evidence=f.evidence, kind=f.kind) for f in item.support
+                    )
+                    preview_methods[index].add(item.method)
         from app.services.pedagogy import GOALS, label
 
         original = await asyncio.to_thread(measure, text)
@@ -256,9 +269,18 @@ class AdaptationPipeline:
                     "avg_sentence_length": average,
                     "target_met": lower <= metric.score <= upper
                     and min_length <= average <= max_length,
-                    "method": ("reviewed_local_alignment" if local else "pedagogical_rules")
+                    "method": "+".join(sorted(preview_methods[index - 1]))
                     if value != text
                     else "original",
+                    "pre_support_text": " ".join(preview_core_chunks[index - 1])
+                    if preview_support[index - 1]
+                    else None,
+                    "pre_support_readability_score": measure(
+                        " ".join(preview_core_chunks[index - 1])
+                    ).score
+                    if preview_support[index - 1]
+                    else metric.score,
+                    "pedagogical_support": preview_support[index - 1],
                 }
             )
         progressive = progressive and all(
@@ -300,6 +322,8 @@ class AdaptationPipeline:
             result.warnings.append("original_text_retained")
         if adapted.score < original.score:
             result.warnings.append("advanced_level_harder_than_source")
+        if previews[level - 1].get("pedagogical_support"):
+            result.warnings.append("pedagogical_support_added")
         return result
 
 

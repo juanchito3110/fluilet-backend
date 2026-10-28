@@ -172,7 +172,7 @@ SGSS lexical proposals and synthetic inflections are not five reviewed child-age
 paraphrases of each source. Do not relabel them as independent gold supervision.
 
 
-## Current v2.2: independent lexical/SARI selection
+## Historical v2.2: independent lexical/SARI selection
 
 ```sh
 python -m pip install 'numpy>=2,<3'
@@ -203,3 +203,30 @@ annotations and synthetic inflections do not validate child comprehension.
 Final SARI remains below baseline (44.5396647 vs 44.5438479), while lexical top-1
 improves to 73.25%. The API keeps `acceptance_criteria_met=false`. Full report:
 [model-retraining-report.md](../docs/model-retraining-report.md).
+
+
+## Current v2.3: frozen selective gate and grounded controller
+
+Run `python -m ml_training.fit_selection_gate`, then
+`python -m ml_training.evaluate_selection_gate`, then
+`python -m ml_training.export_gate`. Fit reads only the hash-verified train and
+validation partitions; the evaluator checks the frozen selection hash before
+opening test. Source-only train alternatives and document weighting yield 2,933
+non-agreement comparisons. Thirty features, regularized gain regression, 80
+residual rounds (one selected) and validation margins are recorded in the release.
+The lexical head is retained byte for byte. Final margins are permissive; the
+validation-fitted syllable veto is decisive, rather than an asserted independent
+neural gain.
+
+Measured SARI: **44.557636124674 > 44.543847868458**, lexical top-1 **73.245614%**.
+All five bands and strict progression hold for **31/31 bank, 6/6 known EASIER,
+6/6 controlled sources and 15/15 managed demos**. The separate length-based
+`target_met` is not universally satisfied. The API exposes measured acceptance
+true for those criteria. These known development cohorts and the repeatedly
+observed legacy test are not blind external or clinical validation.
+
+Source-grounded finite supports expose evidence and the score before support;
+no repeated generic filler or arbitrary new-domain assertions are added. See
+[the full protocol, negative trials and metrics](../docs/model-retraining-report.md).
+The dependency-free runtime asset is under 2 MB; raw datasets, environments,
+secrets and neural weights remain ignored.

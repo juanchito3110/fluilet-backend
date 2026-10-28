@@ -10,6 +10,7 @@ import pytest
 from app.nlp.pipeline import pipeline
 from app.nlp.readability import measure
 from app.services.morphology import FORMS, form
+from app.services.pedagogy import GOALS
 from app.services.ranker import ASSET, checkpoint, model_info
 from ml_training.build_enhanced_dataset import build
 from ml_training.metrics import sari
@@ -78,12 +79,16 @@ def test_morphological_agreement_and_spelling():
 @pytest.mark.parametrize("row", EASIER + UNSEEN, ids=lambda row: row["document_id"])
 async def test_fixed_diagnostics_have_five_real_progressive_outputs(row):
     result = await pipeline.run(row["source"], 1)
-    assert result.model_version == "context-ranker-es-v2.2"
-    assert result.checkpoint_name == "context-ranker-v2.2"
+    assert result.model_version == "context-ranker-es-v2.3"
+    assert result.checkpoint_name == "context-ranker-v2.3"
     assert result.original_text == row["source"]
     scores = [measure(p["adapted_text"]).score for p in result.level_previews]
     assert scores == [p["readability_score"] for p in result.level_previews]
     assert result.level_progression_met
+    assert all(
+        GOALS[p["level"]][0] <= p["readability_score"] <= GOALS[p["level"]][1]
+        for p in result.level_previews
+    )
     assert all(a > b for a, b in zip(scores, scores[1:], strict=False))
     assert scores[0] - measure(row["source"]).score >= 15
 
@@ -100,8 +105,8 @@ async def test_trained_model_applies_to_files_and_preserved_get(client, make_use
     )
     assert response.status_code == 200, response.text
     data = response.json()
-    assert data["model_version"] == "context-ranker-es-v2.2"
-    assert data["checkpoint_name"] == "context-ranker-v2.2"
+    assert data["model_version"] == "context-ranker-es-v2.3"
+    assert data["checkpoint_name"] == "context-ranker-v2.3"
     assert data["level_progression_met"] and data["lexical_replacements"]
     assert (await client.get("/api/v1/adaptations/" + data["id"], headers=headers)).json() == data
 
@@ -112,7 +117,7 @@ async def test_model_info_route_precedes_uuid_and_requires_auth(client, make_use
     response = await client.get("/api/v1/adaptations/model-info", headers=headers)
     assert response.status_code == 200
     info = response.json()
-    assert info["model_version"] == "context-ranker-es-v2.2"
+    assert info["model_version"] == "context-ranker-es-v2.3"
     assert info["easier_benchmark_before"] == "0/6"
     assert info["easier_benchmark_after"] == "6/6"
     assert info["benchmark_definition"].startswith("strict five-level")

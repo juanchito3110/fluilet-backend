@@ -1,3 +1,44 @@
+# Verification — 2026-10-28, v2.3
+
+Final local release: Python 3.14, macOS arm64 and PostgreSQL 18. Final artifact
+was frozen before both full suites; no checkpoint was rewritten during testing.
+
+| Check | Observed result |
+|---|---|
+| Full PostgreSQL suite in dedicated database/private schemas | **573 passed**, 261.52 s |
+| Full SQLite suite | **568 passed, 5 PostgreSQL-only skips**, 227.77 s |
+| Focused contract, controller and provenance suite | **114 passed**, 44.64 s |
+| Ruff lint / format | **118 Python files**, passed |
+| pip check | No broken requirements |
+| Active PostgreSQL Alembic check/current | No drift; **0007_master_accounts**, eight existing revisions |
+| SARI, same 228 test examples | **44.557636124674 > 44.543847868458** |
+| Lexical top-1, separate task | **73.245614% > 53.070175%** |
+| Five bands + strict progression | **31/31 bank, 6/6 known EASIER, 6/6 controlled, 15/15 managed demos** |
+| Active demo refresh | **15 marked lessons**; only two numeric snapshots changed; IDs/history/gems/XP/streaks preserved; second refresh zero |
+| Live server after app.bootstrap restart | **8000 readiness 200**, deterministic pipeline, CORS preflight 200 |
+| Authenticated model-info / master overview | Both **acceptance_criteria_met=true**, final checksum matches |
+| Retained demo HTTP retrieval | **15/15** original/main/previews, exact scores, bands, versions, vocabulary and questions verified |
+
+The active profiles also contain five extra manually created adaptations; these
+were preserved. Only the explicitly marked demo readings were refreshed. Private
+numeric snapshots live under ignored Git metadata; no user content was exported.
+Docker and Compose use `context-ranker-v2.3/model.json`; production startup
+migrates, then ensures two managed accounts, four children and fifteen lessons.
+The container workflow additionally checks a second idempotent ensure.
+
+Artifact SHA-256:
+`67e79bf3c13381cc8d000575e6e57b4f9787f895cbfb8cfc4569fb9ae3ba2507`.
+The CPU JSON is 1,915,221 bytes and identical in the release and checkpoint copies.
+Secrets, environments, corpora, JSONL and neural weights remain excluded.
+
+**Scope:** acceptance covers the declared measured comparisons and score bands.
+Length-based `target_met` is separate and not universally met. Test and the
+cohorts are known development data, not blind external or clinical validation.
+Support text/evidence and its prior score are explicit; see the
+[full report](model-retraining-report.md). No DigitalOcean deployment is claimed.
+
+## Earlier verification records
+
 # Verification — 2026-10-27, v2.2
 
 Final local release: Python 3.14, macOS arm64 and PostgreSQL 18.

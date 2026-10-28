@@ -15,7 +15,7 @@ from app.services.lexicon_es import CURATED
 from app.services.local_plans import SIMPLE
 from app.services.resources import choose_corpus, resources
 
-VERSION = "pedagogical-es-v2.2.1"
+VERSION = "pedagogical-es-v2.3"
 GOALS = {
     1: (82, 100, 6, 9),
     2: (74, 84, 9, 12),
@@ -55,6 +55,8 @@ class Candidate:
     text: str
     method: str
     removed: tuple = ()
+    pre_support_text: str | None = None
+    support: tuple = ()
 
     @cached_property
     def metric(self):
@@ -333,23 +335,37 @@ def _compose_levels(text, units):
     from app.services.calibration import regroup
 
     memo = {unit: _choose_levels(unit)[0] for unit in dict.fromkeys(units)}
-    seeds = [" ".join(memo[unit][level].text for unit in units) for level in range(5)]
+    seeds = []
+    for level in range(5):
+        items = [memo[unit][level] for unit in units]
+        support = tuple(fact for item in items for fact in item.support)
+        seeds.append(
+            Candidate(
+                " ".join(item.text for item in items),
+                "composed_clause_calibration",
+                tuple(fragment for item in items for fragment in item.removed),
+                " ".join(item.pre_support_text or item.text for item in items) if support else None,
+                support,
+            )
+        )
     groups = []
     for level in range(1, 6):
         removed = tuple(fragment for unit in units for fragment in memo[unit][level - 1].removed)
-        variants = {text, *seeds}
+        variants = {text: Candidate(text, "original", removed)}
+        variants.update({item.text: item for item in seeds})
         lo, hi, *_ = GOALS[level]
         for seed in seeds:
-            m = measure(seed)
+            m = seed.metric
             base = 206.835 - 62.3 * m.syllable_count / m.word_count
             for target in (lo, (lo + hi) / 2, hi):
                 if base > target:
                     n = m.word_count / (base - target)
                     for count in (math.floor(n), math.ceil(n)):
-                        variants.add(regroup(seed, max(1, min(m.sentence_count, count))))
-        candidates = [
-            Candidate(value, "composed_clause_calibration", removed) for value in sorted(variants)
-        ]
+                        value = regroup(seed.text, max(1, min(m.sentence_count, count)))
+                        variants[value] = Candidate(
+                            value, seed.method, seed.removed, seed.pre_support_text, seed.support
+                        )
+        candidates = [variants[value] for value in sorted(variants)]
         source_score = measure(text).score
         candidates = [
             c
@@ -389,6 +405,13 @@ def _compose_levels(text, units):
                 avg_sentence_length=average,
                 target_met=lo <= m.score <= hi and min_words <= average <= max_words,
                 method=item.method,
+                pre_support_text=item.pre_support_text,
+                pre_support_readability_score=measure(item.pre_support_text).score
+                if item.pre_support_text
+                else m.score,
+                pedagogical_support=[
+                    dict(text=f.text, evidence=f.evidence, kind=f.kind) for f in item.support
+                ],
             )
         )
     return selected, previews, progressive
@@ -401,7 +424,19 @@ def _choose_levels(text, legacy=None):
     from app.services.ranker import checkpoint
     from app.services.rewriting import candidates as learned_candidates
 
-    learned = learned_candidates(text) if checkpoint() and not plan else []
+    artifact = checkpoint()
+    model = artifact.get("sari_ranker", {}) if artifact else {}
+    gated = {}
+    if model.get("selective_gate") and not plan:
+        from app.services.frozen_v2.rewriting import candidates as frozen_candidates
+        from app.services.selection_gate import candidate_pool, choose
+
+        pool = candidate_pool(text)
+        baseline = frozen_candidates(text, [0.0] * 24)
+        gated = {level: choose(model, text, pool, level, baseline) for level in range(1, 6)}
+        learned = []
+    else:
+        learned = learned_candidates(text) if artifact and not plan else []
     from app.services.calibration import alternatives, calibrate_density, minimal_edits
 
     if not plan:
@@ -428,6 +463,9 @@ def _choose_levels(text, legacy=None):
             else _general_candidates(text, level, legacy)
         )
         raw.extend(Candidate(value, "trained_context_ranker") for value in learned)
+        if level in gated:
+            value, decision = gated[level]
+            raw.append(Candidate(value, "selective_gate_" + decision))
         raw = list({item.text: item for item in raw}.values())
         # Candidate expansion uses source-complete clauses; no tail truncation.
         seeds = sorted(raw, key=lambda item: -item.metric.score)[:3]
@@ -464,6 +502,24 @@ def _choose_levels(text, legacy=None):
             candidates or [Candidate(text, "original")],
             key=lambda item: (_loss(item, level), item.text),
         )
+        from app.services.algebraic import control
+
+        controlled = []
+        for seed in ranked[:2]:
+            result = control(text, seed.text, level)
+            if _safe_numbers(text, Candidate(result.text, "algebraic", seed.removed)) and (
+                not plan or source_hash(result.text.casefold()) != source_hash(text.casefold())
+            ):
+                controlled.append(
+                    Candidate(
+                        result.text,
+                        "algebraic_scaffolded" if result.support else "algebraic_structural",
+                        seed.removed,
+                        result.core_text if result.support else None,
+                        result.support,
+                    )
+                )
+        ranked = sorted([*ranked, *controlled], key=lambda item: (_loss(item, level), item.text))
         # Structural search needs measurements, not a learned call per variant.
         # Keep interval-centred choices and score extremes for the monotone DP.
         shortlist = list(
@@ -507,6 +563,13 @@ def _choose_levels(text, legacy=None):
                 "target_met": low <= metric.score <= high
                 and minimum <= metric.word_count / metric.sentence_count <= maximum,
                 "method": item.method,
+                "pre_support_text": item.pre_support_text,
+                "pre_support_readability_score": measure(item.pre_support_text).score
+                if item.pre_support_text
+                else metric.score,
+                "pedagogical_support": [
+                    dict(text=f.text, evidence=f.evidence, kind=f.kind) for f in item.support
+                ],
             }
         )
     return selected, previews, progressive

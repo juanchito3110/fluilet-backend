@@ -1,5 +1,5 @@
 {
-  "model_version": "context-ranker-es-v2.2",
+  "model_version": "context-ranker-es-v2.3",
   "dataset_v1_size": 7704,
   "dataset_v2_size": 4738,
   "dataset_manifest": {
@@ -556,17 +556,16 @@
     "lexical_top1": 0.5307017543859649
   },
   "retrained_metrics": {
-    "sari_score": 44.53966472310678,
-    "gold_sari": 35.15406952240178,
+    "sari_score": 44.557636124673856,
     "samples": 228,
     "lexical_top1": 0.7324561403508771,
-    "band_distance": 22.396247054210487
+    "band_distance": 22.468412436200932
   },
   "baseline_sari": 44.54384786845761,
-  "retrained_sari": 44.53966472310678,
-  "sari_improved": false,
+  "retrained_sari": 44.557636124673856,
+  "sari_improved": true,
   "lexical_improved": true,
-  "all_comparisons_improved": false,
+  "all_comparisons_improved": true,
   "validation_policy": {
     "sari_score": 33.76315536113752,
     "band_distance": 24.803499350816256,
@@ -574,7 +573,7 @@
   },
   "weights_sha256_before": "9f0fe77eaff0476ce38c1a2c73e75c4969127f460ea1e15129ff6c0daca569d5",
   "weights_sha256_after": "8a10ef236d1e79e59c6113749a927446b1f998c48c084743750ec5e88647b324",
-  "frozen_selection_sha256": "8a10ef236d1e79e59c6113749a927446b1f998c48c084743750ec5e88647b324",
+  "frozen_selection_sha256": "1c57442aca88e8e7a1ab7a974476f0a8e83b5ea7cb372be1523697d5cdd38844",
   "training_seconds": 31.863853832997847,
   "protocol": "SARI delta over identity; train-only regression and lexical head; validation-only trees and margin; structural calibration measured separately",
   "limitations": [
@@ -18604,16 +18603,16 @@
     "samples": 228,
     "lexical_top1": 0.7324561403508771
   },
-  "sari_score": 44.53966472310678,
+  "sari_score": 44.557636124673856,
   "easier_benchmark_before": "0/6",
   "easier_benchmark_after": "6/6",
   "benchmark_definition": "strict five-level score progression; independent of exact band/length compliance",
   "benchmark_status": "known diagnostic used during development; not an independent blind validation",
   "environment": {
     "python": "3.14.7",
-    "seed": 20261027
+    "seed": 20261028
   },
-  "architecture": "independent train-fitted lexical/SARI residual ranker, train-only corpus priors, validation-only confidence/margin; measured structural calibration in a separate stage",
+  "architecture": "frozen contextual lexical head plus train-fitted source-pair residual gate; validation-only dual margins and syllable floor; independent grounded structural controller",
   "expected_sari_experiment": {
     "history": [
       {
@@ -18835,15 +18834,15 @@
     "local_bank": {
       "samples": 31,
       "progressive": 31,
-      "all_five_bands_met": 13,
+      "all_five_bands_met": 31,
       "levels": {
         "1": {
-          "score_band_met": 13,
-          "full_target_met": 7
+          "score_band_met": 31,
+          "full_target_met": 21
         },
         "2": {
-          "score_band_met": 28,
-          "full_target_met": 19
+          "score_band_met": 31,
+          "full_target_met": 18
         },
         "3": {
           "score_band_met": 31,
@@ -18851,7 +18850,7 @@
         },
         "4": {
           "score_band_met": 31,
-          "full_target_met": 18
+          "full_target_met": 19
         },
         "5": {
           "score_band_met": 31,
@@ -18862,10 +18861,10 @@
     "easier_diagnostic": {
       "samples": 6,
       "progressive": 6,
-      "all_five_bands_met": 2,
+      "all_five_bands_met": 6,
       "levels": {
         "1": {
-          "score_band_met": 3,
+          "score_band_met": 6,
           "full_target_met": 0
         },
         "2": {
@@ -18877,31 +18876,31 @@
           "full_target_met": 0
         },
         "4": {
-          "score_band_met": 5,
-          "full_target_met": 2
+          "score_band_met": 6,
+          "full_target_met": 1
         },
         "5": {
           "score_band_met": 6,
-          "full_target_met": 2
+          "full_target_met": 1
         }
       }
     },
     "unseen_v2": {
       "samples": 6,
       "progressive": 6,
-      "all_five_bands_met": 5,
+      "all_five_bands_met": 6,
       "levels": {
         "1": {
-          "score_band_met": 5,
-          "full_target_met": 2
-        },
-        "2": {
           "score_band_met": 6,
           "full_target_met": 3
         },
-        "3": {
+        "2": {
           "score_band_met": 6,
           "full_target_met": 4
+        },
+        "3": {
+          "score_band_met": 6,
+          "full_target_met": 3
         },
         "4": {
           "score_band_met": 6,
@@ -18916,7 +18915,7 @@
     "managed_demos": {
       "samples": 15,
       "progressive": 15,
-      "all_five_bands_met": 7,
+      "all_five_bands_met": 15,
       "levels": {
         "1": {
           "sample_count": 1,
@@ -18937,8 +18936,8 @@
       }
     }
   },
-  "all_bands_met": false,
-  "acceptance_criteria_met": false,
+  "all_bands_met": true,
+  "acceptance_criteria_met": true,
   "end_to_end": {
     "local_bank": {
       "samples": 31,
@@ -18953,12 +18952,12 @@
             6,
             9
           ],
-          "mean_score": 81.36519231695503,
-          "mean_gain": 30.56459835768658,
-          "mean_sentence_length": 8.985908535908536,
-          "gain_15_count": 29,
-          "goal_met_count": 7,
-          "double_condition_count": 29
+          "mean_score": 84.45384111712079,
+          "mean_gain": 33.65324715785234,
+          "mean_sentence_length": 8.684015760225437,
+          "gain_15_count": 31,
+          "goal_met_count": 21,
+          "double_condition_count": 31
         },
         {
           "level": 2,
@@ -18968,11 +18967,11 @@
             9,
             12
           ],
-          "mean_score": 77.58011764185498,
-          "mean_gain": 26.779523682586525,
-          "mean_sentence_length": 9.515106578009803,
+          "mean_score": 78.40492345904552,
+          "mean_gain": 27.604329499777066,
+          "mean_sentence_length": 9.331397947930206,
           "gain_15_count": 28,
-          "goal_met_count": 19,
+          "goal_met_count": 18,
           "double_condition_count": 28
         },
         {
@@ -18983,9 +18982,9 @@
             11,
             15
           ],
-          "mean_score": 69.07019189121912,
-          "mean_gain": 18.269597931950678,
-          "mean_sentence_length": 11.99433612982,
+          "mean_score": 69.2322332651582,
+          "mean_gain": 18.431639305889753,
+          "mean_sentence_length": 12.02183819764465,
           "gain_15_count": 18,
           "goal_met_count": 15,
           "double_condition_count": 18
@@ -18998,11 +18997,11 @@
             14,
             18
           ],
-          "mean_score": 61.99720259951944,
-          "mean_gain": 11.196608640250988,
-          "mean_sentence_length": 14.901510496671786,
+          "mean_score": 62.081589986326186,
+          "mean_gain": 11.28099602705773,
+          "mean_sentence_length": 14.83469022017409,
           "gain_15_count": 9,
-          "goal_met_count": 18,
+          "goal_met_count": 19,
           "double_condition_count": 0
         },
         {
@@ -19026,7 +19025,7 @@
           "id": "tierra",
           "original_score": 57.890000000000015,
           "original_avg_sentence_length": 15.0,
-          "inference_seconds_all_levels": 0.6537426669965498,
+          "inference_seconds_all_levels": 1.1657045420142822,
           "progressive": true,
           "levels": [
             {
@@ -19035,6 +19034,9 @@
               "gain": 32.851277056277056,
               "avg_sentence_length": 9.428571428571429,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 90.74127705627707,
               "double_condition_met": true
             },
             {
@@ -19043,6 +19045,9 @@
               "gain": 21.042767857142863,
               "avg_sentence_length": 9.142857142857142,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.93276785714288,
               "double_condition_met": true
             },
             {
@@ -19051,6 +19056,9 @@
               "gain": 10.383333333333326,
               "avg_sentence_length": 15.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 68.27333333333334,
               "double_condition_met": false
             },
             {
@@ -19059,6 +19067,9 @@
               "gain": 5.81166666666666,
               "avg_sentence_length": 12.6,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 63.701666666666675,
               "double_condition_met": false
             },
             {
@@ -19067,6 +19078,9 @@
               "gain": 1.9458196721311651,
               "avg_sentence_length": 15.25,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 59.83581967213118,
               "double_condition_met": false
             }
           ]
@@ -19075,7 +19089,7 @@
           "id": "luna",
           "original_score": 64.27710526315792,
           "original_avg_sentence_length": 11.4,
-          "inference_seconds_all_levels": 0.21766704201581888,
+          "inference_seconds_all_levels": 0.2382687920180615,
           "progressive": true,
           "levels": [
             {
@@ -19084,6 +19098,9 @@
               "gain": 27.591871570818924,
               "avg_sentence_length": 10.571428571428571,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 91.86897683397684,
               "double_condition_met": true
             },
             {
@@ -19092,6 +19109,9 @@
               "gain": 12.708787593984951,
               "avg_sentence_length": 9.142857142857142,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 76.98589285714287,
               "double_condition_met": false
             },
             {
@@ -19100,6 +19120,9 @@
               "gain": 2.9929824561403393,
               "avg_sentence_length": 9.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 67.27008771929826,
               "double_condition_met": false
             },
             {
@@ -19108,6 +19131,9 @@
               "gain": -2.8499999999999943,
               "avg_sentence_length": 14.25,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.42710526315793,
               "double_condition_met": false
             },
             {
@@ -19116,6 +19142,9 @@
               "gain": -7.599999999999994,
               "avg_sentence_length": 19.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 56.67710526315793,
               "double_condition_met": false
             }
           ]
@@ -19124,7 +19153,7 @@
           "id": "telescopio",
           "original_score": 46.072500000000005,
           "original_avg_sentence_length": 12.8,
-          "inference_seconds_all_levels": 0.271619458013447,
+          "inference_seconds_all_levels": 0.23498337497585453,
           "progressive": true,
           "levels": [
             {
@@ -19133,6 +19162,9 @@
               "gain": 36.77361111111112,
               "avg_sentence_length": 9.88888888888889,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 82.84611111111113,
               "double_condition_met": true
             },
             {
@@ -19141,6 +19173,9 @@
               "gain": 32.99162912912915,
               "avg_sentence_length": 8.222222222222221,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 79.06412912912916,
               "double_condition_met": true
             },
             {
@@ -19149,6 +19184,9 @@
               "gain": 22.22250000000001,
               "avg_sentence_length": 17.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 68.29500000000002,
               "double_condition_met": true
             },
             {
@@ -19157,6 +19195,9 @@
               "gain": 17.242187500000014,
               "avg_sentence_length": 16.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 63.31468750000002,
               "double_condition_met": false
             },
             {
@@ -19165,6 +19206,9 @@
               "gain": 11.908854166666686,
               "avg_sentence_length": 21.333333333333332,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.98135416666669,
               "double_condition_met": false
             }
           ]
@@ -19173,7 +19217,7 @@
           "id": "abejas",
           "original_score": 58.80057377049182,
           "original_avg_sentence_length": 12.2,
-          "inference_seconds_all_levels": 0.23131462500896305,
+          "inference_seconds_all_levels": 0.21115550000104122,
           "progressive": true,
           "levels": [
             {
@@ -19182,6 +19226,9 @@
               "gain": 32.398281651194935,
               "avg_sentence_length": 8.3,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 91.19885542168676,
               "double_condition_met": true
             },
             {
@@ -19190,6 +19237,9 @@
               "gain": 20.54250703758899,
               "avg_sentence_length": 8.555555555555555,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 79.34308080808081,
               "double_condition_met": true
             },
             {
@@ -19198,6 +19248,9 @@
               "gain": 11.93442622950819,
               "avg_sentence_length": 11.5,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 70.73500000000001,
               "double_condition_met": false
             },
             {
@@ -19206,6 +19259,9 @@
               "gain": 3.4211909353905483,
               "avg_sentence_length": 13.6,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.22176470588237,
               "double_condition_met": false
             },
             {
@@ -19214,6 +19270,9 @@
               "gain": -3.049999999999997,
               "avg_sentence_length": 15.25,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 55.750573770491826,
               "double_condition_met": false
             }
           ]
@@ -19222,7 +19281,7 @@
           "id": "bosques",
           "original_score": 47.72854838709677,
           "original_avg_sentence_length": 12.4,
-          "inference_seconds_all_levels": 0.21985191601561382,
+          "inference_seconds_all_levels": 0.20547866699052975,
           "progressive": true,
           "levels": [
             {
@@ -19231,6 +19290,9 @@
               "gain": 37.22882398527562,
               "avg_sentence_length": 8.222222222222221,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 84.95737237237239,
               "double_condition_met": true
             },
             {
@@ -19239,6 +19301,9 @@
               "gain": 30.013045019496637,
               "avg_sentence_length": 9.285714285714286,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 77.74159340659341,
               "double_condition_met": true
             },
             {
@@ -19247,6 +19312,9 @@
               "gain": 22.726451612903254,
               "avg_sentence_length": 10.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 70.45500000000003,
               "double_condition_met": true
             },
             {
@@ -19255,6 +19323,9 @@
               "gain": 14.698875855327493,
               "avg_sentence_length": 13.2,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.427424242424266,
               "double_condition_met": false
             },
             {
@@ -19263,6 +19334,9 @@
               "gain": 9.393118279569926,
               "avg_sentence_length": 23.333333333333332,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.1216666666667,
               "double_condition_met": false
             }
           ]
@@ -19271,7 +19345,7 @@
           "id": "agua",
           "original_score": 63.25589552238808,
           "original_avg_sentence_length": 13.4,
-          "inference_seconds_all_levels": 0.24873670900706202,
+          "inference_seconds_all_levels": 0.21950574999209493,
           "progressive": true,
           "levels": [
             {
@@ -19280,6 +19354,9 @@
               "gain": 26.737477683353553,
               "avg_sentence_length": 8.636363636363637,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 89.99337320574163,
               "double_condition_met": true
             },
             {
@@ -19288,6 +19365,9 @@
               "gain": 15.418771144278601,
               "avg_sentence_length": 9.375,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.67466666666668,
               "double_condition_met": true
             },
             {
@@ -19296,6 +19376,9 @@
               "gain": 6.422437810945262,
               "avg_sentence_length": 11.666666666666666,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.67833333333334,
               "double_condition_met": false
             },
             {
@@ -19304,6 +19387,9 @@
               "gain": -2.319994621487176,
               "avg_sentence_length": 24.666666666666668,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 60.935900900900904,
               "double_condition_met": false
             },
             {
@@ -19312,6 +19398,9 @@
               "gain": -3.3500000000000014,
               "avg_sentence_length": 16.75,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 59.90589552238808,
               "double_condition_met": false
             }
           ]
@@ -19320,15 +19409,18 @@
           "id": "arqueologia",
           "original_score": 33.660806451612935,
           "original_avg_sentence_length": 12.4,
-          "inference_seconds_all_levels": 0.294078749982873,
+          "inference_seconds_all_levels": 0.27268095800536685,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 79.79810679611651,
-              "gain": 46.13730034450358,
-              "avg_sentence_length": 10.3,
-              "target_met": false,
+              "score": 83.49733766233767,
+              "gain": 49.836531210724736,
+              "avg_sentence_length": 8.909090909090908,
+              "target_met": true,
+              "support_count": 2,
+              "support_word_count": 12,
+              "pre_support_score": 79.19921188630492,
               "double_condition_met": true
             },
             {
@@ -19337,6 +19429,9 @@
               "gain": 45.53840543469199,
               "avg_sentence_length": 9.555555555555555,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 79.19921188630492,
               "double_condition_met": true
             },
             {
@@ -19345,6 +19440,9 @@
               "gain": 35.311869604725125,
               "avg_sentence_length": 8.875,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 68.97267605633806,
               "double_condition_met": true
             },
             {
@@ -19353,6 +19451,9 @@
               "gain": 28.982526881720418,
               "avg_sentence_length": 14.4,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.64333333333335,
               "double_condition_met": false
             },
             {
@@ -19361,6 +19462,9 @@
               "gain": 24.274193548387075,
               "avg_sentence_length": 15.4,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.93500000000001,
               "double_condition_met": false
             }
           ]
@@ -19369,23 +19473,29 @@
           "id": "escritura",
           "original_score": 36.64730769230772,
           "original_avg_sentence_length": 13.0,
-          "inference_seconds_all_levels": 0.34105012501822785,
+          "inference_seconds_all_levels": 0.32343895800295286,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 77.18102006688966,
-              "gain": 40.53371237458194,
-              "avg_sentence_length": 8.846153846153847,
-              "target_met": false,
+              "score": 82.1322328244275,
+              "gain": 45.484925132119784,
+              "avg_sentence_length": 8.1875,
+              "target_met": true,
+              "support_count": 3,
+              "support_word_count": 16,
+              "pre_support_score": 77.18102006688966,
               "double_condition_met": true
             },
             {
               "level": 2,
-              "score": 76.09754180602008,
-              "gain": 39.450234113712355,
+              "score": 77.18102006688966,
+              "gain": 40.53371237458194,
               "avg_sentence_length": 8.846153846153847,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 77.18102006688966,
               "double_condition_met": true
             },
             {
@@ -19394,6 +19504,9 @@
               "gain": 32.96951048951048,
               "avg_sentence_length": 11.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.6168181818182,
               "double_condition_met": true
             },
             {
@@ -19402,6 +19515,9 @@
               "gain": 25.013719704952557,
               "avg_sentence_length": 14.6,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.66102739726028,
               "double_condition_met": false
             },
             {
@@ -19410,6 +19526,9 @@
               "gain": 21.021442307692297,
               "avg_sentence_length": 16.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.66875000000002,
               "double_condition_met": false
             }
           ]
@@ -19418,23 +19537,29 @@
           "id": "mapas",
           "original_score": 56.76378787878791,
           "original_avg_sentence_length": 13.2,
-          "inference_seconds_all_levels": 0.2829958749935031,
+          "inference_seconds_all_levels": 0.2720350419986062,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 78.46970185728252,
-              "gain": 21.705913978494607,
-              "avg_sentence_length": 8.454545454545455,
-              "target_met": false,
+              "score": 83.5668983768525,
+              "gain": 26.803110498064598,
+              "avg_sentence_length": 8.384615384615385,
+              "target_met": true,
+              "support_count": 3,
+              "support_word_count": 16,
+              "pre_support_score": 77.62424731182797,
               "double_condition_met": true
             },
             {
               "level": 2,
-              "score": 77.79980938416423,
-              "gain": 21.036021505376326,
-              "avg_sentence_length": 8.454545454545455,
+              "score": 78.84495215311006,
+              "gain": 22.08116427432215,
+              "avg_sentence_length": 8.636363636363637,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.84495215311006,
               "double_condition_met": true
             },
             {
@@ -19443,6 +19568,9 @@
               "gain": 12.720955710955707,
               "avg_sentence_length": 10.833333333333334,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.48474358974362,
               "double_condition_met": false
             },
             {
@@ -19451,6 +19579,9 @@
               "gain": 5.457976827094463,
               "avg_sentence_length": 13.6,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.22176470588237,
               "double_condition_met": false
             },
             {
@@ -19459,6 +19590,9 @@
               "gain": 0.8770944741533029,
               "avg_sentence_length": 13.6,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.64088235294121,
               "double_condition_met": false
             }
           ]
@@ -19467,16 +19601,19 @@
           "id": "futbol",
           "original_score": 65.40115384615387,
           "original_avg_sentence_length": 13.0,
-          "inference_seconds_all_levels": 0.21576054199249484,
+          "inference_seconds_all_levels": 0.18972454199683852,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 80.09786149162862,
-              "gain": 14.696707645474746,
-              "avg_sentence_length": 8.11111111111111,
-              "target_met": false,
-              "double_condition_met": false
+              "score": 84.01961538461539,
+              "gain": 18.618461538461517,
+              "avg_sentence_length": 7.8,
+              "target_met": true,
+              "support_count": 1,
+              "support_word_count": 5,
+              "pre_support_score": 80.09786149162862,
+              "double_condition_met": true
             },
             {
               "level": 2,
@@ -19484,6 +19621,9 @@
               "gain": 13.746101055806932,
               "avg_sentence_length": 11.333333333333334,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 79.1472549019608,
               "double_condition_met": false
             },
             {
@@ -19492,6 +19632,9 @@
               "gain": 3.936744704570785,
               "avg_sentence_length": 13.8,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.33789855072466,
               "double_condition_met": false
             },
             {
@@ -19500,6 +19643,9 @@
               "gain": -3.25,
               "avg_sentence_length": 16.25,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.151153846153875,
               "double_condition_met": false
             },
             {
@@ -19508,6 +19654,9 @@
               "gain": -8.666666666666671,
               "avg_sentence_length": 21.666666666666668,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 56.7344871794872,
               "double_condition_met": false
             }
           ]
@@ -19516,15 +19665,18 @@
           "id": "atletismo",
           "original_score": 57.50542253521125,
           "original_avg_sentence_length": 14.2,
-          "inference_seconds_all_levels": 0.30172891600523144,
+          "inference_seconds_all_levels": 0.2681814999959897,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 78.99167311411993,
-              "gain": 21.48625057890868,
-              "avg_sentence_length": 8.545454545454545,
-              "target_met": false,
+              "score": 82.3094557329463,
+              "gain": 24.804033197735052,
+              "avg_sentence_length": 8.153846153846153,
+              "target_met": true,
+              "support_count": 2,
+              "support_word_count": 12,
+              "pre_support_score": 78.99167311411993,
               "double_condition_met": true
             },
             {
@@ -19533,6 +19685,9 @@
               "gain": 20.716814702025985,
               "avg_sentence_length": 8.222222222222221,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.22223723723724,
               "double_condition_met": true
             },
             {
@@ -19541,6 +19696,9 @@
               "gain": 12.326678914064118,
               "avg_sentence_length": 11.5,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.83210144927537,
               "double_condition_met": false
             },
             {
@@ -19549,6 +19707,9 @@
               "gain": 4.064871582435828,
               "avg_sentence_length": 17.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.57029411764708,
               "double_condition_met": false
             },
             {
@@ -19557,6 +19718,9 @@
               "gain": 0.6726330203443212,
               "avg_sentence_length": 18.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 58.178055555555574,
               "double_condition_met": false
             }
           ]
@@ -19565,23 +19729,29 @@
           "id": "baloncesto",
           "original_score": 50.743064516129046,
           "original_avg_sentence_length": 12.4,
-          "inference_seconds_all_levels": 0.261644249985693,
+          "inference_seconds_all_levels": 0.2292052090051584,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 77.84400000000002,
-              "gain": 27.100935483870977,
-              "avg_sentence_length": 9.375,
-              "target_met": false,
+              "score": 83.56028735632185,
+              "gain": 32.817222840192805,
+              "avg_sentence_length": 8.7,
+              "target_met": true,
+              "support_count": 2,
+              "support_word_count": 12,
+              "pre_support_score": 77.84400000000002,
               "double_condition_met": true
             },
             {
               "level": 2,
-              "score": 77.01333333333335,
-              "gain": 26.270268817204304,
+              "score": 77.84400000000002,
+              "gain": 27.100935483870977,
               "avg_sentence_length": 9.375,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 77.84400000000002,
               "double_condition_met": true
             },
             {
@@ -19590,6 +19760,9 @@
               "gain": 18.926096974554177,
               "avg_sentence_length": 9.857142857142858,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.66916149068322,
               "double_condition_met": true
             },
             {
@@ -19598,6 +19771,9 @@
               "gain": 11.507935483870959,
               "avg_sentence_length": 15.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.251000000000005,
               "double_condition_met": false
             },
             {
@@ -19606,6 +19782,9 @@
               "gain": 5.44342802118441,
               "avg_sentence_length": 16.75,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 56.186492537313455,
               "double_condition_met": false
             }
           ]
@@ -19614,23 +19793,29 @@
           "id": "robots",
           "original_score": 40.69467741935484,
           "original_avg_sentence_length": 12.4,
-          "inference_seconds_all_levels": 0.25098683300893754,
+          "inference_seconds_all_levels": 0.23154075001366436,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 79.06664556962026,
-              "gain": 38.371968150265424,
-              "avg_sentence_length": 7.9,
-              "target_met": false,
+              "score": 82.38542283298099,
+              "gain": 41.69074541362615,
+              "avg_sentence_length": 7.818181818181818,
+              "target_met": true,
+              "support_count": 1,
+              "support_word_count": 7,
+              "pre_support_score": 79.06664556962026,
               "double_condition_met": true
             },
             {
               "level": 2,
-              "score": 78.58045454545456,
-              "gain": 37.88577712609972,
-              "avg_sentence_length": 7.7,
+              "score": 79.06664556962026,
+              "gain": 38.371968150265424,
+              "avg_sentence_length": 7.9,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 79.06664556962026,
               "double_condition_met": true
             },
             {
@@ -19639,6 +19824,9 @@
               "gain": 29.0437060392918,
               "avg_sentence_length": 10.857142857142858,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.73838345864664,
               "double_condition_met": true
             },
             {
@@ -19647,6 +19835,9 @@
               "gain": 21.157928214448,
               "avg_sentence_length": 17.75,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.85260563380284,
               "double_condition_met": false
             },
             {
@@ -19655,6 +19846,9 @@
               "gain": 16.92032258064517,
               "avg_sentence_length": 17.5,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.61500000000001,
               "double_condition_met": false
             }
           ]
@@ -19663,15 +19857,18 @@
           "id": "internet",
           "original_score": 54.762419354838734,
           "original_avg_sentence_length": 12.4,
-          "inference_seconds_all_levels": 0.2666953339939937,
+          "inference_seconds_all_levels": 0.2422591249924153,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 81.81681818181819,
-              "gain": 27.054398826979458,
-              "avg_sentence_length": 7.7,
-              "target_met": false,
+              "score": 84.76890374331552,
+              "gain": 30.006484388476785,
+              "avg_sentence_length": 7.7272727272727275,
+              "target_met": true,
+              "support_count": 1,
+              "support_word_count": 8,
+              "pre_support_score": 81.81681818181819,
               "double_condition_met": true
             },
             {
@@ -19680,6 +19877,9 @@
               "gain": 24.07294230881407,
               "avg_sentence_length": 11.285714285714286,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.8353616636528,
               "double_condition_met": true
             },
             {
@@ -19688,6 +19888,9 @@
               "gain": 14.607302867383503,
               "avg_sentence_length": 12.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.36972222222224,
               "double_condition_met": false
             },
             {
@@ -19696,6 +19899,9 @@
               "gain": 7.665004887585532,
               "avg_sentence_length": 13.2,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.427424242424266,
               "double_condition_met": false
             },
             {
@@ -19704,6 +19910,9 @@
               "gain": 2.6667835437119933,
               "avg_sentence_length": 23.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.42920289855073,
               "double_condition_met": false
             }
           ]
@@ -19712,7 +19921,7 @@
           "id": "energia solar",
           "original_score": 41.43827868852459,
           "original_avg_sentence_length": 12.2,
-          "inference_seconds_all_levels": 0.2866617079998832,
+          "inference_seconds_all_levels": 0.2499487080203835,
           "progressive": true,
           "levels": [
             {
@@ -19721,6 +19930,9 @@
               "gain": 41.80386416861829,
               "avg_sentence_length": 9.8,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 83.24214285714288,
               "double_condition_met": true
             },
             {
@@ -19729,6 +19941,9 @@
               "gain": 38.14428228708519,
               "avg_sentence_length": 10.25,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 79.58256097560978,
               "double_condition_met": true
             },
             {
@@ -19737,6 +19952,9 @@
               "gain": 28.435740501240886,
               "avg_sentence_length": 9.571428571428571,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.87401918976548,
               "double_condition_met": true
             },
             {
@@ -19745,6 +19963,9 @@
               "gain": 20.40441361916772,
               "avg_sentence_length": 15.6,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.84269230769231,
               "double_condition_met": false
             },
             {
@@ -19753,6 +19974,9 @@
               "gain": 16.269448584202706,
               "avg_sentence_length": 13.2,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.7077272727273,
               "double_condition_met": false
             }
           ]
@@ -19761,15 +19985,18 @@
           "id": "julio verne",
           "original_score": 52.09768656716421,
           "original_avg_sentence_length": 13.4,
-          "inference_seconds_all_levels": 0.26118529197992757,
+          "inference_seconds_all_levels": 0.22967454098397866,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 79.94868421052632,
-              "gain": 27.850997643362113,
-              "avg_sentence_length": 9.5,
+              "score": 82.92248874887488,
+              "gain": 30.824802181710673,
+              "avg_sentence_length": 9.181818181818182,
               "target_met": false,
+              "support_count": 1,
+              "support_word_count": 6,
+              "pre_support_score": 79.94868421052632,
               "double_condition_met": true
             },
             {
@@ -19778,6 +20005,9 @@
               "gain": 26.763400389357535,
               "avg_sentence_length": 11.5,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.86108695652175,
               "double_condition_met": true
             },
             {
@@ -19786,6 +20016,9 @@
               "gain": 16.903515523428148,
               "avg_sentence_length": 11.714285714285714,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.00120209059236,
               "double_condition_met": true
             },
             {
@@ -19794,6 +20027,9 @@
               "gain": 9.680368988391365,
               "avg_sentence_length": 14.4,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.778055555555575,
               "double_condition_met": false
             },
             {
@@ -19802,6 +20038,9 @@
               "gain": 5.215091210613586,
               "avg_sentence_length": 18.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.3127777777778,
               "double_condition_met": false
             }
           ]
@@ -19810,7 +20049,7 @@
           "id": "vuelta mundo",
           "original_score": 53.931969696969716,
           "original_avg_sentence_length": 13.2,
-          "inference_seconds_all_levels": 0.2554183749889489,
+          "inference_seconds_all_levels": 0.21093829200253822,
           "progressive": true,
           "levels": [
             {
@@ -19819,6 +20058,9 @@
               "gain": 31.21731601731601,
               "avg_sentence_length": 9.8,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 85.14928571428572,
               "double_condition_met": true
             },
             {
@@ -19827,6 +20069,9 @@
               "gain": 25.267242189335207,
               "avg_sentence_length": 9.555555555555555,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 79.19921188630492,
               "double_condition_met": true
             },
             {
@@ -19835,6 +20080,9 @@
               "gain": 16.343819776714525,
               "avg_sentence_length": 9.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 70.27578947368424,
               "double_condition_met": true
             },
             {
@@ -19843,6 +20091,9 @@
               "gain": 7.960776781903547,
               "avg_sentence_length": 14.2,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.89274647887326,
               "double_condition_met": false
             },
             {
@@ -19851,6 +20102,9 @@
               "gain": 3.5734528382415363,
               "avg_sentence_length": 14.2,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.50542253521125,
               "double_condition_met": false
             }
           ]
@@ -19859,7 +20113,7 @@
           "id": "isla tesoro",
           "original_score": 62.64333333333335,
           "original_avg_sentence_length": 14.4,
-          "inference_seconds_all_levels": 0.2586550420091953,
+          "inference_seconds_all_levels": 0.1784971670131199,
           "progressive": true,
           "levels": [
             {
@@ -19868,6 +20122,9 @@
               "gain": 21.383333333333333,
               "avg_sentence_length": 9.333333333333334,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 84.02666666666669,
               "double_condition_met": true
             },
             {
@@ -19876,6 +20133,9 @@
               "gain": 16.18166666666665,
               "avg_sentence_length": 8.75,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.825,
               "double_condition_met": true
             },
             {
@@ -19884,6 +20144,9 @@
               "gain": 6.571575342465742,
               "avg_sentence_length": 12.166666666666666,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.2149086757991,
               "double_condition_met": false
             },
             {
@@ -19892,6 +20155,9 @@
               "gain": -0.25968468468467876,
               "avg_sentence_length": 14.8,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.38364864864867,
               "double_condition_met": false
             },
             {
@@ -19900,6 +20166,9 @@
               "gain": -4.9524647887324065,
               "avg_sentence_length": 23.666666666666668,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.690868544600946,
               "double_condition_met": false
             }
           ]
@@ -19908,7 +20177,7 @@
           "id": "real madrid",
           "original_score": 39.633039215686296,
           "original_avg_sentence_length": 25.5,
-          "inference_seconds_all_levels": 1.1447028330003377,
+          "inference_seconds_all_levels": 0.4346501249819994,
           "progressive": true,
           "levels": [
             {
@@ -19917,6 +20186,9 @@
               "gain": 44.877653092006014,
               "avg_sentence_length": 7.6923076923076925,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 84.51069230769231,
               "double_condition_met": true
             },
             {
@@ -19925,6 +20197,9 @@
               "gain": 39.637444655281456,
               "avg_sentence_length": 10.333333333333334,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 79.27048387096775,
               "double_condition_met": true
             },
             {
@@ -19933,14 +20208,20 @@
               "gain": 28.237323781971796,
               "avg_sentence_length": 17.428571428571427,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 67.87036299765809,
               "double_condition_met": true
             },
             {
               "level": 4,
-              "score": 58.87126373626374,
-              "gain": 19.238224520577447,
-              "avg_sentence_length": 18.571428571428573,
-              "target_met": false,
+              "score": 61.48727272727274,
+              "gain": 21.854233511586443,
+              "avg_sentence_length": 16.5,
+              "target_met": true,
+              "support_count": 1,
+              "support_word_count": 5,
+              "pre_support_score": 57.71497750281219,
               "double_condition_met": false
             },
             {
@@ -19949,6 +20230,9 @@
               "gain": 14.767095649448592,
               "avg_sentence_length": 20.428571428571427,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 54.40013486513489,
               "double_condition_met": false
             }
           ]
@@ -19957,7 +20241,7 @@
           "id": "biologia marina",
           "original_score": 47.82527982326951,
           "original_avg_sentence_length": 13.857142857142858,
-          "inference_seconds_all_levels": 0.41523537499597296,
+          "inference_seconds_all_levels": 0.34556270801112987,
           "progressive": true,
           "levels": [
             {
@@ -19966,6 +20250,9 @@
               "gain": 35.40416462117493,
               "avg_sentence_length": 8.4,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 83.22944444444444,
               "double_condition_met": true
             },
             {
@@ -19974,6 +20261,9 @@
               "gain": 31.224905778530285,
               "avg_sentence_length": 9.071428571428571,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 79.0501856017998,
               "double_condition_met": true
             },
             {
@@ -19982,6 +20272,9 @@
               "gain": 21.644762911773242,
               "avg_sentence_length": 11.7,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.47004273504275,
               "double_condition_met": true
             },
             {
@@ -19990,6 +20283,9 @@
               "gain": 14.265814541081753,
               "avg_sentence_length": 15.571428571428571,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.091094364351264,
               "double_condition_met": false
             },
             {
@@ -19998,6 +20294,9 @@
               "gain": 9.53300589101621,
               "avg_sentence_length": 14.285714285714286,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.35828571428572,
               "double_condition_met": false
             }
           ]
@@ -20006,15 +20305,18 @@
           "id": "tiburon",
           "original_score": 48.09059845559845,
           "original_avg_sentence_length": 10.571428571428571,
-          "inference_seconds_all_levels": 0.5327152090030722,
+          "inference_seconds_all_levels": 0.41482762500527315,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 79.61165024630543,
-              "gain": 31.521051790706977,
-              "avg_sentence_length": 10.357142857142858,
-              "target_met": false,
+              "score": 82.19316993464054,
+              "gain": 34.10257147904208,
+              "avg_sentence_length": 9.0,
+              "target_met": true,
+              "support_count": 3,
+              "support_word_count": 17,
+              "pre_support_score": 78.93394957983196,
               "double_condition_met": true
             },
             {
@@ -20023,6 +20325,9 @@
               "gain": 30.77851612773489,
               "avg_sentence_length": 10.666666666666666,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.86911458333334,
               "double_condition_met": true
             },
             {
@@ -20031,6 +20336,9 @@
               "gain": 21.147849820263616,
               "avg_sentence_length": 8.7,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.23844827586207,
               "double_condition_met": true
             },
             {
@@ -20039,6 +20347,9 @@
               "gain": 13.31304265938413,
               "avg_sentence_length": 11.714285714285714,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.403641114982584,
               "double_condition_met": false
             },
             {
@@ -20047,6 +20358,9 @@
               "gain": 9.505940005940047,
               "avg_sentence_length": 13.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.5965384615385,
               "double_condition_met": false
             }
           ]
@@ -20055,23 +20369,29 @@
           "id": "dinosaurios",
           "original_score": 51.093943089430915,
           "original_avg_sentence_length": 13.666666666666666,
-          "inference_seconds_all_levels": 0.35396645800210536,
+          "inference_seconds_all_levels": 0.32415091700386256,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 71.96917721518987,
-              "gain": 20.875234125758958,
-              "avg_sentence_length": 7.9,
-              "target_met": false,
+              "score": 83.04166666666667,
+              "gain": 31.947723577235756,
+              "avg_sentence_length": 7.5,
+              "target_met": true,
+              "support_count": 4,
+              "support_word_count": 26,
+              "pre_support_score": 71.96917721518987,
               "double_condition_met": true
             },
             {
               "level": 2,
-              "score": 71.5713924050633,
-              "gain": 20.47744931563239,
-              "avg_sentence_length": 9.875,
+              "score": 76.66676470588237,
+              "gain": 25.572821616451456,
+              "avg_sentence_length": 8.5,
               "target_met": false,
+              "support_count": 1,
+              "support_word_count": 6,
+              "pre_support_score": 72.66861462728554,
               "double_condition_met": true
             },
             {
@@ -20080,6 +20400,9 @@
               "gain": 16.799376238300205,
               "avg_sentence_length": 12.142857142857142,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 67.89331932773112,
               "double_condition_met": true
             },
             {
@@ -20088,6 +20411,9 @@
               "gain": 11.577723577235744,
               "avg_sentence_length": 13.333333333333334,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.67166666666666,
               "double_condition_met": false
             },
             {
@@ -20096,6 +20422,9 @@
               "gain": 6.145276319851803,
               "avg_sentence_length": 13.166666666666666,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.23921940928272,
               "double_condition_met": false
             }
           ]
@@ -20104,23 +20433,29 @@
           "id": "sistema solar",
           "original_score": 64.51048500881835,
           "original_avg_sentence_length": 11.571428571428571,
-          "inference_seconds_all_levels": 0.27097520799725316,
+          "inference_seconds_all_levels": 0.23861304199090227,
           "progressive": true,
           "levels": [
             {
               "level": 1,
+              "score": 82.84359649122808,
+              "gain": 18.333111482409734,
+              "avg_sentence_length": 7.916666666666667,
+              "target_met": true,
+              "support_count": 2,
+              "support_word_count": 12,
+              "pre_support_score": 77.68801204819279,
+              "double_condition_met": true
+            },
+            {
+              "level": 2,
               "score": 77.68801204819279,
               "gain": 13.17752703937444,
               "avg_sentence_length": 8.3,
               "target_met": false,
-              "double_condition_met": false
-            },
-            {
-              "level": 2,
-              "score": 76.76578982597056,
-              "gain": 12.255304817152208,
-              "avg_sentence_length": 9.222222222222221,
-              "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 77.68801204819279,
               "double_condition_met": false
             },
             {
@@ -20129,6 +20464,9 @@
               "gain": 5.169931657848338,
               "avg_sentence_length": 13.333333333333334,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.68041666666669,
               "double_condition_met": false
             },
             {
@@ -20137,6 +20475,9 @@
               "gain": -1.9285714285714306,
               "avg_sentence_length": 13.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.58191358024692,
               "double_condition_met": false
             },
             {
@@ -20145,6 +20486,9 @@
               "gain": -8.67857142857143,
               "avg_sentence_length": 20.25,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 55.83191358024692,
               "double_condition_met": false
             }
           ]
@@ -20153,23 +20497,29 @@
           "id": "agujeros negros",
           "original_score": 56.43970588235297,
           "original_avg_sentence_length": 17.0,
-          "inference_seconds_all_levels": 0.2912794159783516,
+          "inference_seconds_all_levels": 0.25996220801607706,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 78.28500000000001,
-              "gain": 21.845294117647043,
-              "avg_sentence_length": 8.4,
-              "target_met": false,
+              "score": 83.32041666666667,
+              "gain": 26.880710784313706,
+              "avg_sentence_length": 8.0,
+              "target_met": true,
+              "support_count": 2,
+              "support_word_count": 12,
+              "pre_support_score": 78.28500000000001,
               "double_condition_met": true
             },
             {
               "level": 2,
-              "score": 77.86481927710845,
-              "gain": 21.425113394755485,
-              "avg_sentence_length": 10.375,
+              "score": 79.01759705488624,
+              "gain": 22.57789117253327,
+              "avg_sentence_length": 9.222222222222221,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 79.01759705488624,
               "double_condition_met": true
             },
             {
@@ -20178,6 +20528,9 @@
               "gain": 12.948306165839824,
               "avg_sentence_length": 16.6,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.38801204819279,
               "double_condition_met": false
             },
             {
@@ -20186,6 +20539,9 @@
               "gain": 5.402986425339343,
               "avg_sentence_length": 15.6,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.84269230769231,
               "double_condition_met": false
             },
             {
@@ -20194,6 +20550,9 @@
               "gain": 0.6266894664842795,
               "avg_sentence_length": 17.2,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.06639534883725,
               "double_condition_met": false
             }
           ]
@@ -20202,15 +20561,18 @@
           "id": "volcanes",
           "original_score": 62.61265151515152,
           "original_avg_sentence_length": 14.666666666666666,
-          "inference_seconds_all_levels": 0.3162196670018602,
+          "inference_seconds_all_levels": 0.2698499590042047,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 82.435,
-              "gain": 19.822348484848483,
-              "avg_sentence_length": 8.9,
-              "target_met": true,
+              "score": 82.77648936170213,
+              "gain": 20.163837846550614,
+              "avg_sentence_length": 9.4,
+              "target_met": false,
+              "support_count": 1,
+              "support_word_count": 5,
+              "pre_support_score": 81.44611111111112,
               "double_condition_met": true
             },
             {
@@ -20219,6 +20581,9 @@
               "gain": 15.999271561771572,
               "avg_sentence_length": 9.1,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.61192307692309,
               "double_condition_met": true
             },
             {
@@ -20227,6 +20592,9 @@
               "gain": 6.867140151515152,
               "avg_sentence_length": 16.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.47979166666667,
               "double_condition_met": false
             },
             {
@@ -20235,6 +20603,9 @@
               "gain": 0.4306818181818315,
               "avg_sentence_length": 14.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 63.04333333333335,
               "double_condition_met": false
             },
             {
@@ -20243,6 +20614,9 @@
               "gain": -4.501515151515143,
               "avg_sentence_length": 22.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 58.111136363636376,
               "double_condition_met": false
             }
           ]
@@ -20251,31 +20625,40 @@
           "id": "antiguo egipto",
           "original_score": 42.42137873754154,
           "original_avg_sentence_length": 12.285714285714286,
-          "inference_seconds_all_levels": 0.607612459018128,
+          "inference_seconds_all_levels": 0.5974230830033775,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 67.46666666666667,
-              "gain": 25.04528792912513,
-              "avg_sentence_length": 7.5,
-              "target_met": false,
+              "score": 82.37453634085215,
+              "gain": 39.95315760331061,
+              "avg_sentence_length": 7.238095238095238,
+              "target_met": true,
+              "support_count": 5,
+              "support_word_count": 30,
+              "pre_support_score": 73.5886885245902,
               "double_condition_met": true
             },
             {
               "level": 2,
-              "score": 67.39284543325529,
-              "gain": 24.97146669571375,
-              "avg_sentence_length": 8.714285714285714,
+              "score": 76.13097826086957,
+              "gain": 33.70959952332803,
+              "avg_sentence_length": 7.1875,
               "target_met": false,
+              "support_count": 1,
+              "support_word_count": 6,
+              "pre_support_score": 73.25365443425078,
               "double_condition_met": true
             },
             {
               "level": 3,
-              "score": 65.27058590941772,
-              "gain": 22.84920717187618,
-              "avg_sentence_length": 8.23076923076923,
+              "score": 70.29386850152908,
+              "gain": 27.872489763987538,
+              "avg_sentence_length": 9.083333333333334,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 70.29386850152908,
               "double_condition_met": true
             },
             {
@@ -20284,6 +20667,9 @@
               "gain": 17.488510151347363,
               "avg_sentence_length": 11.11111111111111,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 59.9098888888889,
               "double_condition_met": false
             },
             {
@@ -20292,6 +20678,9 @@
               "gain": 13.577906976744181,
               "avg_sentence_length": 12.25,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 55.99928571428572,
               "double_condition_met": false
             }
           ]
@@ -20300,15 +20689,18 @@
           "id": "inteligencia artificial",
           "original_score": 38.3775702811245,
           "original_avg_sentence_length": 13.833333333333334,
-          "inference_seconds_all_levels": 0.3946376660023816,
+          "inference_seconds_all_levels": 0.3506252079969272,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 80.09916666666669,
-              "gain": 41.72159638554219,
-              "avg_sentence_length": 12.0,
+              "score": 82.56227272727274,
+              "gain": 44.18470244614824,
+              "avg_sentence_length": 11.0,
               "target_met": false,
+              "support_count": 1,
+              "support_word_count": 6,
+              "pre_support_score": 79.94456521739131,
               "double_condition_met": true
             },
             {
@@ -20317,6 +20709,9 @@
               "gain": 40.312985274431064,
               "avg_sentence_length": 12.444444444444445,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.69055555555556,
               "double_condition_met": true
             },
             {
@@ -20325,6 +20720,9 @@
               "gain": 30.447893636401297,
               "avg_sentence_length": 12.125,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 68.8254639175258,
               "double_condition_met": true
             },
             {
@@ -20333,6 +20731,9 @@
               "gain": 23.38584241728821,
               "avg_sentence_length": 12.857142857142858,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.76341269841271,
               "double_condition_met": false
             },
             {
@@ -20341,6 +20742,9 @@
               "gain": 19.720835515976972,
               "avg_sentence_length": 15.333333333333334,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 58.09840579710147,
               "double_condition_met": false
             }
           ]
@@ -20349,15 +20753,18 @@
           "id": "robots submarinos",
           "original_score": 49.74480392156865,
           "original_avg_sentence_length": 14.166666666666666,
-          "inference_seconds_all_levels": 0.3682572079997044,
+          "inference_seconds_all_levels": 0.3230147910071537,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 81.51477346278318,
-              "gain": 31.76996954121453,
-              "avg_sentence_length": 8.583333333333334,
-              "target_met": false,
+              "score": 83.15693732193733,
+              "gain": 33.41213340036868,
+              "avg_sentence_length": 8.307692307692308,
+              "target_met": true,
+              "support_count": 1,
+              "support_word_count": 5,
+              "pre_support_score": 81.51477346278318,
               "double_condition_met": true
             },
             {
@@ -20366,6 +20773,9 @@
               "gain": 29.14086274509804,
               "avg_sentence_length": 8.333333333333334,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.8856666666667,
               "double_condition_met": true
             },
             {
@@ -20374,6 +20784,9 @@
               "gain": 19.967272101823163,
               "avg_sentence_length": 10.555555555555555,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.71207602339182,
               "double_condition_met": true
             },
             {
@@ -20382,6 +20795,9 @@
               "gain": 12.846933667083846,
               "avg_sentence_length": 15.666666666666666,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.5917375886525,
               "double_condition_met": false
             },
             {
@@ -20390,6 +20806,9 @@
               "gain": 7.73891402714932,
               "avg_sentence_length": 15.166666666666666,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.483717948717974,
               "double_condition_met": false
             }
           ]
@@ -20398,23 +20817,29 @@
           "id": "juegos olimpicos",
           "original_score": 52.89517857142859,
           "original_avg_sentence_length": 11.428571428571429,
-          "inference_seconds_all_levels": 0.3334894170111511,
+          "inference_seconds_all_levels": 0.3112400410172995,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 69.09550724637683,
-              "gain": 16.20032867494824,
-              "avg_sentence_length": 8.625,
-              "target_met": false,
+              "score": 82.2786974789916,
+              "gain": 29.383518907563015,
+              "avg_sentence_length": 7.285714285714286,
+              "target_met": true,
+              "support_count": 6,
+              "support_word_count": 33,
+              "pre_support_score": 69.09550724637683,
               "double_condition_met": true
             },
             {
               "level": 2,
-              "score": 68.9086111111111,
-              "gain": 16.013432539682512,
-              "avg_sentence_length": 9.0,
+              "score": 75.12360759493671,
+              "gain": 22.228429023508127,
+              "avg_sentence_length": 7.9,
               "target_met": false,
+              "support_count": 2,
+              "support_word_count": 10,
+              "pre_support_score": 69.09550724637683,
               "double_condition_met": true
             },
             {
@@ -20423,6 +20848,9 @@
               "gain": 13.485275974025981,
               "avg_sentence_length": 11.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 66.38045454545457,
               "double_condition_met": false
             },
             {
@@ -20431,6 +20859,9 @@
               "gain": 9.307899029982366,
               "avg_sentence_length": 11.571428571428571,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.20307760141095,
               "double_condition_met": false
             },
             {
@@ -20439,6 +20870,9 @@
               "gain": 4.547152255639091,
               "avg_sentence_length": 10.857142857142858,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.44233082706768,
               "double_condition_met": false
             }
           ]
@@ -20447,15 +20881,18 @@
           "id": "robots inteligencia artificial",
           "original_score": 26.201666666666682,
           "original_avg_sentence_length": 14.5,
-          "inference_seconds_all_levels": 0.46397662500385195,
+          "inference_seconds_all_levels": 0.3818752079969272,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 79.64611111111113,
-              "gain": 53.44444444444444,
-              "avg_sentence_length": 10.5,
+              "score": 83.06326310380268,
+              "gain": 56.861596437136,
+              "avg_sentence_length": 9.928571428571429,
               "target_met": false,
+              "support_count": 2,
+              "support_word_count": 13,
+              "pre_support_score": 79.64611111111113,
               "double_condition_met": true
             },
             {
@@ -20464,6 +20901,9 @@
               "gain": 51.87549019607842,
               "avg_sentence_length": 9.916666666666666,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.0771568627451,
               "double_condition_met": true
             },
             {
@@ -20472,6 +20912,9 @@
               "gain": 42.58666666666667,
               "avg_sentence_length": 11.666666666666666,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 68.78833333333336,
               "double_condition_met": true
             },
             {
@@ -20480,6 +20923,9 @@
               "gain": 35.56666666666668,
               "avg_sentence_length": 17.5,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.76833333333336,
               "double_condition_met": false
             },
             {
@@ -20488,6 +20934,9 @@
               "gain": 30.947916666666657,
               "avg_sentence_length": 16.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.14958333333334,
               "double_condition_met": false
             }
           ]
@@ -20496,7 +20945,7 @@
           "id": "pequeno faro",
           "original_score": 50.65758064516129,
           "original_avg_sentence_length": 15.5,
-          "inference_seconds_all_levels": 0.43787458300357684,
+          "inference_seconds_all_levels": 0.29628604199388064,
           "progressive": true,
           "levels": [
             {
@@ -20505,6 +20954,9 @@
               "gain": 38.87360723775227,
               "avg_sentence_length": 8.692307692307692,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 89.53118788291356,
               "double_condition_met": true
             },
             {
@@ -20513,6 +20965,9 @@
               "gain": 28.262326680522747,
               "avg_sentence_length": 9.363636363636363,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.91990732568404,
               "double_condition_met": true
             },
             {
@@ -20521,6 +20976,9 @@
               "gain": 19.426881720430117,
               "avg_sentence_length": 15.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 70.0844623655914,
               "double_condition_met": true
             },
             {
@@ -20529,6 +20987,9 @@
               "gain": 11.809349179400108,
               "avg_sentence_length": 15.833333333333334,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.4669298245614,
               "double_condition_met": false
             },
             {
@@ -20537,12 +20998,15 @@
               "gain": 6.563033389926439,
               "avg_sentence_length": 15.833333333333334,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.22061403508773,
               "double_condition_met": false
             }
           ]
         }
       ],
-      "mean_inference_seconds_all_levels": 0.35647534138819714
+      "mean_inference_seconds_all_levels": 0.3135903991952223
     },
     "easier_diagnostic": {
       "samples": 6,
@@ -20557,9 +21021,9 @@
             6,
             9
           ],
-          "mean_score": 83.51325483868845,
-          "mean_gain": 51.36749909290983,
-          "mean_sentence_length": 13.395833333333334,
+          "mean_score": 85.70484650667161,
+          "mean_gain": 53.559090760893,
+          "mean_sentence_length": 13.75,
           "gain_15_count": 6,
           "goal_met_count": 0,
           "double_condition_count": 6
@@ -20572,9 +21036,9 @@
             9,
             12
           ],
-          "mean_score": 78.38625286142482,
-          "mean_gain": 46.24049711564621,
-          "mean_sentence_length": 14.06388888888889,
+          "mean_score": 79.1536878896734,
+          "mean_gain": 47.00793214389479,
+          "mean_sentence_length": 14.758333333333333,
           "gain_15_count": 6,
           "goal_met_count": 1,
           "double_condition_count": 6
@@ -20587,9 +21051,9 @@
             11,
             15
           ],
-          "mean_score": 70.16447548576795,
-          "mean_gain": 38.01871973998933,
-          "mean_sentence_length": 18.166666666666668,
+          "mean_score": 70.67380791575891,
+          "mean_gain": 38.52805216998029,
+          "mean_sentence_length": 19.75,
           "gain_15_count": 5,
           "goal_met_count": 0,
           "double_condition_count": 5
@@ -20602,12 +21066,12 @@
             14,
             18
           ],
-          "mean_score": 62.970078341359596,
-          "mean_gain": 30.824322595580977,
-          "mean_sentence_length": 21.791666666666668,
+          "mean_score": 63.366302493215365,
+          "mean_gain": 31.220546747436746,
+          "mean_sentence_length": 25.708333333333332,
           "gain_15_count": 5,
-          "goal_met_count": 2,
-          "double_condition_count": 1
+          "goal_met_count": 1,
+          "double_condition_count": 2
         },
         {
           "level": 5,
@@ -20617,11 +21081,11 @@
             16,
             24
           ],
-          "mean_score": 58.4812156987818,
-          "mean_gain": 26.335459953003184,
-          "mean_sentence_length": 23.444444444444443,
+          "mean_score": 56.842743821197026,
+          "mean_gain": 24.696988075418403,
+          "mean_sentence_length": 26.944444444444443,
           "gain_15_count": 4,
-          "goal_met_count": 2,
+          "goal_met_count": 1,
           "double_condition_count": 0
         }
       ],
@@ -20630,7 +21094,7 @@
           "id": "120",
           "original_score": 58.68500000000002,
           "original_avg_sentence_length": 28.0,
-          "inference_seconds_all_levels": 0.1717612500069663,
+          "inference_seconds_all_levels": 0.17521012501674704,
           "progressive": true,
           "levels": [
             {
@@ -20639,22 +21103,31 @@
               "gain": 27.24799999999999,
               "avg_sentence_length": 12.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 85.933,
               "double_condition_met": true
             },
             {
               "level": 2,
-              "score": 78.61833333333335,
-              "gain": 19.933333333333337,
-              "avg_sentence_length": 14.0,
+              "score": 81.76633333333334,
+              "gain": 23.08133333333332,
+              "avg_sentence_length": 16.666666666666668,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 81.76633333333334,
               "double_condition_met": true
             },
             {
               "level": 3,
-              "score": 71.85500000000002,
-              "gain": 13.170000000000002,
-              "avg_sentence_length": 17.5,
+              "score": 73.433,
+              "gain": 14.74799999999999,
+              "avg_sentence_length": 25.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 73.433,
               "double_condition_met": false
             },
             {
@@ -20663,6 +21136,9 @@
               "gain": 5.291379310344823,
               "avg_sentence_length": 29.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 63.97637931034484,
               "double_condition_met": false
             },
             {
@@ -20671,6 +21147,9 @@
               "gain": 0.0,
               "avg_sentence_length": 28.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 58.68500000000002,
               "double_condition_met": false
             }
           ]
@@ -20679,15 +21158,18 @@
           "id": "276",
           "original_score": 27.559390243902442,
           "original_avg_sentence_length": 41.0,
-          "inference_seconds_all_levels": 0.21400854201056063,
+          "inference_seconds_all_levels": 0.20719549999921583,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 81.30621212121214,
-              "gain": 53.7468218773097,
-              "avg_sentence_length": 13.2,
+              "score": 85.31856807511738,
+              "gain": 57.75917783121494,
+              "avg_sentence_length": 11.833333333333334,
               "target_met": false,
+              "support_count": 1,
+              "support_word_count": 5,
+              "pre_support_score": 81.30621212121214,
               "double_condition_met": true
             },
             {
@@ -20696,6 +21178,9 @@
               "gain": 51.710392364793236,
               "avg_sentence_length": 13.8,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 79.26978260869568,
               "double_condition_met": true
             },
             {
@@ -20704,6 +21189,9 @@
               "gain": 43.783452893352475,
               "avg_sentence_length": 17.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 71.34284313725492,
               "double_condition_met": true
             },
             {
@@ -20712,6 +21200,9 @@
               "gain": 35.905609756097576,
               "avg_sentence_length": 25.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 63.46500000000002,
               "double_condition_met": false
             },
             {
@@ -20720,6 +21211,9 @@
               "gain": 35.283452893352475,
               "avg_sentence_length": 25.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.84284313725492,
               "double_condition_met": false
             }
           ]
@@ -20728,47 +21222,62 @@
           "id": "68",
           "original_score": 44.8324358974359,
           "original_avg_sentence_length": 39.0,
-          "inference_seconds_all_levels": 0.14969050002400763,
+          "inference_seconds_all_levels": 0.21989720800775103,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 79.51092592592593,
-              "gain": 34.67849002849003,
-              "avg_sentence_length": 10.8,
+              "score": 83.36500000000001,
+              "gain": 38.53256410256411,
+              "avg_sentence_length": 14.0,
               "target_met": false,
+              "support_count": 2,
+              "support_word_count": 11,
+              "pre_support_score": 73.12765536723164,
               "double_condition_met": true
             },
             {
               "level": 2,
-              "score": 76.9883898305085,
-              "gain": 32.155953933072595,
-              "avg_sentence_length": 14.75,
+              "score": 78.44500000000001,
+              "gain": 33.61256410256411,
+              "avg_sentence_length": 16.25,
               "target_met": false,
+              "support_count": 1,
+              "support_word_count": 6,
+              "pre_support_score": 73.12765536723164,
               "double_condition_met": true
             },
             {
               "level": 3,
-              "score": 69.33256097560978,
-              "gain": 24.50012507817388,
-              "avg_sentence_length": 20.5,
+              "score": 70.81055555555557,
+              "gain": 25.978119658119667,
+              "avg_sentence_length": 22.5,
               "target_met": false,
+              "support_count": 1,
+              "support_word_count": 6,
+              "pre_support_score": 51.2221794871795,
               "double_condition_met": true
             },
             {
               "level": 4,
-              "score": 62.05121621621622,
-              "gain": 17.21878031878032,
-              "avg_sentence_length": 18.5,
+              "score": 65.08151162790699,
+              "gain": 20.24907573047109,
+              "avg_sentence_length": 21.5,
               "target_met": false,
-              "double_condition_met": false
+              "support_count": 1,
+              "support_word_count": 6,
+              "pre_support_score": 51.2221794871795,
+              "double_condition_met": true
             },
             {
               "level": 5,
-              "score": 59.04333333333335,
-              "gain": 14.21089743589745,
-              "avg_sentence_length": 18.0,
-              "target_met": true,
+              "score": 51.2221794871795,
+              "gain": 6.389743589743603,
+              "avg_sentence_length": 39.0,
+              "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 51.2221794871795,
               "double_condition_met": false
             }
           ]
@@ -20777,7 +21286,7 @@
           "id": "30",
           "original_score": 36.606875,
           "original_avg_sentence_length": 32.0,
-          "inference_seconds_all_levels": 0.13363666599616408,
+          "inference_seconds_all_levels": 0.15566945800674148,
           "progressive": true,
           "levels": [
             {
@@ -20786,6 +21295,9 @@
               "gain": 48.884375000000006,
               "avg_sentence_length": 24.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 85.49125000000001,
               "double_condition_met": true
             },
             {
@@ -20794,6 +21306,9 @@
               "gain": 42.36812500000002,
               "avg_sentence_length": 17.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.97500000000002,
               "double_condition_met": true
             },
             {
@@ -20802,22 +21317,31 @@
               "gain": 35.95753676470589,
               "avg_sentence_length": 17.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 72.5644117647059,
               "double_condition_met": true
             },
             {
               "level": 4,
-              "score": 60.705967741935495,
-              "gain": 24.099092741935493,
-              "avg_sentence_length": 15.5,
-              "target_met": true,
+              "score": 61.47500000000002,
+              "gain": 24.86812500000002,
+              "avg_sentence_length": 35.0,
+              "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.47500000000002,
               "double_condition_met": false
             },
             {
               "level": 5,
-              "score": 56.686612903225836,
-              "gain": 20.079737903225833,
+              "score": 54.676935483871006,
+              "gain": 18.070060483871003,
               "avg_sentence_length": 15.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 54.676935483871006,
               "double_condition_met": false
             }
           ]
@@ -20826,7 +21350,7 @@
           "id": "200",
           "original_score": 14.10583333333335,
           "original_avg_sentence_length": 24.0,
-          "inference_seconds_all_levels": 0.22362112498376518,
+          "inference_seconds_all_levels": 0.2474649159994442,
           "progressive": true,
           "levels": [
             {
@@ -20835,6 +21359,9 @@
               "gain": 76.11688596491227,
               "avg_sentence_length": 9.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 90.22271929824562,
               "double_condition_met": true
             },
             {
@@ -20843,6 +21370,9 @@
               "gain": 66.1662037037037,
               "avg_sentence_length": 13.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 80.27203703703705,
               "double_condition_met": true
             },
             {
@@ -20851,14 +21381,20 @@
               "gain": 52.6662037037037,
               "avg_sentence_length": 27.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 66.77203703703705,
               "double_condition_met": true
             },
             {
               "level": 4,
-              "score": 66.47250000000001,
-              "gain": 52.36666666666666,
-              "avg_sentence_length": 28.0,
+              "score": 65.05051724137932,
+              "gain": 50.944683908045974,
+              "avg_sentence_length": 29.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 65.05051724137932,
               "double_condition_met": true
             },
             {
@@ -20867,6 +21403,9 @@
               "gain": 43.29093137254901,
               "avg_sentence_length": 34.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.39676470588236,
               "double_condition_met": false
             }
           ]
@@ -20875,15 +21414,18 @@
           "id": "84",
           "original_score": 11.085000000000008,
           "original_avg_sentence_length": 40.0,
-          "inference_seconds_all_levels": 0.2671012500068173,
+          "inference_seconds_all_levels": 0.28024404199095443,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 78.615421686747,
-              "gain": 67.53042168674699,
-              "avg_sentence_length": 10.375,
+              "score": 83.89854166666667,
+              "gain": 72.81354166666667,
+              "avg_sentence_length": 10.666666666666666,
               "target_met": false,
+              "support_count": 2,
+              "support_word_count": 13,
+              "pre_support_score": 77.13327882960414,
               "double_condition_met": true
             },
             {
@@ -20892,6 +21434,9 @@
               "gain": 65.10897435897436,
               "avg_sentence_length": 10.833333333333334,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 76.19397435897437,
               "double_condition_met": true
             },
             {
@@ -20900,6 +21445,9 @@
               "gain": 58.03500000000001,
               "avg_sentence_length": 10.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.12000000000002,
               "double_condition_met": true
             },
             {
@@ -20908,6 +21456,9 @@
               "gain": 50.064406779661,
               "avg_sentence_length": 14.75,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.14940677966101,
               "double_condition_met": false
             },
             {
@@ -20916,12 +21467,15 @@
               "gain": 45.14774011299433,
               "avg_sentence_length": 19.666666666666668,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 56.232740112994335,
               "double_condition_met": false
             }
           ]
         }
       ],
-      "mean_inference_seconds_all_levels": 0.19330322217138018
+      "mean_inference_seconds_all_levels": 0.21428020817014234
     },
     "unseen_v2": {
       "samples": 6,
@@ -20936,11 +21490,11 @@
             6,
             9
           ],
-          "mean_score": 86.69394601868647,
-          "mean_gain": 62.80813486365791,
-          "mean_sentence_length": 10.791666666666666,
+          "mean_score": 88.01726777794573,
+          "mean_gain": 64.13145662291717,
+          "mean_sentence_length": 10.51388888888889,
           "gain_15_count": 6,
-          "goal_met_count": 2,
+          "goal_met_count": 3,
           "double_condition_count": 6
         },
         {
@@ -20951,11 +21505,11 @@
             9,
             12
           ],
-          "mean_score": 77.83270642629766,
-          "mean_gain": 53.9468952712691,
-          "mean_sentence_length": 14.222222222222221,
+          "mean_score": 77.74478372098365,
+          "mean_gain": 53.858972565955085,
+          "mean_sentence_length": 12.13888888888889,
           "gain_15_count": 6,
-          "goal_met_count": 3,
+          "goal_met_count": 4,
           "double_condition_count": 6
         },
         {
@@ -20966,11 +21520,11 @@
             11,
             15
           ],
-          "mean_score": 69.22146464646465,
-          "mean_gain": 45.3356534914361,
-          "mean_sentence_length": 14.083333333333334,
+          "mean_score": 69.10618686868688,
+          "mean_gain": 45.22037571365832,
+          "mean_sentence_length": 13.333333333333334,
           "gain_15_count": 6,
-          "goal_met_count": 4,
+          "goal_met_count": 3,
           "double_condition_count": 6
         },
         {
@@ -20996,9 +21550,9 @@
             16,
             24
           ],
-          "mean_score": 57.45157925407926,
-          "mean_gain": 33.5657680990507,
-          "mean_sentence_length": 18.5,
+          "mean_score": 57.77444250194252,
+          "mean_gain": 33.888631346913954,
+          "mean_sentence_length": 17.77777777777778,
           "gain_15_count": 5,
           "goal_met_count": 1,
           "double_condition_count": 0
@@ -21009,7 +21563,7 @@
           "id": "fresh-science",
           "original_score": 21.313260869565227,
           "original_avg_sentence_length": 23.0,
-          "inference_seconds_all_levels": 0.11753516699536704,
+          "inference_seconds_all_levels": 0.17310062499018386,
           "progressive": true,
           "levels": [
             {
@@ -21018,6 +21572,9 @@
               "gain": 68.44127936031984,
               "avg_sentence_length": 9.666666666666666,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 89.75454022988507,
               "double_condition_met": true
             },
             {
@@ -21026,6 +21583,9 @@
               "gain": 56.651368760064415,
               "avg_sentence_length": 13.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 77.96462962962964,
               "double_condition_met": true
             },
             {
@@ -21034,6 +21594,9 @@
               "gain": 48.42173913043479,
               "avg_sentence_length": 12.5,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.73500000000001,
               "double_condition_met": true
             },
             {
@@ -21042,6 +21605,9 @@
               "gain": 41.42628458498024,
               "avg_sentence_length": 11.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.739545454545464,
               "double_condition_met": false
             },
             {
@@ -21050,6 +21616,9 @@
               "gain": 35.76264822134388,
               "avg_sentence_length": 11.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.07590909090911,
               "double_condition_met": false
             }
           ]
@@ -21058,15 +21627,18 @@
           "id": "fresh-history",
           "original_score": 9.262272727272745,
           "original_avg_sentence_length": 22.0,
-          "inference_seconds_all_levels": 0.13777466598548926,
+          "inference_seconds_all_levels": 0.1447736250120215,
           "progressive": true,
           "levels": [
             {
               "level": 1,
-              "score": 77.40895833333335,
-              "gain": 68.1466856060606,
-              "avg_sentence_length": 10.666666666666666,
-              "target_met": false,
+              "score": 85.3488888888889,
+              "gain": 76.08661616161615,
+              "avg_sentence_length": 9.0,
+              "target_met": true,
+              "support_count": 1,
+              "support_word_count": 6,
+              "pre_support_score": 76.38833333333335,
               "double_condition_met": true
             },
             {
@@ -21075,6 +21647,9 @@
               "gain": 65.86439393939395,
               "avg_sentence_length": 9.333333333333334,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 75.1266666666667,
               "double_condition_met": true
             },
             {
@@ -21083,6 +21658,9 @@
               "gain": 57.97272727272727,
               "avg_sentence_length": 15.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 67.23500000000001,
               "double_condition_met": true
             },
             {
@@ -21091,6 +21669,9 @@
               "gain": 52.29772727272726,
               "avg_sentence_length": 14.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 61.56,
               "double_condition_met": false
             },
             {
@@ -21099,6 +21680,9 @@
               "gain": 47.84772727272727,
               "avg_sentence_length": 14.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.110000000000014,
               "double_condition_met": false
             }
           ]
@@ -21107,7 +21691,7 @@
           "id": "fresh-legal",
           "original_score": 52.251000000000005,
           "original_avg_sentence_length": 25.0,
-          "inference_seconds_all_levels": 0.09488495899131522,
+          "inference_seconds_all_levels": 0.1087556249985937,
           "progressive": true,
           "levels": [
             {
@@ -21116,14 +21700,20 @@
               "gain": 37.4448695652174,
               "avg_sentence_length": 11.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 89.69586956521741,
               "double_condition_met": true
             },
             {
               "level": 2,
-              "score": 78.19586956521741,
-              "gain": 25.944869565217402,
-              "avg_sentence_length": 23.0,
-              "target_met": false,
+              "score": 77.66833333333335,
+              "gain": 25.417333333333346,
+              "avg_sentence_length": 10.5,
+              "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 77.66833333333335,
               "double_condition_met": true
             },
             {
@@ -21132,6 +21722,9 @@
               "gain": 16.47945454545456,
               "avg_sentence_length": 22.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 68.73045454545456,
               "double_condition_met": true
             },
             {
@@ -21140,14 +21733,20 @@
               "gain": 7.984000000000009,
               "avg_sentence_length": 22.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 60.235000000000014,
               "double_condition_met": false
             },
             {
               "level": 5,
-              "score": 57.403181818181835,
-              "gain": 5.15218181818183,
-              "avg_sentence_length": 22.0,
-              "target_met": true,
+              "score": 57.235000000000014,
+              "gain": 4.984000000000009,
+              "avg_sentence_length": 25.0,
+              "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.235000000000014,
               "double_condition_met": false
             }
           ]
@@ -21156,7 +21755,7 @@
           "id": "fresh-medical",
           "original_score": 24.489166666666705,
           "original_avg_sentence_length": 24.0,
-          "inference_seconds_all_levels": 0.12243970902636647,
+          "inference_seconds_all_levels": 0.13415879200329073,
           "progressive": true,
           "levels": [
             {
@@ -21165,6 +21764,9 @@
               "gain": 63.161458333333314,
               "avg_sentence_length": 16.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 87.65062500000002,
               "double_condition_met": true
             },
             {
@@ -21173,6 +21775,9 @@
               "gain": 53.572303921568604,
               "avg_sentence_length": 17.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.06147058823531,
               "double_condition_met": true
             },
             {
@@ -21181,6 +21786,9 @@
               "gain": 44.82249999999998,
               "avg_sentence_length": 15.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.31166666666668,
               "double_condition_met": true
             },
             {
@@ -21189,6 +21797,9 @@
               "gain": 38.59249999999997,
               "avg_sentence_length": 15.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 63.08166666666668,
               "double_condition_met": false
             },
             {
@@ -21197,6 +21808,9 @@
               "gain": 34.14198717948716,
               "avg_sentence_length": 26.0,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 58.631153846153865,
               "double_condition_met": false
             }
           ]
@@ -21205,7 +21819,7 @@
           "id": "fresh-sports",
           "original_score": 14.10583333333335,
           "original_avg_sentence_length": 24.0,
-          "inference_seconds_all_levels": 0.12270433400408365,
+          "inference_seconds_all_levels": 0.1293537089950405,
           "progressive": true,
           "levels": [
             {
@@ -21214,6 +21828,9 @@
               "gain": 71.20643939393939,
               "avg_sentence_length": 8.25,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 85.31227272727274,
               "double_condition_met": true
             },
             {
@@ -21222,6 +21839,9 @@
               "gain": 64.68068181818181,
               "avg_sentence_length": 11.0,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.78651515151516,
               "double_condition_met": true
             },
             {
@@ -21230,6 +21850,9 @@
               "gain": 56.47583333333333,
               "avg_sentence_length": 7.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 70.58166666666668,
               "double_condition_met": true
             },
             {
@@ -21238,14 +21861,20 @@
               "gain": 49.33261494252872,
               "avg_sentence_length": 14.5,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 63.43844827586207,
               "double_condition_met": false
             },
             {
               "level": 5,
-              "score": 57.25423076923076,
-              "gain": 43.14839743589741,
-              "avg_sentence_length": 13.0,
+              "score": 59.19141025641027,
+              "gain": 45.08557692307692,
+              "avg_sentence_length": 8.666666666666666,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 59.19141025641027,
               "double_condition_met": false
             }
           ]
@@ -21254,7 +21883,7 @@
           "id": "fresh-school",
           "original_score": 21.893333333333345,
           "original_avg_sentence_length": 24.0,
-          "inference_seconds_all_levels": 0.13416912499815226,
+          "inference_seconds_all_levels": 0.14491624999209307,
           "progressive": true,
           "levels": [
             {
@@ -21263,6 +21892,9 @@
               "gain": 68.44807692307691,
               "avg_sentence_length": 8.666666666666666,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 90.34141025641026,
               "double_condition_met": true
             },
             {
@@ -21271,14 +21903,20 @@
               "gain": 56.9677536231884,
               "avg_sentence_length": 11.5,
               "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 78.86108695652175,
               "double_condition_met": true
             },
             {
               "level": 3,
-              "score": 69.73500000000001,
-              "gain": 47.84166666666667,
-              "avg_sentence_length": 12.5,
-              "target_met": true,
+              "score": 69.04333333333335,
+              "gain": 47.150000000000006,
+              "avg_sentence_length": 8.0,
+              "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 69.04333333333335,
               "double_condition_met": true
             },
             {
@@ -21287,21 +21925,871 @@
               "gain": 40.94166666666666,
               "avg_sentence_length": 10.5,
               "target_met": false,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 62.83500000000001,
               "double_condition_met": false
             },
             {
               "level": 5,
-              "score": 57.235000000000014,
-              "gain": 35.34166666666667,
-              "avg_sentence_length": 25.0,
-              "target_met": false,
+              "score": 57.403181818181835,
+              "gain": 35.50984848484849,
+              "avg_sentence_length": 22.0,
+              "target_met": true,
+              "support_count": 0,
+              "support_word_count": 0,
+              "pre_support_score": 57.403181818181835,
               "double_condition_met": false
             }
           ]
         }
       ],
-      "mean_inference_seconds_all_levels": 0.12158466000012898
+      "mean_inference_seconds_all_levels": 0.1391764376652039
     }
   },
-  "artifact_sha256": "6ce2fcf01c885f872dde4e344a0a3cb360c908c673bdd01e53187537e15b867b"
+  "gate_fit": {
+    "training_samples": 2933,
+    "training_source_rows": 4108,
+    "tie_policy": "retain contextual parent on validation-equivalent disagreement decisions; agreements never count as overrides",
+    "comparison_augmentation": "source-only train alternatives; document-balanced regression and bootstrap",
+    "validation_samples": 402,
+    "features": [
+      "bias",
+      "ranker_margin",
+      "top_syllable_reduction",
+      "base_syllable_reduction",
+      "length_ratio",
+      "top_morphology",
+      "base_morphology",
+      "morphology_delta",
+      "top_plural",
+      "base_plural",
+      "pair_overlap",
+      "top_edits",
+      "base_edits",
+      "top_identity",
+      "base_identity",
+      "root_delta",
+      "frequency_delta",
+      "inverse_source_words",
+      "top_corpus_rank",
+      "base_corpus_rank",
+      "top_train_frequency",
+      "base_train_frequency",
+      "top_root",
+      "base_root",
+      "top_word_frequency",
+      "base_word_frequency",
+      "top_edit_fraction",
+      "base_edit_fraction",
+      "top_character_ratio",
+      "base_character_ratio"
+    ],
+    "seed": 20261028,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 0.566381379967343
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.5319671777872991
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.49623068029812323
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.488331308574726
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.4804467747601169
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.5077034438500313
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.4724343502743782
+      },
+      {
+        "epoch": 8,
+        "train_loss": 0.4736459504216429
+      },
+      {
+        "epoch": 9,
+        "train_loss": 0.46884377621063844
+      },
+      {
+        "epoch": 10,
+        "train_loss": 0.46478561904826554
+      },
+      {
+        "epoch": 11,
+        "train_loss": 0.4624333205039419
+      },
+      {
+        "epoch": 12,
+        "train_loss": 0.46781121281775995
+      },
+      {
+        "epoch": 13,
+        "train_loss": 0.46732910230031643
+      },
+      {
+        "epoch": 14,
+        "train_loss": 0.45909059473702357
+      },
+      {
+        "epoch": 15,
+        "train_loss": 0.4567721815284359
+      },
+      {
+        "epoch": 16,
+        "train_loss": 0.45714874027852287
+      },
+      {
+        "epoch": 17,
+        "train_loss": 0.4599441259090735
+      },
+      {
+        "epoch": 18,
+        "train_loss": 0.4557515577113935
+      },
+      {
+        "epoch": 19,
+        "train_loss": 0.45408819957961427
+      },
+      {
+        "epoch": 20,
+        "train_loss": 0.4528614633139318
+      },
+      {
+        "epoch": 21,
+        "train_loss": 0.45492548581868225
+      },
+      {
+        "epoch": 22,
+        "train_loss": 0.4514469038248438
+      },
+      {
+        "epoch": 23,
+        "train_loss": 0.4566087847198765
+      },
+      {
+        "epoch": 24,
+        "train_loss": 0.4507594638479351
+      },
+      {
+        "epoch": 25,
+        "train_loss": 0.45060875308003306
+      },
+      {
+        "epoch": 26,
+        "train_loss": 0.450221176707582
+      },
+      {
+        "epoch": 27,
+        "train_loss": 0.4490437652858785
+      },
+      {
+        "epoch": 28,
+        "train_loss": 0.4533911408565
+      },
+      {
+        "epoch": 29,
+        "train_loss": 0.44829259880051675
+      },
+      {
+        "epoch": 30,
+        "train_loss": 0.4480312652864571
+      },
+      {
+        "epoch": 31,
+        "train_loss": 0.448292724852739
+      },
+      {
+        "epoch": 32,
+        "train_loss": 0.450496324508888
+      },
+      {
+        "epoch": 33,
+        "train_loss": 0.44788238417284715
+      },
+      {
+        "epoch": 34,
+        "train_loss": 0.4468346626304302
+      },
+      {
+        "epoch": 35,
+        "train_loss": 0.44674748208534676
+      }
+    ],
+    "residual_history": [
+      {
+        "epoch": 1,
+        "train_loss": 0.015615916901008638,
+        "validation_loss": 0.0011715090873204476
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.01511175652873217,
+        "validation_loss": 0.0011898534674976604
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.014760480983486398,
+        "validation_loss": 0.0012143669476957133
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.014440989212109297,
+        "validation_loss": 0.0012584857915936218
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.01428390349503463,
+        "validation_loss": 0.0012930936723098503
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.013801309759168328,
+        "validation_loss": 0.0012359594169710768
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.013580909983150763,
+        "validation_loss": 0.0012576913367223696
+      },
+      {
+        "epoch": 8,
+        "train_loss": 0.013408544069057119,
+        "validation_loss": 0.0013060995847046198
+      },
+      {
+        "epoch": 9,
+        "train_loss": 0.013183736473392011,
+        "validation_loss": 0.0013557190950890473
+      },
+      {
+        "epoch": 10,
+        "train_loss": 0.013058489526570448,
+        "validation_loss": 0.001361006127112016
+      },
+      {
+        "epoch": 11,
+        "train_loss": 0.012989347679243528,
+        "validation_loss": 0.0014183971745333173
+      },
+      {
+        "epoch": 12,
+        "train_loss": 0.012868612067721347,
+        "validation_loss": 0.0014016817090885397
+      },
+      {
+        "epoch": 13,
+        "train_loss": 0.012777847272796714,
+        "validation_loss": 0.0013966743927033502
+      },
+      {
+        "epoch": 14,
+        "train_loss": 0.012726592745226747,
+        "validation_loss": 0.0014604795744329623
+      },
+      {
+        "epoch": 15,
+        "train_loss": 0.012529332245551299,
+        "validation_loss": 0.0014204905890174502
+      },
+      {
+        "epoch": 16,
+        "train_loss": 0.012435275813270476,
+        "validation_loss": 0.0014493713928737033
+      },
+      {
+        "epoch": 17,
+        "train_loss": 0.01227630113859533,
+        "validation_loss": 0.0014620064411047648
+      },
+      {
+        "epoch": 18,
+        "train_loss": 0.012193709037476009,
+        "validation_loss": 0.001479168103530969
+      },
+      {
+        "epoch": 19,
+        "train_loss": 0.012152024263662683,
+        "validation_loss": 0.001498384438547132
+      },
+      {
+        "epoch": 20,
+        "train_loss": 0.012009031947593129,
+        "validation_loss": 0.0014836877418527824
+      },
+      {
+        "epoch": 21,
+        "train_loss": 0.011907908415592514,
+        "validation_loss": 0.0015733485956267992
+      },
+      {
+        "epoch": 22,
+        "train_loss": 0.011831246281338647,
+        "validation_loss": 0.0015835722205540547
+      },
+      {
+        "epoch": 23,
+        "train_loss": 0.011708424149672917,
+        "validation_loss": 0.0015526481946172347
+      },
+      {
+        "epoch": 24,
+        "train_loss": 0.011659345449771576,
+        "validation_loss": 0.001552193369214685
+      },
+      {
+        "epoch": 25,
+        "train_loss": 0.01161158495979822,
+        "validation_loss": 0.0015941253453274529
+      },
+      {
+        "epoch": 26,
+        "train_loss": 0.011546567709077835,
+        "validation_loss": 0.0015820986707361206
+      },
+      {
+        "epoch": 27,
+        "train_loss": 0.01149316453877522,
+        "validation_loss": 0.0015505070740316148
+      },
+      {
+        "epoch": 28,
+        "train_loss": 0.011383565451665165,
+        "validation_loss": 0.0015528297231073838
+      },
+      {
+        "epoch": 29,
+        "train_loss": 0.011281638039685902,
+        "validation_loss": 0.001549850418879714
+      },
+      {
+        "epoch": 30,
+        "train_loss": 0.011223737509294325,
+        "validation_loss": 0.0018910027438192474
+      },
+      {
+        "epoch": 31,
+        "train_loss": 0.01115821733542935,
+        "validation_loss": 0.001972195808874922
+      },
+      {
+        "epoch": 32,
+        "train_loss": 0.011082605350671421,
+        "validation_loss": 0.0019605197538430804
+      },
+      {
+        "epoch": 33,
+        "train_loss": 0.011018707552292667,
+        "validation_loss": 0.0019509836046362923
+      },
+      {
+        "epoch": 34,
+        "train_loss": 0.01094034861862559,
+        "validation_loss": 0.0019405386426220802
+      },
+      {
+        "epoch": 35,
+        "train_loss": 0.010890515070269082,
+        "validation_loss": 0.0024284880567819974
+      },
+      {
+        "epoch": 36,
+        "train_loss": 0.010835047125349344,
+        "validation_loss": 0.0024440528389295035
+      },
+      {
+        "epoch": 37,
+        "train_loss": 0.010785405636221828,
+        "validation_loss": 0.0024639377634471473
+      },
+      {
+        "epoch": 38,
+        "train_loss": 0.010740861610357155,
+        "validation_loss": 0.0025784402151398885
+      },
+      {
+        "epoch": 39,
+        "train_loss": 0.010681999373674245,
+        "validation_loss": 0.002116087226426224
+      },
+      {
+        "epoch": 40,
+        "train_loss": 0.01062108645820234,
+        "validation_loss": 0.0021416631627161186
+      },
+      {
+        "epoch": 41,
+        "train_loss": 0.010579868947344083,
+        "validation_loss": 0.0021641797008670584
+      },
+      {
+        "epoch": 42,
+        "train_loss": 0.010530512956874216,
+        "validation_loss": 0.0016712154039818096
+      },
+      {
+        "epoch": 43,
+        "train_loss": 0.010489395092707382,
+        "validation_loss": 0.0016662880492160261
+      },
+      {
+        "epoch": 44,
+        "train_loss": 0.010392179416006606,
+        "validation_loss": 0.0016211509646839124
+      },
+      {
+        "epoch": 45,
+        "train_loss": 0.01032623691665035,
+        "validation_loss": 0.0015826357682230097
+      },
+      {
+        "epoch": 46,
+        "train_loss": 0.010279203097310499,
+        "validation_loss": 0.001414695247801456
+      },
+      {
+        "epoch": 47,
+        "train_loss": 0.01022326834707867,
+        "validation_loss": 0.0014707299552016175
+      },
+      {
+        "epoch": 48,
+        "train_loss": 0.010181156270116802,
+        "validation_loss": 0.0014179341649997105
+      },
+      {
+        "epoch": 49,
+        "train_loss": 0.010145248113662422,
+        "validation_loss": 0.001654307373410709
+      },
+      {
+        "epoch": 50,
+        "train_loss": 0.01010848711223163,
+        "validation_loss": 0.0016437740284695156
+      },
+      {
+        "epoch": 51,
+        "train_loss": 0.010041234027817507,
+        "validation_loss": 0.0017295587969569555
+      },
+      {
+        "epoch": 52,
+        "train_loss": 0.01000109202427838,
+        "validation_loss": 0.0017434697621964187
+      },
+      {
+        "epoch": 53,
+        "train_loss": 0.009974445855595097,
+        "validation_loss": 0.0017705004519833593
+      },
+      {
+        "epoch": 54,
+        "train_loss": 0.009931105416959494,
+        "validation_loss": 0.001863829336054351
+      },
+      {
+        "epoch": 55,
+        "train_loss": 0.009914460779376275,
+        "validation_loss": 0.0018884703377202213
+      },
+      {
+        "epoch": 56,
+        "train_loss": 0.009880476899135598,
+        "validation_loss": 0.002217087944311863
+      },
+      {
+        "epoch": 57,
+        "train_loss": 0.009856060610183246,
+        "validation_loss": 0.0022267592062690782
+      },
+      {
+        "epoch": 58,
+        "train_loss": 0.009811673305387274,
+        "validation_loss": 0.0023512095662859937
+      },
+      {
+        "epoch": 59,
+        "train_loss": 0.00976215981109265,
+        "validation_loss": 0.002461070996841895
+      },
+      {
+        "epoch": 60,
+        "train_loss": 0.00973856024614911,
+        "validation_loss": 0.002444766437967023
+      },
+      {
+        "epoch": 61,
+        "train_loss": 0.009712503189574333,
+        "validation_loss": 0.001979605608585473
+      },
+      {
+        "epoch": 62,
+        "train_loss": 0.009677971145328488,
+        "validation_loss": 0.0020162041527229395
+      },
+      {
+        "epoch": 63,
+        "train_loss": 0.009644310850946849,
+        "validation_loss": 0.0016895762330692231
+      },
+      {
+        "epoch": 64,
+        "train_loss": 0.009625179703824392,
+        "validation_loss": 0.001716541798051927
+      },
+      {
+        "epoch": 65,
+        "train_loss": 0.009555150849682973,
+        "validation_loss": 0.0016945980210028564
+      },
+      {
+        "epoch": 66,
+        "train_loss": 0.00949092037395453,
+        "validation_loss": 0.0016887284868722242
+      },
+      {
+        "epoch": 67,
+        "train_loss": 0.009450732662025441,
+        "validation_loss": 0.0017057770401588846
+      },
+      {
+        "epoch": 68,
+        "train_loss": 0.00943878555842496,
+        "validation_loss": 0.001641743315024733
+      },
+      {
+        "epoch": 69,
+        "train_loss": 0.00941663206453739,
+        "validation_loss": 0.0014585753626541133
+      },
+      {
+        "epoch": 70,
+        "train_loss": 0.009360591219721614,
+        "validation_loss": 0.0014424267978719988
+      },
+      {
+        "epoch": 71,
+        "train_loss": 0.009342642127218173,
+        "validation_loss": 0.0013650664658394324
+      },
+      {
+        "epoch": 72,
+        "train_loss": 0.009310661869804344,
+        "validation_loss": 0.0013635820708415957
+      },
+      {
+        "epoch": 73,
+        "train_loss": 0.009261335905087414,
+        "validation_loss": 0.0013850169675779557
+      },
+      {
+        "epoch": 74,
+        "train_loss": 0.009230151891714658,
+        "validation_loss": 0.0014195127437112282
+      },
+      {
+        "epoch": 75,
+        "train_loss": 0.009183344992863208,
+        "validation_loss": 0.0014097239020167843
+      },
+      {
+        "epoch": 76,
+        "train_loss": 0.009156811181582665,
+        "validation_loss": 0.00142526682763348
+      },
+      {
+        "epoch": 77,
+        "train_loss": 0.009131001751932925,
+        "validation_loss": 0.001385967345212793
+      },
+      {
+        "epoch": 78,
+        "train_loss": 0.009118892005295802,
+        "validation_loss": 0.0013838815951158962
+      },
+      {
+        "epoch": 79,
+        "train_loss": 0.009101564532077703,
+        "validation_loss": 0.0013798842345575217
+      },
+      {
+        "epoch": 80,
+        "train_loss": 0.00907038668624789,
+        "validation_loss": 0.0013869222710037776
+      }
+    ],
+    "selected_trees": 1,
+    "selected": {
+      "gain_margin": -1,
+      "ranker_margin": -1,
+      "syllable_floor": -0.025,
+      "positive_threshold": 0,
+      "validation_sari": 65.52814059099082,
+      "override_count": 33,
+      "ridge": 0.1,
+      "document_power": 0.5,
+      "validation_gain_mse": 0.0011715090873204476,
+      "trees": 1
+    },
+    "validation_base_sari": 64.36841731041767,
+    "validation_parent_sari": 65.52648583252747,
+    "trial_count": 109760,
+    "top_trials": [
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 0.1,
+        "document_power": 0.5,
+        "validation_gain_mse": 0.0011760736928659759
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 1,
+        "document_power": 1,
+        "validation_gain_mse": 0.001602012820924837
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 0.01,
+        "document_power": 0.5,
+        "validation_gain_mse": 0.0016767977046577604
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 0.001,
+        "document_power": 0.5,
+        "validation_gain_mse": 0.0018220563941212023
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 0.0001,
+        "document_power": 0.5,
+        "validation_gain_mse": 0.001838271337447317
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 0.0001,
+        "document_power": 0,
+        "validation_gain_mse": 0.002388186030262983
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 0.001,
+        "document_power": 0,
+        "validation_gain_mse": 0.0024030521111824106
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 0.01,
+        "document_power": 0,
+        "validation_gain_mse": 0.002548448841393871
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 1,
+        "document_power": 0.5,
+        "validation_gain_mse": 0.002612354078759993
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 10,
+        "document_power": 1,
+        "validation_gain_mse": 0.002908387830838096
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 0.1,
+        "document_power": 1,
+        "validation_gain_mse": 0.003189586850338005
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 10,
+        "document_power": 0.5,
+        "validation_gain_mse": 0.00340976743484851
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 0.1,
+        "document_power": 0,
+        "validation_gain_mse": 0.0036207110378765825
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 1,
+        "document_power": 0,
+        "validation_gain_mse": 0.0051365428997852906
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 0.01,
+        "document_power": 1,
+        "validation_gain_mse": 0.005802001679129709
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 0.001,
+        "document_power": 1,
+        "validation_gain_mse": 0.006269257123894748
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 0.0001,
+        "document_power": 1,
+        "validation_gain_mse": 0.006319306935763589
+      },
+      {
+        "gain_margin": -1,
+        "ranker_margin": -1,
+        "syllable_floor": -0.025,
+        "positive_threshold": 0,
+        "validation_sari": 65.52814059099082,
+        "override_count": 33,
+        "ridge": 10,
+        "document_power": 0,
+        "validation_gain_mse": 0.006653594138004844
+      }
+    ],
+    "candidate_summary": {
+      "train": {
+        "samples": 5377,
+        "disagreement": 2933,
+        "top_better": 2400,
+        "base_better": 380,
+        "oracle_sari": 62.182876050171444
+      },
+      "validation": {
+        "samples": 402,
+        "disagreement": 34,
+        "top_better": 25,
+        "base_better": 4,
+        "oracle_sari": 65.53503945243155
+      }
+    },
+    "test_opened_for_fitting": false,
+    "gain_mse": 0.010764182062261072
+  },
+  "parent_model_sha256": "6ce2fcf01c885f872dde4e344a0a3cb360c908c673bdd01e53187537e15b867b",
+  "test_gate_decisions": {
+    "agreement": 207,
+    "contextual_override": 19,
+    "base_retained": 2
+  },
+  "test_selection_sha256": "1c57442aca88e8e7a1ab7a974476f0a8e83b5ea7cb372be1523697d5cdd38844",
+  "test_protocol": "test opened after frozen train/validation gate; legacy partition observed in earlier releases, not a blind external holdout",
+  "prior_gate_trials": [
+    {
+      "name": "linear_trial",
+      "test_sari": 44.31735666057935
+    },
+    {
+      "name": "residual_trial",
+      "test_sari": 44.31735666057935
+    },
+    {
+      "name": "syllable_trial",
+      "test_sari": 44.335328062146424
+    },
+    {
+      "name": "balanced_trial",
+      "test_sari": 44.33483753989539
+    }
+  ],
+  "artifact_sha256": "67e79bf3c13381cc8d000575e6e57b4f9787f895cbfb8cfc4569fb9ae3ba2507"
 }

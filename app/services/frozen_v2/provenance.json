@@ -1,0 +1,10 @@
+{
+  "revision": "fc12a7a",
+  "original_source_sha256": {
+    "app/services/rewriting.py": "92b648524313f0b2d2443b3c2851348603ee5a6797e8feb9a8e5bfc67e2dc419",
+    "app/nlp/refinement.py": "b98380c4dcb92a74858e0c39cca19f9b9c5d784b79bc78bbe35dc965097a1e6b",
+    "app/services/lexicon_es.py": "1e400f04f0db43624450986c48cee02f439a834ab5b21449718245f743fffbcd",
+    "app/services/morphology.py": "85e4eacd6c8de19d7caf5255948d1fa657e8e0b0b43c2f60f8e35702e67c8618"
+  },
+  "changes": "isolated imports and Ruff formatting; unchanged operations; number/negation safety floor in outer gate"
+}

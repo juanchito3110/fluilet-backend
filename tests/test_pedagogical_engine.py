@@ -14,7 +14,7 @@ from app.nlp.readability import measure
 from app.services import resources as lexical_resources
 from app.services.demo_refresh import refresh_marked
 from app.services.lexicon_es import CURATED
-from app.services.pedagogy import VERSION, cleanup, lexical, syntax
+from app.services.pedagogy import GOALS, VERSION, cleanup, lexical, syntax
 
 
 @pytest.mark.parametrize("key", list(ARTICLES))
@@ -31,6 +31,13 @@ async def test_reviewed_bank_has_five_measured_progressive_versions(key):
 
     for item in result.level_previews:
         metric = measure(item["adapted_text"])
+        low, high, *_ = GOALS[item["level"]]
+        assert low <= metric.score <= high
+        for support in item.get("pedagogical_support", []):
+            assert support["evidence"] in original
+        assert len({f["text"] for f in item.get("pedagogical_support", [])}) == len(
+            item.get("pedagogical_support", [])
+        )
         assert item["readability_score"] == pytest.approx(metric.score)
         assert item["avg_sentence_length"] == pytest.approx(
             metric.word_count / metric.sentence_count
@@ -88,8 +95,8 @@ async def test_http_comparison_and_previews_are_real_and_persisted(
     assert data["adapted_syllables_per_word"] < data["original_syllables_per_word"]
     assert data["lexical_replacements"] and len(data["level_previews"]) == 5
     assert data["engine_version"] == VERSION and data["level_progression_met"]
-    assert data["model_version"] == "context-ranker-es-v2.2"
-    assert data["checkpoint_name"] == "context-ranker-v2.2"
+    assert data["model_version"] == "context-ranker-es-v2.3"
+    assert data["checkpoint_name"] == "context-ranker-v2.3"
     assert data["adapted_text"] == data["level_previews"][0]["adapted_text"]
     assert (await client.get("/api/v1/adaptations/" + data["id"], headers=headers)).json() == data
 

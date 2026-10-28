@@ -26,7 +26,7 @@ services:
       DATABASE_URL: ${DATABASE_URL:?Set container DATABASE_URL with host db and URL-encoded password}
       DEPLOYMENT_ENV: production
       HF_HOME: /tmp/huggingface
-      RANKER_CHECKPOINT: /srv/fluilet/checkpoints/context-ranker-v2.2/model.json
+      RANKER_CHECKPOINT: /srv/fluilet/checkpoints/context-ranker-v2.3/model.json
       DEMO_ACCOUNTS_ENABLED: ${DEMO_ACCOUNTS_ENABLED:-true}
       MT5_ENABLED: ${MT5_ENABLED:-false}
     ports: ["127.0.0.1:8000:8000"]

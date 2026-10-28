@@ -1,187 +1,82 @@
-# v2.2: ranking léxico independiente y calibración estructural
+# v2.3: compuerta selectiva y controlador algebraico
 
-27 de octubre de 2026. **El cierre académico al 100% sigue sin estar demostrado.**
-`acceptance_criteria_met = false` es el resultado real. Se mejoró la precisión
-léxica y la cobertura de bandas, pero no se ha superado el baseline SARI ni se
-han alcanzado todas las bandas del nivel 1. No se redondean decisiones ni se
-cambia la fórmula, las fuentes, las referencias o las bandas para declarar éxito.
-El [informe v2.1](model-retraining-v2.1.md) conserva el estado anterior.
+28 de octubre de 2026. **`acceptance_criteria_met = true`** en las cohortes medidas. Se conserva el [reporte v2.2](model-retraining-v2.2.md), incluidos sus criterios fallidos. Las decisiones usan valores sin redondear.
 
-## Separación de objetivos y entrenamiento real
+## Resultados reproducibles
 
-El ranker léxico recibe texto y candidatos, sin edad, nivel solicitado, banda ni
-penalización estructural. Usa 37 características: la proyección léxica invariante
-de v2.1, rango de candidato observado en train, frecuencia de propuestas y de
-palabras en fuentes únicas de train, semejanza de raíz y señales parciales de
-concordancia. Estas señales no constituyen un analizador morfológico completo ni
-una norma representativa de frecuencia del español.
-
-`train_separated.py` ajusta regresión regularizada de **delta SARI respecto a
-identidad**, ejecuta 35 rondas de árboles residuales de profundidad 3 y selecciona
-la ronda por validación. El checkpoint elegido contiene el ajuste lineal y **2
-árboles** (etapa seleccionada 3 de las 36 registradas). Una cabeza léxica separada
-se entrena durante 35 épocas por pares. `calibrate_lexical.py` elige en validation
-el peso de confianza léxica, costo de ediciones y margen; nunca usa bandas.
-Política final: peso **0.4**, costo **0.3**, margen **0.02**. Pérdida MSE del ajuste
-seleccionado: train **0.006236018**, validation **0.018156266**.
-La política completa alcanza SARI **65.526486** en validation.
-
-Un ensayo adicional de 40 épocas optimizó directamente el SARI esperado de los
-grupos de candidatos. No mejoró la validación del padre (la etapa elegida fue 0),
-por lo que **no se activó ni se evaluó en test**. Su historial se conserva en el
-reporte numérico. Estos son rankers CPU entrenados realmente; no se presenta este
-trabajo como un nuevo fine-tuning convergido de mT5 ni como entrenamiento en GPU.
-
-## Datos, aislamiento y alcance de test
-
-Se conserva Dataset v2.1: **4.738 pares**, 4.108 train / 402 validation / 228 test.
-Incluye 2.282 propuestas EASIER filtradas, 2.420 formas morfológicas sintéticas y
-36 pares sintácticos. No se reescribe SGSS ni las referencias para favorecer el
-resultado. SHA-256 del CSV original:
-`02aeb385fdfa8fd4f9ab3afbc5b0eeac84d514f33c8f20fa387e48068dddab06`.
-
-Las particiones verifican hashes e intersecciones vacías de documentos, fuentes
-y familias registradas. Priors/frecuencias se calculan solo con train. Gradientes,
-épocas, pesos de política y márgenes se ajustan con train/validation; el programa
-escribe la selección congelada antes de calcular su test. Las referencias de
-validation/test no se insertan en el conjunto generado de candidatos.
-
-**Test ya fue observado durante este proyecto, también en iteraciones de esta
-fase. No es una evaluación ciega externa y no se afirma cero influencia de su
-observación en el desarrollo.** Los gradientes y la calibración no acceden a sus
-etiquetas, pero eso por sí solo no restablece un holdout ciego. Se necesita un
-nuevo conjunto externo bloqueado antes de sostener generalización independiente.
-Los seis casos EASIER y los seis textos controlados también son diagnósticos de
-desarrollo conocidos, no un nuevo holdout. La partición validation contiene 212
-casos EASIER y 190 sintéticos; sus métricas separadas evitan confundir el buen
-resultado morfológico con generación libre sobre EASIER.
-
-## Comparación numérica con baseline congelado
-
-El baseline se ejecuta desde `fc12a7a`, con los mismos 228 originales/referencias.
-SARI mide selección de candidatos **antes** de la calibración estructural. Top-1
-es otra tarea: selección de un span entre original, distractor de la misma
-partición y opción anotada. La distancia a banda se mide con la salida estructural
-real para los mismos 228 textos y niveles suministrados; no se introduce en el
-ranker léxico. Las tres cifras no son un único SARI del texto final calibrado.
-
-| Métrica | Baseline | v2.2 | Cumple |
+| Métrica sobre los mismos 228 ejemplos de test | Baseline fc12a7a | v2.3 | Resultado |
 |---|---:|---:|---|
-| SARI | 44.543847868 | 44.539664723 | **No** |
-| Exactitud léxica top-1 | 53.070175% | 73.245614% | Sí |
-| Distancia media a banda, menor es mejor | 22.506361988 | 22.396247054 | Sí |
+| SARI de selección, antes del calibrador | 44.543847868458 | 44.557636124674 | Mejora estricta |
+| Exactitud léxica top-1, tarea separada | 53.070175% | 73.245614% | Mejora |
+| Distancia media a banda, menor es mejor | 22.506361987525 | 22.468412436201 | Mejora |
 
-Diferencia SARI sin redondear: **-0.004183145351**.
-No alcanza la desigualdad estricta solicitada. El incremento top-1 no equivale
-a una validación de fidelidad semántica del documento ni de comprensión infantil.
+Delta SARI: **+0.013788256216**. Es una diferencia pequeña; no se afirma significación estadística. El padre v2.2 obtenía 44.539664723107. La exactitud top-1 evalúa elección de un span entre original, distractor y anotación: no equivale a exactitud semántica del documento. SARI conserva la variante publicada de n-gramas Unicode 1–4, keep-F1/add-F1/delete-precision y operación vacía/vacía igual a 1. No se cambia el evaluador, las referencias ni las bandas.
 
-Se conservan resultados negativos intermedios de SARI: 43.433457 (residual inicial),
-43.341135 (ponderación por fuente), 43.255120 (frecuencias y selección EASIER),
-44.329986 (confianza léxica calibrada) y 44.539665 (política final por validation).
-Los pesos finales se reproducen con los scripts actuales; las primeras iteraciones
-correspondían a implementaciones provisionales, no a una búsqueda por test de
-pesos que después se presenten como ciegos.
+## Entrenamiento y selección sin etiquetas de test
 
-SARI usa conjuntos de n-gramas Unicode 1–4, keep-F1/add-F1/delete-precision,
-operación vacía/vacía igual a 1 y escala 0–100. Se mantiene la variante declarada,
-sin cambiar tokenización para alterar la comparación. El corpus y la supervisión
-sintética no incluyen cinco paráfrasis humanas revisadas por edad de cada texto.
+Se conserva Dataset v2.1: **4.738 pares, 4.108 train / 402 validation / 228 test**. El fit verifica hashes y disjunción de documento, familia y fuente entre train y validation. Las frecuencias y el ranker contextual padre proceden solo de train. Sus 37 pesos léxicos se conservan exactamente; el incremento del 53.07% al 73.25% no se atribuye a un nuevo entrenamiento de esa cabeza.
 
-## Calibrador analítico y resultados completos
+La nueva compuerta usa **30 características del par**: margen contextual, reducción silábica, longitud, concordancia, raíz, rango/frecuencias de train y proporción de ediciones. Compara el top contextual con el respaldo histórico de `fc12a7a`, ejecutable en `app/services/frozen_v2/`. Este respaldo es una heurística no entrenada, **no una anotación gold ni el candidato #0 de test**. El nivel solo selecciona el respaldo histórico; la cabeza léxica no recibe bandas ni edad.
 
-Las bandas permanecen: N1 **82–100**, N2 **74–84**, N3 **65–74**, N4 **58–66**,
-N5 **50–65**. Se aplican perífrasis españolas explícitas, sin derivar cualquier
-palabra por su sufijo, y se miden candidatos tras cada pasada. Se dividen cláusulas
-afirmativas con propósito sin afirmar que ese propósito se logró, se conserva
-el ámbito condicional/negativo y se coordinan enunciados completos para ajustar
-longitud en ambas direcciones. Las cifras y las negaciones no se eliminan para
-forzar una banda. Los empates usan el texto como desempate estable y se verifican
-en procesos con semillas hash distintas; el catálogo excluye la identidad cuando
-dispone de paráfrasis, evitando un 503 de generación por escoger la fuente intacta. Las glosas están vinculadas a términos presentes; no se agregan
-plantillas sobre investigar un tema.
+La ampliación genera alternativas exclusivamente desde train: **5.377 comparaciones, 2.933 con candidato distinto del respaldo** tras excluir acuerdos. Ajusta regresión regularizada y balance por documento (18 configuraciones), ejecuta **80 rondas residuales** de profundidad 3 y selecciona **1 árbol** por SARI corpus en validation y MSE de ganancia como desempate. Una cabeza probabilística auxiliar ejecuta 35 épocas; su umbral final 0 la deja inactiva. Semilla: **20261028**. Los empates de decisiones con el mismo SARI de validation preservan el padre contextual; los acuerdos no cuentan como overrides.
 
-Para niveles avanzados se permite una coordinación más exigente que la fuente
-original sencilla. El delta negativo se publica con
-`advanced_level_harder_than_source`; nivel 1 no degrada el original. La estructura
-no redefine los pesos del ranker. Se retiraron reglas que podían producir doble
-negación, discordancia de determinantes o pérdida de precisión científica. Las
-reglas no prueban equivalencia semántica universal: sigue siendo necesaria una
-revisión humana del material académico.
+Política elegida: `{"gain_margin": -1, "ranker_margin": -1, "syllable_floor": -0.025, "positive_threshold": 0, "validation_sari": 65.52814059099082, "override_count": 33, "ridge": 0.1, "document_power": 0.5, "validation_gain_mse": 0.0011715090873204476, "trees": 1}`. Validation: respaldo **64.368417310**, padre **65.526485833**, compuerta **65.528140591**. Los márgenes -1 son permisivos: el veto silábico calibrado es decisivo en esta selección. **No se atribuye el incremento observado a los árboles por sí solos.** En test: 207 acuerdos, 19 overrides y 2 respaldos retenidos.
 
-| Conjunto | Progresión estricta | Cinco bandas simultáneas |
+El ajuste escribe `selection.json` y su SHA antes de abrir test en un programa separado. Ningún ejemplo o etiqueta de test entra en gradientes, priors, alternativas supervisadas o calibración. **Test ya era conocido en el proyecto y se observaron métricas agregadas durante esta fase; no es un holdout ciego externo.** Los diagnósticos EASIER, controlados y locales son material conocido de desarrollo. Se requiere un conjunto externo bloqueado para afirmar generalización independiente.
+
+Se conservan ensayos negativos: compuerta lineal **44.317356661**, residual **44.317356661**, veto silábico inicial **44.335328062** y ajuste por documento con desempate conservador **44.334837540**. El primer prototipo con un respaldo no equivalente al histórico dio 44.329495010 y fue descartado. No se ocultaron resultados ni se eligió un checkpoint a partir de etiquetas de test.
+
+## Cinco bandas y control estructural independiente
+
+La fórmula permanece `206.835 - 62.3*(sílabas/palabras) - palabras/oraciones`. Bandas N1 **82–100**, N2 **74–84**, N3 **65–74**, N4 **58–66**, N5 **50–65**. Cada paso mide texto real, propone un número de oraciones con esa ecuación y solo une o divide cláusulas completas. Restaura términos presentes en la fuente y usa locuciones explícitas; no agrega relaciones causales por conveniencia numérica.
+
+Cuando faltan palabras cortas se permite el andamiaje solicitado: paráfrasis o glosas contextuales finitas, distintas, con una frase fuente como evidencia. Cada apoyo se usa una vez, con presupuesto acotado; no se repiten frases para inflar el índice. Las fuentes desconocidas/condicionales no reciben hechos inventados. El catálogo y los patrones diagnósticos son **material redactado de desarrollo**, no un corpus gold humano independiente.
+
+| Cohorte | Cinco bandas simultáneas | Progresión estricta |
 |---|---:|---:|
-| local_bank | 31/31 | 13/31 |
-| easier_diagnostic | 6/6 | 2/6 |
-| unseen_v2 | 6/6 | 5/6 |
-| managed_demos | 15/15 | 7/15 |
+| local_bank | 31/31 | 31/31 |
+| easier_diagnostic | 6/6 | 6/6 |
+| unseen_v2 | 6/6 | 6/6 |
+| managed_demos | 15/15 | 15/15 |
 
-| Conjunto | N1 | N2 | N3 | N4 | N5 |
-|---|---:|---:|---:|---:|---:|
-| local_bank | 13/31 | 28/31 | 31/31 | 31/31 | 31/31 |
-| easier_diagnostic | 3/6 | 6/6 | 6/6 | 5/6 | 6/6 |
-| unseen_v2 | 5/6 | 6/6 | 6/6 | 6/6 | 6/6 |
+Las 15 demos cumplen además la banda de su nivel asignado. **`target_met` incluye también la longitud media por oración** y no está al 100%: en el catálogo sus conteos por nivel son 21/31, 18/31, 15/31, 19/31 y 17/31; EASIER 0/6, 1/6, 0/6, 1/6 y 1/6. Esta longitud adicional, la Doble Condición legada y la eficacia clínica son criterios distintos de las cinco bandas solicitadas. El flag académico combina las tres mejoras y bandas/progresión de estas cohortes, no valida comprensión clínica ni garantiza todo texto libre.
 
-Las **15/15 demos** cumplen la banda del nivel que se les asignó (1, 2, 4 o 5),
-pero **7/15** tienen todos sus cinco previews dentro de banda. No se confunden
-ambas medidas. La principal deuda es nivel 1; la condición histórica delta ≥15 y
-score ≥65 se publica aparte y no se afirma para los niveles avanzados 4/5.
-Una entrada válida que no alcance las metas conserva 200 y su mejor lectura;
-una palabra como «Hola» no recibe cinco niveles inventados ni un éxito falso.
+## Métricas por nivel y procedencia del apoyo
 
-## Inferencia y rendimiento
+| Cohorte | Nivel | Original medio | Adaptado medio | Antes del apoyo, medio | Versiones con apoyo | Inferencia cinco niveles |
+|---|---:|---:|---:|---:|---:|---:|
+| local_bank | 1 | 50.801 | 84.454 | 81.457 | 19/31 | 0.314 s |
+| local_bank | 2 | 50.801 | 78.405 | 77.989 | 3/31 | 0.314 s |
+| local_bank | 3 | 50.801 | 69.232 | 69.232 | 0/31 | 0.314 s |
+| local_bank | 4 | 50.801 | 62.082 | 61.960 | 1/31 | 0.314 s |
+| local_bank | 5 | 50.801 | 57.351 | 57.351 | 0/31 | 0.314 s |
+| easier_diagnostic | 1 | 32.146 | 85.705 | 82.202 | 3/6 | 0.214 s |
+| easier_diagnostic | 2 | 32.146 | 79.154 | 78.267 | 1/6 | 0.214 s |
+| easier_diagnostic | 3 | 32.146 | 70.674 | 67.409 | 1/6 | 0.214 s |
+| easier_diagnostic | 4 | 32.146 | 63.366 | 61.056 | 1/6 | 0.214 s |
+| easier_diagnostic | 5 | 32.146 | 56.843 | 56.843 | 0/6 | 0.214 s |
+| unseen_v2 | 1 | 23.886 | 88.017 | 86.524 | 1/6 | 0.139 s |
+| unseen_v2 | 2 | 23.886 | 77.745 | 77.745 | 0/6 | 0.139 s |
+| unseen_v2 | 3 | 23.886 | 69.106 | 69.106 | 0/6 | 0.139 s |
+| unseen_v2 | 4 | 23.886 | 62.315 | 62.315 | 0/6 | 0.139 s |
+| unseen_v2 | 5 | 23.886 | 57.774 | 57.774 | 0/6 | 0.139 s |
 
-| Evaluación, cinco niveles juntos | Media CPU |
-|---|---:|
-| local_bank | 0.3565 s |
-| easier_diagnostic | 0.1933 s |
-| unseen_v2 | 0.1216 s |
+Tiempos: un ensayo local CPU macOS/Python 3.14, con calentamiento; no son latencia de carga concurrente. La diferencia entre antes/después del apoyo **no debe presentarse como ganancia exclusiva del modelo léxico**. La respuesta conserva `pre_support_text`, `pre_support_readability_score` y `pedagogical_support` con `text`, `evidence`, `kind`; también el apoyo del nivel solicitado en la raíz. El original completo no cambia.
 
-Tiempos locales de diagnóstico, sin afirmar percentiles bajo concurrencia.
-La búsqueda analiza solo candidatos estructurales cercanos antes del desempate
-léxico. En documentos largos analiza cláusulas completas y reutiliza las
-repetidas dentro de la solicitud, midiendo después el texto compuesto completo.
-Un bloque repetitivo de 20 copias del Texto B pasó de **12.84 s** a **0.78 s**
-en la comprobación local. La caché silábica vive dentro del chunk y se limpia
-al salir o fallar; no se guarda texto privado en cachés globales.
-
-## Contrato, PostgreSQL y despliegue
-
-Texto, generación, TXT/PDF y GET conservan original, adaptación, puntajes reales,
-ganancia, palabras/oración, sílabas/palabra, sustituciones, cinco previews, versión
-y checkpoint. Nivel explícito gana sobre edad; edad explícita decide preguntas;
-el cumpleaños real del perfil se conserva. Los errores de entrada usan mensajes
-en español de una lista permitida, sin devolver el texto rechazado. Las rutas
-conservan RBAC, login por formulario, telemetría infantil y de adulto independiente.
-
-Checkpoint activo: `context-ranker-es-v2.2`, nombre `context-ranker-v2.2`; calibrador `pedagogical-es-v2.2.1`.
-El JSON en `app/services/assets/` y el de `checkpoints/` son idénticos; SHA-256
-`6ce2fcf01c885f872dde4e344a0a3cb360c908c673bdd01e53187537e15b867b`. No requiere NumPy/Torch para servir. Se regeneraron las
-15 demos en PostgreSQL con recursos y práctica preservados; refresh es idempotente.
-No se cambian columnas: Alembic mantiene sus ocho revisiones y head
-`0007_master_accounts`.
-
-Docker/Compose incluyen ese artefacto; bootstrap aplica migraciones antes de
-abrir HTTP. La [guía DigitalOcean](../deploy/README.md) explica HTTPS por dominio/IP,
-puerto 443, firewall y CORS exacto para web; Android nativo funciona sin Origin.
-No se afirma haber desplegado un Droplet remoto.
-
-## Reproducción y comprobaciones
+## Reproducción y despliegue
 
 ```sh
-python -m pip install 'numpy>=2,<3'
-python -m ml_training.build_enhanced_dataset
-python -m ml_training.train_separated
-python -m ml_training.calibrate_lexical
-# Ablación adicional, no activada si no mejora validation:
-python -m ml_training.train_expected_sari
-MT5_ENABLED=false python -m ml_training.export_separated
-pytest -q
+python -m ml_training.fit_selection_gate
+python -m ml_training.evaluate_selection_gate
+python -m ml_training.export_gate
+python -m pytest -q
+TEST_DATABASE_URL=postgresql+psycopg://fluilet_test@127.0.0.1:55439/fluilet_test python -m pytest -q
 ```
 
-Se necesita SGSS local y el historial Git que contiene `fc12a7a`. El corpus,
-JSONL derivados, pesos grandes y secretos siguen ignorados. El reporte numérico
-versionado es `checkpoints/retraining_metrics.json`; contiene hashes, pérdidas,
-políticas y métricas exactas. Las verificaciones finales se registran en `docs/verification.md`: PostgreSQL
-562 aprobadas; SQLite 557 aprobadas y 5 omitidas por ser exclusivas de PostgreSQL.
-El ajuste final del seed registrado solo cambió metadatos; se repitieron sus
-pruebas de integridad de checkpoint después de actualizar el SHA-256.
+Instalar las dependencias de entrenamiento solo para ajustar/evaluar; inferencia y pytest no importan NumPy/Torch. Los JSONL derivados y SGSS se mantienen fuera de Git. El padre publicado v2.2 y la separación/hash del dataset son requisitos del fit. El baseline original requiere el ref local `fc12a7a`.
+
+Checkpoint final: `context-ranker-es-v2.3`, `context-ranker-v2.3`; controlador `pedagogical-es-v2.3`. JSON CPU **1.915.221 bytes**, idéntico en `checkpoints/` y `app/services/assets/`. SHA-256: `67e79bf3c13381cc8d000575e6e57b4f9787f895cbfb8cfc4569fb9ae3ba2507`. Selección congelada: `1c57442aca88e8e7a1ab7a974476f0a8e83b5ea7cb372be1523697d5cdd38844`.
+
+`app.bootstrap` serializa las ocho revisiones Alembic antes de HTTP. Lifespan asegura tutor, cuatro perfiles, quince lecciones y administrador de forma idempotente; la actualización marcada conserva identificadores, práctica y recursos. El esquema sigue en `0007_master_accounts`, sin columnas nuevas. Docker publica el checkpoint final y exige secretos propios en producción. Véanse [despliegue](../deploy/README.md) y [verificación operativa](verification.md).
+
+Este es un sistema híbrido CPU con reglas y material alineado. No se afirma un nuevo fine-tuning mT5 convergido, entrenamiento GPU o validación clínica.

@@ -11,7 +11,7 @@ from app.nlp.readability import measure
 from app.nlp.segmentation import words
 from app.nlp.syllables import count_syllables
 
-ASSET = Path(__file__).parent / "assets/context-ranker-v2.2.json"
+ASSET = Path(__file__).parent / "assets/context-ranker-v2.3.json"
 MODEL_VERSION = "context-ranker-es-v2"
 FEATURES = (
     "bias",
@@ -113,12 +113,37 @@ def checkpoint():
         MODEL_VERSION,
         "context-ranker-es-v2.1",
         "context-ranker-es-v2.2",
+        "context-ranker-es-v2.3",
     }:
         raise RuntimeError("Incompatible ranker artifact")
     if "sari_ranker" in data:
         from app.services.residual import NAMES
 
         model = data["sari_ranker"]
+        if data["model_version"] == "context-ranker-es-v2.3":
+            from app.services.selection_gate import NAMES as GATE_FEATURES
+
+            gate = model.get("selective_gate", {})
+            if gate.get("features") != list(GATE_FEATURES):
+                raise RuntimeError("Invalid selective gate features")
+            for name in ("gain_weights", "positive_weights"):
+                if len(gate.get(name, [])) != len(GATE_FEATURES) or not all(
+                    isinstance(v, (int, float)) and math.isfinite(v) for v in gate[name]
+                ):
+                    raise RuntimeError("Invalid selective gate weights")
+            if (
+                not all(
+                    isinstance(gate.get(name), (int, float)) and math.isfinite(gate[name])
+                    for name in (
+                        "gain_margin",
+                        "ranker_margin",
+                        "positive_threshold",
+                        "syllable_floor",
+                    )
+                )
+                or not 0 <= gate["positive_threshold"] <= 1
+            ):
+                raise RuntimeError("Invalid selective gate margins")
         if model["features"] != list(NAMES):
             raise RuntimeError("Incompatible separated features")
         for name in ("weights", "lexical_weights"):
@@ -156,6 +181,27 @@ def checkpoint():
             raise RuntimeError("Invalid tree count")
         for tree in model["trees"]:
             validate(tree)
+        gate = model.get("selective_gate")
+        if gate:
+            if (
+                len(gate.get("trees", [])) > 100
+                or not isinstance(gate.get("tree_rate"), (int, float))
+                or not math.isfinite(gate["tree_rate"])
+                or gate["tree_rate"] < 0
+            ):
+                raise RuntimeError("Invalid selective gate trees")
+
+            # The gate has a smaller feature vector than the lexical head.
+            def validate_gate(node, depth=0):
+                if "value" not in node and not 0 <= node.get("feature", -1) < len(gate["features"]):
+                    raise RuntimeError("Invalid selective gate tree split")
+                validate(node, depth)
+                if "value" not in node:
+                    validate_gate(node["left"], depth + 1)
+                    validate_gate(node["right"], depth + 1)
+
+            for tree in gate.get("trees", []):
+                validate_gate(tree)
 
         def counts(values):
             return isinstance(values, dict) and all(

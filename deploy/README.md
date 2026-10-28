@@ -24,7 +24,7 @@ una migración ficticia. Después, el lifespan carga el checkpoint y asegura las
 cuentas/perfiles demo de forma idempotente. Un error de migración impide abrir HTTP.
 
 La imagen incluye el JSON reentrenado en
-`/srv/fluilet/checkpoints/context-ranker-v2.2/model.json`, idéntico al artefacto de
+`/srv/fluilet/checkpoints/context-ranker-v2.3/model.json`, idéntico al artefacto de
 `app/services/assets/`. `RANKER_CHECKPOINT` permite una ruta explícita; un archivo
 configurado ausente o un SHA-256 distinto del pin impide cargar el modelo. La
 imagen no descarga modelos ni necesita Torch/NumPy para inferencia. El lector
@@ -36,8 +36,9 @@ Tras el arranque, comprueba con un token válido
 `retrained_sari`, `band_compliance` y `acceptance_criteria_met`. Readiness 200
 comprueba disponibilidad operativa; **no significa que las metas académicas estén
 cumplidas**. El SARI léxico se mide por separado de la calibración estructural.
-En esta entrega no se superó el baseline SARI ni todas las bandas:
-consulta `docs/model-retraining-report.md` antes de presentar un cierre al 100%.
+En v2.3 las tres comparaciones y las bandas/progresión de las cuatro cohortes
+medidas cumplen los criterios. El reporte distingue los diagnósticos conocidos,
+la longitud adicional orientativa y el apoyo contextual; no es validación clínica.
 
 PostgreSQL usa volumen persistente; API y proxy tienen filesystem de solo lectura,
 límites de cuerpo y logs sin contenido. Este cambio prepara la imagen/configuración;

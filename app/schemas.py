@@ -348,6 +348,12 @@ class LexicalReplacement(BaseModel):
     adapted: str
 
 
+class PedagogicalSupport(BaseModel):
+    text: str
+    evidence: str
+    kind: str = "source_paraphrase"
+
+
 class LevelPreview(BaseModel):
     level: int = Field(ge=1, le=5)
     adapted_text: str
@@ -356,6 +362,9 @@ class LevelPreview(BaseModel):
     avg_sentence_length: float
     target_met: bool = False
     method: str = "pedagogical"
+    pre_support_text: str | None = None
+    pre_support_readability_score: float | None = None
+    pedagogical_support: list[PedagogicalSupport] = Field(default_factory=list)
 
 
 class AdaptationRead(BaseModel):
@@ -383,6 +392,13 @@ class AdaptationRead(BaseModel):
     @property
     def questions(self) -> list[ComprehensionQuestion]:
         return self.comprehension_questions
+
+    @computed_field
+    @property
+    def pedagogical_support(self) -> list[PedagogicalSupport]:
+        return next(
+            (p.pedagogical_support for p in self.level_previews if p.level == self.target_level), []
+        )
 
     id: uuid.UUID
     original_text: str = Field(min_length=1)
