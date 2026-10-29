@@ -301,6 +301,89 @@ def questions(text: str, child_age_years: int | None = None) -> list[dict]:
     return result
 
 
+def lesson_questions(text: str, child_age_years: int | None, source: str) -> list[dict]:
+    """Three literal tasks whose answers occur in both the excerpt and reading.
+
+    Manual adaptations and historical seed payloads keep their two-question
+    contract. Only new generated lessons use this source-bounded mini-challenge.
+    """
+    source_words = {word.casefold() for word in words(source)}
+    vocabulary = {word.casefold() for word in words(text)}
+    stop = set(
+        "el la los las un una unos unas de del y e o a en por para que con al es son "
+        "su sus lo se como más muy hay cada este esta estos estas ese esa esos esas "
+        "tiene tienen puede pueden también del sin entre sobre desde hasta pero "
+        "donde cuando quien quienes tras durante así luego otra otro otros otras".split()
+    )
+    group = question_age_group(child_age_years)
+    pool = []
+    used = set()
+    for unit in sentences(text):
+        span = _brief_span(unit)
+        for match in WORD_RE.finditer(span):
+            term = match[0].casefold()
+            if term not in source_words or term in stop or term in used or len(term) < 3:
+                continue
+            pool.append((span, match))
+            used.add(term)
+            break
+    # Short source sentences can share most of their vocabulary. Still select
+    # distinct grounded words before reusing a literal evidence span.
+    if len(pool) < 3:
+        for unit in sentences(text):
+            span = _brief_span(unit)
+            for match in WORD_RE.finditer(span):
+                term = match[0].casefold()
+                if term in source_words and term not in stop and term not in used:
+                    pool.append((span, match))
+                    used.add(term)
+    if not pool:
+        raise ValueError("generated_lesson_has_no_shared_evidence")
+    result = []
+    for index in range(3):
+        span, match = pool[index % len(pool)]
+        answer = match[0]
+        alternatives = next(
+            (
+                [value for value in family if value.casefold() not in vocabulary | source_words]
+                for family in _GROUPS
+                if answer.casefold() in {value.casefold() for value in family}
+                and len([v for v in family if v.casefold() not in vocabulary | source_words]) >= 2
+            ),
+            [],
+        )
+        for value in ("montaña", "océano", "bosque", "ciudad", "planeta", "jardín"):
+            if value not in vocabulary | source_words and value not in alternatives:
+                alternatives.append(value)
+        number = 1
+        while len(alternatives) < 2:
+            value = f"lugar {number}"
+            if value not in text.casefold() and value not in source.casefold():
+                alternatives.append(value)
+            number += 1
+        options = [answer, *alternatives[:2]]
+        correct_index = secrets.randbelow(3)
+        options[0], options[correct_index] = options[correct_index], options[0]
+        cloze = span[: match.start()] + "___" + span[match.end() :]
+        prompt = f"Según la lectura, ¿qué completa esta idea: «{cloze}»?"
+        if group == "6-8":
+            prompt = "Vamos, ¿qué palabra aparece en la lectura?"
+            options = [f"Dice «{option}»" for option in options]
+        elif group == "9-11":
+            prompt = "¿Qué palabra completa esta idea de la lectura?"
+        result.append(
+            {
+                "id": f"q{index + 1}",
+                "question": prompt,
+                "options": options,
+                "correct_option_index": correct_index,
+                "hint": f"Pista: Completa esta idea de la lectura: «{cloze}».",
+                "explanation": f"¡Muy bien! La lectura dice: «{span}».",
+            }
+        )
+    return result
+
+
 def profile_age_group(profile):
     return profile.age_group_override or question_age_group(age_years(profile.birth_date))
 

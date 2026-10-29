@@ -14,9 +14,9 @@ from tests.test_pipeline import Offline
 from tests.test_zero_retention import pdf_bytes
 
 
-def assert_questions(data):
+def assert_questions(data, count=2):
     questions = data["comprehension_questions"]
-    assert [question["id"] for question in questions] == ["q1", "q2"]
+    assert [question["id"] for question in questions] == [f"q{i}" for i in range(1, count + 1)]
     text = " ".join(data["adapted_text"].split())
     for question in questions:
         options = question["options"]
@@ -71,7 +71,7 @@ async def test_generate_all_categories_and_levels(client, make_user, category, l
     assert data["simplification_level"] == data["document"]["simplification_level"] == level
     assert data["title"]
     assert data["document"]["original_word_count"] >= 45
-    assert_questions(data)
+    assert_questions(data, 3)
 
 
 @pytest.mark.parametrize(
@@ -110,7 +110,7 @@ async def test_topic_is_integrated_in_title_and_body(client, make_user, category
     data = response.json()
     assert topic.casefold() in data["title"].casefold()
     assert topic.casefold() in data["adapted_text"].casefold()
-    assert_questions(data)
+    assert_questions(data, 3)
 
 
 async def test_generated_lesson_assignment_rbac_and_authorized_retention(

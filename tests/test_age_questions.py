@@ -40,11 +40,11 @@ def test_calendar_age_boundaries(birthday, today, expected):
     assert education.age_years(birthday, today) == expected
 
 
-def assert_age_questions(data, age):
+def assert_age_questions(data, age, count=2):
     group = "12+" if age is None or age >= 12 else "6-8" if age <= 8 else "9-11"
     assert data["child_age_years"] == age
     assert data["question_age_group"] == group
-    assert len(data["comprehension_questions"]) == 2
+    assert len(data["comprehension_questions"]) == count
     source = " ".join(data["adapted_text"].split())
     for item in data["comprehension_questions"]:
         assert set(item) == {
@@ -106,7 +106,7 @@ async def test_age_groups_on_all_adaptation_routes(
             content=pdf_bytes(SOURCE),
         )
     assert response.status_code == 200, response.text
-    assert_age_questions(response.json(), age)
+    assert_age_questions(response.json(), age, 3 if endpoint == "generate" else 2)
     assert response.headers["cache-control"] == "no-store"
 
 
@@ -116,7 +116,7 @@ async def test_independent_adult_uses_standard_questions(client, make_user):
         "/api/v1/adaptations/generate", headers=headers, json={"category": "deportes"}
     )
     assert response.status_code == 200
-    assert_age_questions(response.json(), None)
+    assert_age_questions(response.json(), None, 3)
 
 
 @pytest.mark.parametrize(

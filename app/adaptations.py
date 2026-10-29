@@ -111,6 +111,7 @@ async def persist(
     title=None,
     article=None,
     age_group=None,
+    generated=False,
     commit=True,
 ):
     # Serialize metadata upserts per owner, independently of inference execution.
@@ -128,7 +129,13 @@ async def persist(
         child_age = education.age_years(child.birth_date)
         profile_age = education.teaching_age(child)
     effective_age = {"6-8": 7, "9-11": 10, "12+": 12}.get(age_group, profile_age)
-    practice = await asyncio.to_thread(education.questions, result.adapted_text, effective_age)
+    practice = (
+        await asyncio.to_thread(
+            education.lesson_questions, result.adapted_text, effective_age, result.original_text
+        )
+        if generated
+        else await asyncio.to_thread(education.questions, result.adapted_text, effective_age)
+    )
     fact, terms = await asyncio.to_thread(
         vocabulary.enrich, result.adapted_text, article.fact_hint if article else ""
     )
@@ -378,8 +385,14 @@ async def generate_lesson(
         child_age=child_age,
         allow_local_excerpt=True,
     )
+    from app.services.pedagogy import GOALS
+
     needs_local_reference = entry.provider == "wikipedia" and (
         not result.level_progression_met
+        or not all(
+            GOALS[p["level"]][0] <= p["readability_score"] <= GOALS[p["level"]][1]
+            for p in result.level_previews
+        )
         or (payload.simplification_level == 1 and result.metrics["score_delta"] < 15)
     )
     if result.adapted_text == result.original_text or needs_local_reference:
@@ -401,6 +414,11 @@ async def generate_lesson(
             raise HTTPException(
                 503, "La fuente disponible no permite una simplificación fiel. Prueba otro tema."
             )
+    if not result.level_progression_met or not all(
+        GOALS[p["level"]][0] <= p["readability_score"] <= GOALS[p["level"]][1]
+        for p in result.level_previews
+    ):
+        result.warnings.append("pedagogical_bands_not_met")
     return await persist(
         result,
         digest,
@@ -414,6 +432,7 @@ async def generate_lesson(
         title=entry.title,
         article=entry,
         age_group=group,
+        generated=True,
     )
 
 

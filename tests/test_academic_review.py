@@ -14,7 +14,7 @@ from app.nlp.readability import measure
 from tests.conftest import SOURCE
 
 
-def assert_comparison(data):
+def assert_comparison(data, count=2):
     original, adapted = measure(data["original_text"]), measure(data["adapted_text"])
     assert data["original_readability_score"] == pytest.approx(original.score)
     assert data["readability_score"] == pytest.approx(adapted.score)
@@ -32,7 +32,7 @@ def assert_comparison(data):
     )
     assert data["document"]["score_delta"] == pytest.approx(metrics["score_delta"])
     assert data["fun_fact"] and 3 <= len(data["key_vocabulary"]) <= 4
-    assert len(data["comprehension_questions"]) == 2
+    assert len(data["comprehension_questions"]) == count
     for term in data["key_vocabulary"]:
         assert term["word"] in data["adapted_text"] and term["definition"] and term["example"]
 
@@ -73,7 +73,7 @@ async def test_generated_comparison_is_real_nonempty_and_retrievable(
     assert data["readability_score"] > data["original_readability_score"]
     assert data["target_level"] == level and data["age_group"] == group
     assert data["question_age_group"] == group
-    assert_comparison(data)
+    assert_comparison(data, 3)
     assert (await client.get(f"/api/v1/adaptations/{data['id']}", headers=headers)).json() == data
 
 

@@ -94,6 +94,13 @@ ARTICLES = {
         "https://worldathletics.org/disciplines/relays/4x100-metres-relay",
         "testigo",
     ),
+    "beisbol": Article(
+        "El béisbol",
+        "El béisbol enfrenta a dos equipos que alternan sus funciones de ataque y defensa. El conjunto defensor distribuye nueve jugadores sobre el terreno de juego. El bateador intenta golpear la pelota con un bate para avanzar por las bases. Una carrera se consigue al recorrer las bases en orden y regresar al punto de partida, denominado home. Cuando la defensa logra tres eliminaciones, los equipos intercambian sus funciones durante la entrada. Una entrada comprende un turno de ataque para cada equipo; los partidos profesionales suelen comprender nueve entradas, aunque existen excepciones y pueden requerir entradas adicionales en caso de empate.",
+        "deportes",
+        "https://www.pbs.org/kenburns/baseball/baseball-for-beginners",
+        "nueve",
+    ),
     "baloncesto": Article(
         "El baloncesto",
         "El baloncesto enfrenta a dos equipos que intentan introducir el balón en la canasta contraria. Cada equipo utiliza cinco jugadores en la cancha. Los jugadores pueden avanzar botando el balón o pasándolo a sus compañeros. Los lanzamientos pueden valer uno, dos o tres puntos según la situación. James Naismith ideó este deporte en 1891 y utilizó cestas para melocotones como primeras canastas.",

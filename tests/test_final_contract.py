@@ -44,7 +44,8 @@ async def test_requested_level_is_actual_primary_and_persisted(client, make_user
         == preview["readability_level"]
         == label(data["readability_score"])
     )
-    assert data["questions"] == data["comprehension_questions"] and len(data["questions"]) == 2
+    assert data["questions"] == data["comprehension_questions"]
+    assert len(data["questions"]) == (3 if path == "/generate" else 2)
     assert data["model_version"] == "context-ranker-es-v2.3"
     assert data["checkpoint_name"] == "context-ranker-v2.3"
     assert (await client.get("/api/v1/adaptations/" + data["id"], headers=headers)).json() == data

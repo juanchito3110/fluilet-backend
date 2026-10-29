@@ -104,7 +104,7 @@ async def test_generated_comparator_previews_questions_and_fact_use_the_excerpt(
     inputs, question_inputs, enrichment_inputs = [], [], []
     actual_run, actual_questions, actual_enrich = (
         adaptations.pipeline.run,
-        education.questions,
+        education.lesson_questions,
         vocabulary.enrich,
     )
 
@@ -114,16 +114,17 @@ async def test_generated_comparator_previews_questions_and_fact_use_the_excerpt(
             text, level, child_age=child_age, allow_local_excerpt=allow_local_excerpt
         )
 
-    def questions(text, age):
+    def questions(text, age, source):
         question_inputs.append(text)
-        return actual_questions(text, age)
+        assert source == lesson_excerpt(entry.text, group)
+        return actual_questions(text, age, source)
 
     def enrich(text, hint):
         enrichment_inputs.append(text)
         return actual_enrich(text, hint)
 
     monkeypatch.setattr(adaptations.pipeline, "run", capture)
-    monkeypatch.setattr(education, "questions", questions)
+    monkeypatch.setattr(education, "lesson_questions", questions)
     monkeypatch.setattr(vocabulary, "enrich", enrich)
     _, headers, _ = await make_user()
     response = await client.post(
@@ -166,7 +167,7 @@ async def test_generated_comparator_previews_questions_and_fact_use_the_excerpt(
         assert preview["readability_score"] == measure(preview["adapted_text"]).score
     assert data["adapted_text"] == data["level_previews"][data["target_level"] - 1]["adapted_text"]
     assert question_inputs == enrichment_inputs == [data["adapted_text"]]
-    assert len(data["comprehension_questions"]) == 2
+    assert len(data["comprehension_questions"]) == 3
     for item in data["comprehension_questions"]:
         answer = item["options"][item["correct_option_index"]]
         if group == "6-8":

@@ -95,6 +95,14 @@ SIMPLE = {
         "Pasar el testigo fuera de zona puede eliminar al equipo.",
         "El resultado depende de todos los corredores del equipo. También de cómo se pasan el testigo.",
     ),
+    "beisbol": (
+        "En el béisbol juegan dos equipos. Se turnan para atacar y defender.",
+        "El equipo que defiende tiene nueve jugadores en el campo.",
+        "Quien batea trata de dar a la pelota con un bate. Así puede avanzar por las bases.",
+        "Para lograr una carrera hay que pasar por las bases en orden. Luego se vuelve al home, el punto de salida.",
+        "Tras tres eliminaciones se cambia de turno. Quien ataca pasa a defender y quien defiende pasa a atacar.",
+        "En cada entrada, cada equipo tiene un turno para atacar. Los partidos de profesionales suelen tener nueve entradas. Hay casos distintos y, si hay empate, pueden hacer falta más entradas.",
+    ),
     "baloncesto": (
         "En el baloncesto se enfrentan dos equipos. Intentan meter el balón en la canasta rival.",
         "Cada equipo tiene cinco jugadores en la cancha.",

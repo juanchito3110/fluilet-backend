@@ -100,6 +100,14 @@ LOCAL = {
         (4, "El grupo logra el resultado."),
         (2, "Hace falta correr y coordinarse."),
     ),
+    "beisbol": (
+        (0, "Hay dos equipos."),
+        (0, "Cada equipo tiene su turno."),
+        (1, "Hay nueve al defender."),
+        (2, "Se golpea con un bate."),
+        (3, "Las bases tienen un orden."),
+        (4, "Tras tres se cambia de turno."),
+    ),
     "baloncesto": (
         (0, "El fin es que el balón entre."),
         (1, "Son cinco en la cancha."),
@@ -271,15 +279,24 @@ LOCAL = {
 }
 
 
-def supports(source):
+def supports(source, *, allow_local_excerpt=False):
     from app.encyclopedia import ARTICLES
     from app.services.pedagogy import source_hash
 
     identity = source_hash(source)
     for key, article in ARTICLES.items():
-        if source_hash(article.text) == identity:
-            units = sentences(article.text)
-            return [Support(text, units[index]) for index, text in LOCAL[key]]
+        units = sentences(article.text)
+        count = len(sentences(source))
+        exact = source_hash(article.text) == identity
+        prefix = (
+            allow_local_excerpt
+            and 3 <= count < len(units)
+            and source_hash(" ".join(units[:count])) == identity
+        )
+        if exact or prefix:
+            return [
+                Support(text, units[index]) for index, text in LOCAL[key] if exact or index < count
+            ]
     # Bounded positive frames. Unknown negations/conditions get no new assertion.
     normalized = " ".join(source.split())
     if re.search(r"\b(?:si|aunque|no|nunca|excepto)\b", normalized, re.I):

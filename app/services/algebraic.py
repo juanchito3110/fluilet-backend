@@ -117,14 +117,14 @@ def grouped_variants(text, low, high):
     return sorted(values)
 
 
-def control(source, text, level, *, max_steps=32):
+def control(source, text, level, *, max_steps=32, allow_local_excerpt=False):
     from app.services.pedagogy import GOALS
 
     low, high, min_length, max_length = GOALS[level]
     core = text
     chosen = []
     seen = {text}
-    available = supports(source)
+    available = supports(source, allow_local_excerpt=allow_local_excerpt)
 
     def loss(value):
         m = measure(value)

@@ -284,7 +284,7 @@ class LessonGenerate(InputModel):
 
 
 class ComprehensionQuestion(BaseModel):
-    id: Literal["q1", "q2"]
+    id: Literal["q1", "q2", "q3"]
     question: str
     options: list[str] = Field(min_length=3, max_length=3)
     correct_option_index: int = Field(ge=0, le=2)
@@ -436,7 +436,7 @@ class AdaptationRead(BaseModel):
     title: str
     category: str
     simplification_level: int
-    comprehension_questions: list[ComprehensionQuestion] = Field(min_length=2, max_length=2)
+    comprehension_questions: list[ComprehensionQuestion] = Field(min_length=2, max_length=3)
     question_age_group: Literal["6-8", "9-11", "12+"]
     child_age_years: int | None
     fun_fact: str

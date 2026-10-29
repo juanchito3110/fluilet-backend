@@ -520,7 +520,7 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
 
         controlled = []
         for seed in ranked[:2]:
-            result = control(text, seed.text, level)
+            result = control(text, seed.text, level, allow_local_excerpt=allow_local_excerpt)
             if _safe_numbers(text, Candidate(result.text, "algebraic", seed.removed)) and (
                 not plan or source_hash(result.text.casefold()) != source_hash(text.casefold())
             ):
