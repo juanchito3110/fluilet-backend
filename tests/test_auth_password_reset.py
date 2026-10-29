@@ -258,13 +258,22 @@ async def test_password_change_invalidates_outstanding_code(client, make_user, m
 def test_professional_mail_has_plain_and_inline_html_and_no_remote_resources():
     message = email_service.recovery_message("reader@hotmail.com", "000123")
     assert message.get_content_type() == "multipart/alternative"
-    assert [p.get_content_type() for p in message.iter_parts()] == ["text/plain", "text/html"]
+    assert [p.get_content_type() for p in message.iter_parts()] == [
+        "text/plain",
+        "multipart/related",
+    ]
     plain = message.get_body(preferencelist=("plain",)).get_content()
     html = message.get_body(preferencelist=("html",)).get_content()
     for text in (plain, html):
         assert "000123" in text and "10 minutos" in text
         assert "Fluilet · Lectura adaptativa inteligente" in text
-    assert "letter-spacing: 8px" in html and "FluiBot" in html
+    assert "letter-spacing: 8px" in html
+    assert 'src="cid:fluilet-logo"' in html and 'alt="Fluilet · Tu ritmo, tus palabras"' in html
+    assert "FluiBot" not in html and "&#129302;" not in html
+    logo = next(part for part in message.walk() if part.get_content_type() == "image/png")
+    assert logo["Content-ID"] == "<fluilet-logo>"
+    assert logo.get_content_disposition() == "inline"
+    assert logo.get_payload(decode=True).startswith(b"\x89PNG\r\n\x1a\n")
     assert "<!--[if mso]>" in html and 'name="viewport"' in html
     assert 'role="presentation"' in html and "#5B3E8C" in html
     assert "https://" not in html and "<script" not in html
