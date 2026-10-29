@@ -260,7 +260,7 @@ def test_professional_mail_has_plain_and_inline_html_and_no_remote_resources():
     assert message.get_content_type() == "multipart/alternative"
     assert [p.get_content_type() for p in message.iter_parts()] == [
         "text/plain",
-        "multipart/related",
+        "text/html",
     ]
     plain = message.get_body(preferencelist=("plain",)).get_content()
     html = message.get_body(preferencelist=("html",)).get_content()
@@ -268,12 +268,11 @@ def test_professional_mail_has_plain_and_inline_html_and_no_remote_resources():
         assert "000123" in text and "10 minutos" in text
         assert "Fluilet · Lectura adaptativa inteligente" in text
     assert "letter-spacing: 8px" in html
-    assert 'src="cid:fluilet-logo"' in html and 'alt="Fluilet · Tu ritmo, tus palabras"' in html
+    assert 'aria-label="Fluilet · Tu ritmo, tus palabras"' in html
     assert "FluiBot" not in html and "&#129302;" not in html
-    logo = next(part for part in message.walk() if part.get_content_type() == "image/png")
-    assert logo["Content-ID"] == "<fluilet-logo>"
-    assert logo.get_content_disposition() == "inline"
-    assert logo.get_payload(decode=True).startswith(b"\x89PNG\r\n\x1a\n")
+    assert "<img" not in html and "cid:" not in html
+    assert all(not part.get_filename() and not part["Content-ID"] for part in message.walk())
+    assert all(part.get_content_maintype() != "image" for part in message.walk())
     assert "<!--[if mso]>" in html and 'name="viewport"' in html
     assert 'role="presentation"' in html and "#5B3E8C" in html
     assert "https://" not in html and "<script" not in html

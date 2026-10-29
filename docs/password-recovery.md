@@ -74,9 +74,10 @@ No usar esos logs con cuentas reales. **Producción** registra solo el error de
 configuración, sin códigos. La API no expone códigos en ninguna respuesta.
 
 Correo `multipart/alternative` con texto plano y HTML en español. Usa el violeta
-primario Android estándar `#5B3E8C`, el logotipo oficial de Fluilet incrustado como
-PNG mediante CID, tablas, CSS inline,
+primario Android estándar `#5B3E8C`, una marca tipográfica de Fluilet integrada
+directamente en HTML, tablas, CSS inline,
 fuentes del sistema, ancho fluido y fallback para Outlook. El código tiene
-`letter-spacing: 8px`. No hay imágenes remotas, scripts, enlaces de seguimiento
+`letter-spacing: 8px`. No se adjunta ningún PNG ni archivo de logotipo. No hay
+imágenes remotas, scripts, enlaces de seguimiento
 ni contenido HTML controlado por el destinatario. Incluye vencimiento, explicación
 para ignorar una solicitud ajena y sello de acceso protegido.

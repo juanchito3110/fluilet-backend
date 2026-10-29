@@ -8,14 +8,12 @@ import ssl
 from email.message import EmailMessage
 from email.utils import formataddr
 from html import escape
-from pathlib import Path
 
 from app.config import settings
 
 logger = logging.getLogger("fluilet.email")
 _smtp_slots = asyncio.Semaphore(2)
 _smtp_jobs: set[asyncio.Task] = set()
-_logo = Path(__file__).with_name("email_assets") / "fluilet-logo.png"
 
 
 def recovery_message(recipient: str, code: str) -> EmailMessage:
@@ -40,8 +38,8 @@ def recovery_message(recipient: str, code: str) -> EmailMessage:
         "Fluilet Soporte · Acceso protegido\n"
     )
     # Tables + inline CSS + system fonts degrade safely in Outlook's Word engine.
-    # The official logo is embedded via CID, without remote image requests.
-    # No web font, script, link or recipient-controlled HTML.
+    # The brand is live HTML typography, without image files or attachments.
+    # No remote image, web font, script, link or recipient-controlled HTML.
     safe_code = escape(code)
     message.add_alternative(
         f"""<!doctype html>
@@ -52,9 +50,9 @@ def recovery_message(recipient: str, code: str) -> EmailMessage:
 <!--[if mso]><table role="presentation" width="560" cellspacing="0" cellpadding="0" border="0"><tr><td><![endif]-->
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;">
 <tr><td align="center" bgcolor="#5B3E8C" style="padding:28px 20px;background-color:#5B3E8C;border-radius:20px 20px 0 0;">
-<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:344px;background-color:#FAF8FF;border-radius:12px;"><tr><td align="center" bgcolor="#FAF8FF" style="padding:12px;border-radius:12px;">
-<img src="cid:fluilet-logo" width="320" height="124" alt="Fluilet · Tu ritmo, tus palabras" style="display:block;width:100%;max-width:320px;height:auto;border:0;outline:none;text-decoration:none;">
-</td></tr></table>
+<div role="img" aria-label="Fluilet · Tu ritmo, tus palabras" style="font-family:'Trebuchet MS',Arial,Helvetica,sans-serif;font-size:48px;line-height:56px;font-weight:bold;letter-spacing:-1px;color:#FFFFFF;">Fluilet</div>
+<div style="padding-top:4px;font-size:14px;line-height:22px;letter-spacing:1px;color:#E5DDF3;">Tu ritmo, tus palabras</div>
+<table role="presentation" align="center" width="180" cellspacing="0" cellpadding="0" border="0" style="margin-top:12px;"><tr><td height="3" bgcolor="#45C6A2" style="background-color:#45C6A2;font-size:1px;line-height:3px;border-radius:3px;">&nbsp;</td></tr></table>
 <div style="padding-top:16px;font-size:13px;line-height:22px;color:#FFFFFF;">Fluilet · Lectura adaptativa inteligente</div>
 </td></tr>
 <tr><td bgcolor="#FFFFFF" style="padding:32px 24px;background-color:#FFFFFF;border-radius:0 0 20px 20px;">
@@ -72,14 +70,6 @@ def recovery_message(recipient: str, code: str) -> EmailMessage:
 <!--[if mso]></td></tr></table><![endif]-->
 </td></tr></table></body></html>""",
         subtype="html",
-    )
-    message.get_payload()[-1].add_related(
-        _logo.read_bytes(),
-        maintype="image",
-        subtype="png",
-        cid="<fluilet-logo>",
-        disposition="inline",
-        filename="fluilet-logo.png",
     )
     return message
 
