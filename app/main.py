@@ -8,7 +8,7 @@ from fastapi import Depends, FastAPI, HTTPException, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,7 +21,9 @@ from app.config import settings
 from app.database import SessionLocal, engine, get_db
 from app.health import router as health_router
 from app.nlp.mt5 import runtime
+from app.password_reset import router as password_reset_router
 from app.privacy import PrivacyMiddleware, validation_error
+from app.services import email_service
 
 
 @asynccontextmanager
@@ -47,6 +49,7 @@ async def lifespan(app):
     yield
     await runtime.close()
     await auth.close()
+    await email_service.close()
     await engine.dispose()
 
 
@@ -103,7 +106,9 @@ async def login(form: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = 
     if len(form.username) > 254 or len(form.password.encode("utf-8")) > 72:
         raise auth.unauthorized()
     user = await db.scalar(
-        select(models.User).where(models.User.email == form.username.lower()).with_for_update()
+        select(models.User)
+        .where(func.lower(models.User.email) == form.username.lower())
+        .with_for_update()
     )
     correct = await auth.verify_async(form.password, user.hashed_password if user else None)
     if user is None:
@@ -344,6 +349,7 @@ app.include_router(adaptations_router)
 app.include_router(academic_demo_router)
 app.include_router(admin_router)
 app.include_router(health_router)
+app.include_router(password_reset_router)
 
 
 @app.post("/api/v1/auth/verify-parental-pin", tags=["auth"])

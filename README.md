@@ -240,3 +240,11 @@ reported separately, without attributing these rewrites to an unvalidated mT5 mo
 See [pedagogical-simplification.md](docs/pedagogical-simplification.md) for exact
 observed results, source/version provenance, API fields, limitations and reproduction.
 No weights or corpus are committed; no schema migration is needed for response JSON.
+
+
+## Email password recovery
+
+Public forgot/verify/reset endpoints use six-digit codes, ten-minute expiry,
+persisted five-attempt limits and SMTP multipart mail. Configure the new `SMTP_*`
+variables in `.env`; missing credentials use development logs only, while
+production never logs recovery codes. See [the contract and SMTP setup](docs/password-recovery.md).

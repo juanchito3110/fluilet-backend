@@ -189,7 +189,7 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
         async with engine.connect() as connection:
             assert (
                 await connection.scalar(text("SELECT version_num FROM alembic_version"))
-                == "0007_master_accounts"
+                == "0009_password_reset"
             )
             assert await connection.scalar(text("SELECT score_delta FROM reading_sessions")) == 0
         async with engine.begin() as connection:
@@ -210,7 +210,7 @@ async def test_legacy_migration_preflight_and_metadata_preservation():
             assert await connection.scalar(text("SELECT COUNT(*) FROM reading_activity_days")) == 1
             assert (
                 await connection.scalar(text("SELECT version_num FROM alembic_version"))
-                == "0007_master_accounts"
+                == "0009_password_reset"
             )
         async with engine.begin() as connection:
             await connection.execute(text("UPDATE reading_sessions SET demo_slot='academic-v1-0'"))

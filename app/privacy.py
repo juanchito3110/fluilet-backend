@@ -14,6 +14,10 @@ from app.config import settings
 def validation_message(error):
     """Human-readable allow-list; never return Pydantic's input or exception."""
     location = error["loc"][-1] if error["loc"] else None
+    if location == "code":
+        return "El código debe contener exactamente 6 dígitos numéricos."
+    if location == "new_password":
+        return "La contraseña debe tener de 10 a 72 caracteres (máximo 72 bytes), mayúscula, minúscula, número y símbolo, sin espacios."
     if location in {"level", "target_level", "simplification_level", "nivel_simplificacion_nlp"}:
         return "El nivel debe ser un entero entre 1 y 5 o BASICO, INTERMEDIO o AVANZADO."
     kind = error["type"]
@@ -48,6 +52,8 @@ async def validation_error(request: Request, exc: RequestValidationError):
                             "header",
                             "text",
                             "password",
+                            "new_password",
+                            "code",
                             "email",
                             "role",
                             "name",

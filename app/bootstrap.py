@@ -18,7 +18,7 @@ def migrate():
     configuration = Config(str(root / "alembic.ini"))
     configuration.set_main_option("script_location", str(root / "alembic"))
     url = make_url(settings.DATABASE_URL).set(drivername="postgresql")
-    # A session advisory lock covers all eight revisions across concurrent starts.
+    # A session advisory lock covers all schema revisions across concurrent starts.
     with psycopg.connect(
         url.render_as_string(hide_password=False), autocommit=True, connect_timeout=15
     ) as lock:

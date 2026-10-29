@@ -91,7 +91,7 @@ def test_production_requires_private_demo_credentials():
 
 
 @pytest.mark.postgres
-async def test_container_startup_applies_all_eight_revisions_idempotently():
+async def test_container_startup_applies_all_revisions_idempotently():
     url = os.environ.get("TEST_DATABASE_URL")
     if not url:
         pytest.skip("Explicit PostgreSQL test database required")
@@ -132,7 +132,7 @@ async def test_container_startup_applies_all_eight_revisions_idempotently():
         from alembic.script import ScriptDirectory
 
         script = ScriptDirectory.from_config(Config(str(Path(__file__).parents[1] / "alembic.ini")))
-        assert len(list(script.walk_revisions())) == 8
+        assert len(list(script.walk_revisions())) == 9
     finally:
         async with admin.begin() as connection:
             await connection.execute(text(f'DROP SCHEMA "{schema}" CASCADE'))

@@ -116,6 +116,26 @@ class PasswordChange(InputModel):
     new_password: Password
 
 
+class ForgotPasswordRequest(InputModel):
+    email: EmailStr
+
+
+class VerifyResetCodeRequest(ForgotPasswordRequest):
+    code: str = Field(pattern=r"^[0-9]{6}$", min_length=6, max_length=6, strict=True)
+
+
+class ResetPasswordRequest(VerifyResetCodeRequest):
+    new_password: Password
+
+
+class AuthMessage(BaseModel):
+    message: str
+
+
+class ResetCodeVerification(AuthMessage):
+    valid: bool
+
+
 class Token(BaseModel):
     access_token: str
     refresh_token: str

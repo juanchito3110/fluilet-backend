@@ -204,3 +204,21 @@ routes. Account/profile deactivation contracts remain unchanged for ordinary use
 The role enum is extended additively. Downgrade refuses to discard populated
 master markers, PINs, age overrides or controls. An unused PostgreSQL enum label
 is retained on clean downgrade to avoid destructive type replacement.
+
+## Password recovery — revision 0009
+
+Public recovery returns a generic 200 regardless of account existence/activity or
+resend limits. Codes are six ASCII digits with ten-minute expiry and five failed
+attempts persisted across requests. Account row locks serialize resend/reset;
+HMAC digests bind codes to the account, request and auth version. Codes never
+appear in HTTP responses or database plaintext. Successful reset revokes prior
+access/refresh sessions and invalidates all other requests. Cooldown is 60 seconds
+and the per-account budget is five emails per hour, in addition to IP throttling.
+
+As explicitly requested, missing SMTP credentials emit codes **only in development
+logs**, without recipient addresses. Production never logs codes or SMTP exception
+strings. No document/text logging was added. Configure SMTP credentials for real
+delivery; STARTTLS verifies certificates. Delivery runs off the event loop with
+bounded work, without a persistent queue. See [the recovery contract and SMTP
+configuration](password-recovery.md). Model artifacts, NLP and marked demos are
+unchanged by this module.

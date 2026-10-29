@@ -18,8 +18,8 @@ curl --fail https://your-domain.example/health/ready
 
 El `CMD` de la imagen ejecuta `app.bootstrap`: toma un bloqueo asesor de PostgreSQL,
 aplica `alembic upgrade head` y, solo si termina correctamente, reemplaza el proceso
-por Uvicorn. Se aplican las **ocho revisiones existentes**, cuyo head se llama
-`0007_master_accounts` (hay dos revisiones históricas con prefijo 0004). No se añade
+por Uvicorn. Se aplican las **nueve revisiones**, cuyo head se llama
+`0009_password_reset` (hay dos revisiones históricas con prefijo 0004). No se añade
 una migración ficticia. Después, el lifespan carga el checkpoint y asegura las
 cuentas/perfiles demo de forma idempotente. Un error de migración impide abrir HTTP.
 
@@ -71,3 +71,17 @@ web/WebView, configura `CORS_ORIGINS=["https://tu-front.example"]` con sus oríg
 exactos (esquema y puerto, sin ruta). Se permiten Authorization y Content-Type y
 el preflight OPTIONS. No se usa `*` con credenciales. CORS no sustituye TLS, DNS,
 firewall ni el `BASE_URL` de Android. Esta entrega no ha creado un Droplet remoto.
+
+
+## Recuperación de contraseña por SMTP
+
+El archivo privado de entorno incluye `SMTP_HOST`, `SMTP_PORT`, `SMTP_USE_TLS`,
+`SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM_EMAIL` y `SMTP_FROM_NAME`; Compose los pasa
+mediante `env_file`. El ejemplo usa Gmail/587/STARTTLS. Completa usuario y password
+de aplicación del proveedor y un remitente autorizado para activar envíos reales
+a Gmail, Hotmail, Outlook y otros dominios. No se necesita otra dependencia.
+
+Al arrancar se aplica la migración aditiva `0009_password_reset`, sin tocar las
+lecciones ni el checkpoint. Sin credenciales, desarrollo muestra el código en el
+log; producción solo muestra un error de configuración sin el código. El endpoint
+mantiene siempre su respuesta genérica. [Contrato, límites y plantilla](../docs/password-recovery.md).
