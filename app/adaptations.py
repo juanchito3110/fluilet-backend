@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import uuid
+from dataclasses import replace
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -14,7 +15,13 @@ from app.activities import accessible_child, accessible_document
 from app.config import settings
 from app.database import get_db
 from app.ingestion import IngestionError, clean_text, extract_safely, read_stream
-from app.lesson_sources import SourceUnavailable, local_article, resolve_lesson, resolve_topic
+from app.lesson_sources import (
+    SourceUnavailable,
+    lesson_excerpt,
+    local_article,
+    resolve_lesson,
+    resolve_topic,
+)
 from app.nlp.pipeline import original_result, pipeline
 from app.nlp.validation import InvalidText, TextTooLarge, validate_text
 
@@ -54,7 +61,13 @@ _FILE_BODY = {
 
 
 async def process(
-    text: str | None, data: bytes | None, media_type: str, level: int, *, child_age=None
+    text: str | None,
+    data: bytes | None,
+    media_type: str,
+    level: int,
+    *,
+    child_age=None,
+    allow_local_excerpt=False,
 ):
     if _slots.locked():
         raise HTTPException(
@@ -74,11 +87,10 @@ async def process(
             raise HTTPException(422, "El documento no contiene texto válido.") from None
         try:
             async with asyncio.timeout(settings.PROCESSING_TIMEOUT_SECONDS):
-                result = (
-                    await pipeline.run(source, level, child_age=child_age)
-                    if child_age is not None
-                    else await pipeline.run(source, level)
-                )
+                options = {"child_age": child_age} if child_age is not None else {}
+                if allow_local_excerpt:
+                    options["allow_local_excerpt"] = True
+                result = await pipeline.run(source, level, **options)
         except TimeoutError:
             result = await asyncio.to_thread(original_result, source, "processing_budget_exceeded")
         digest = hashlib.sha256(source.encode("utf-8")).hexdigest()
@@ -350,14 +362,21 @@ async def generate_lesson(
         child = await accessible_child(payload.child_id, user, db)
         if payload.age_group is None:
             child_age = education.teaching_age(child)
+    group = education.question_age_group(child_age)
     try:
         category, entry = await resolve_lesson(payload.category, payload.topic)
     except SourceUnavailable:
         raise HTTPException(
             503, "No hay un artículo disponible para ese tema. Prueba un tema más específico."
         ) from None
+    entry = replace(entry, text=lesson_excerpt(entry.text, group))
     result, digest = await process(
-        entry.text, None, "text/plain", payload.simplification_level, child_age=child_age
+        entry.text,
+        None,
+        "text/plain",
+        payload.simplification_level,
+        child_age=child_age,
+        allow_local_excerpt=True,
     )
     needs_local_reference = entry.provider == "wikipedia" and (
         not result.level_progression_met
@@ -365,10 +384,17 @@ async def generate_lesson(
     )
     if result.adapted_text == result.original_text or needs_local_reference:
         fallback = local_article(resolve_topic(payload.category, payload.topic))
+        if fallback is not None:
+            fallback = replace(fallback, text=lesson_excerpt(fallback.text, group))
         if fallback is not None and fallback.text != entry.text:
             entry = fallback
             result, digest = await process(
-                entry.text, None, "text/plain", payload.simplification_level, child_age=child_age
+                entry.text,
+                None,
+                "text/plain",
+                payload.simplification_level,
+                child_age=child_age,
+                allow_local_excerpt=True,
             )
             result.warnings.append("pedagogical_local_reference")
         if result.adapted_text == result.original_text:

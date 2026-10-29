@@ -219,16 +219,28 @@ def join_related(text, limit):
     return " ".join(joined)
 
 
-def _local_plan(text):
+def _local_plan(text, *, allow_excerpt=False):
     # Lazy import avoids a catalog/services import cycle.
     from app.encyclopedia import ARTICLES
 
     identity = source_hash(text)
+    excerpt_units = sentences(text) if allow_excerpt else []
     for key, article in ARTICLES.items():
         if source_hash(article.text) == identity:
             originals = sentences(article.text)
             if len(originals) == len(SIMPLE[key]):
                 return originals, SIMPLE[key]
+        elif allow_excerpt and len(excerpt_units) >= 3:
+            originals = sentences(article.text)
+            count = len(excerpt_units)
+            if (
+                len(originals) == len(SIMPLE[key])
+                and count < len(originals)
+                and source_hash(" ".join(originals[:count])) == identity
+            ):
+                # Generation-only opt-in: retain only alignments for the exact
+                # complete prefix, never facts from discarded source sentences.
+                return originals[:count], SIMPLE[key][:count]
     return None
 
 
@@ -294,7 +306,7 @@ def _safe_numbers(source, candidate):
     return numbers(cleaned) == numbers(candidate.text)
 
 
-def choose_levels(text, legacy=None):
+def choose_levels(text, legacy=None, *, allow_local_excerpt=False):
     from app.nlp.readability import measurement_session
 
     with measurement_session():
@@ -320,6 +332,8 @@ def choose_levels(text, legacy=None):
         units = sentences(text)
         if len(words(text)) > 250 and len(units) > 1:
             return _compose_levels(text, units)
+        if allow_local_excerpt:
+            return _choose_levels(text, legacy, allow_local_excerpt=True)
         return _choose_levels(text, legacy)
 
 
@@ -417,9 +431,9 @@ def _compose_levels(text, units):
     return selected, previews, progressive
 
 
-def _choose_levels(text, legacy=None):
+def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
     resources()  # no-op after startup warm-up
-    plan = _local_plan(text)
+    plan = _local_plan(text, allow_excerpt=True) if allow_local_excerpt else _local_plan(text)
     source = measure(text)
     from app.services.ranker import checkpoint
     from app.services.rewriting import candidates as learned_candidates

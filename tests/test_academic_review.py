@@ -9,6 +9,7 @@ from sqlalchemy import func, select
 from app import auth, models
 from app.academic_demo import DEMO_KEYS
 from app.encyclopedia import ARTICLES
+from app.lesson_sources import lesson_excerpt
 from app.nlp.readability import measure
 from tests.conftest import SOURCE
 
@@ -67,7 +68,7 @@ async def test_generated_comparison_is_real_nonempty_and_retrievable(
     )
     assert response.status_code == 200, response.text
     data = response.json()
-    assert data["original_text"] == ARTICLES[key].text
+    assert data["original_text"] == lesson_excerpt(ARTICLES[key].text, group)
     assert data["original_text"] != data["adapted_text"]
     assert data["readability_score"] > data["original_readability_score"]
     assert data["target_level"] == level and data["age_group"] == group

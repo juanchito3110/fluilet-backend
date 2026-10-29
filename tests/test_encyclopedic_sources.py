@@ -15,6 +15,7 @@ from app.lesson_sources import (
     SourceUnavailable,
     WikipediaSource,
     clean_extract,
+    lesson_excerpt,
     resolve_lesson,
     resolve_topic,
 )
@@ -109,8 +110,14 @@ async def test_custom_topic_returns_subject_facts_glossary_and_questions(
     assert data["category"] == category and data["simplification_level"] == level
     assert data["source"]["provider"] == "local"
     assert data["resolved_topic"] == data["title"]
+    excerpt = lesson_excerpt(
+        ARTICLES[resolve_topic(category, topic).local_key].text, data["age_group"]
+    )
     for fragment in fragments:
-        assert fragment.casefold() in data["adapted_text"].casefold()
+        if fragment.casefold() in excerpt.casefold():
+            assert fragment.casefold() in data["adapted_text"].casefold()
+        else:
+            assert fragment.casefold() not in data["adapted_text"].casefold()
     assert not any(
         marker in data["adapted_text"].casefold()
         for marker in (

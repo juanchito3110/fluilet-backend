@@ -9,6 +9,7 @@ from sqlalchemy import select
 
 from app import models
 from app.encyclopedia import ARTICLES
+from app.lesson_sources import lesson_excerpt
 from app.nlp.pipeline import pipeline
 from app.nlp.readability import measure
 from app.services import resources as lexical_resources
@@ -76,7 +77,9 @@ async def test_http_comparison_and_previews_are_real_and_persisted(
     assert response.status_code == 200, response.text
     data = response.json()
     original, adapted = measure(data["original_text"]), measure(data["adapted_text"])
-    assert data["original_text"] == source
+    assert data["original_text"] == (
+        lesson_excerpt(source, data["age_group"]) if path.endswith("generate") else source
+    )
     assert data["readability_gain"] == pytest.approx(adapted.score - original.score)
     assert data["readability_gain"] >= 15
     assert data["original_avg_sentence_length"] == pytest.approx(
@@ -275,6 +278,6 @@ async def test_ungraded_remote_known_topic_uses_honestly_attributed_local_refere
     assert response.status_code == 200, response.text
     data = response.json()
     assert data["source"]["provider"] == "local"
-    assert data["original_text"] == ARTICLES["real madrid"].text
+    assert data["original_text"] == lesson_excerpt(ARTICLES["real madrid"].text, "6-8")
     assert data["level_progression_met"] and data["readability_gain"] >= 15
     assert "pedagogical_local_reference" in data["warnings"]

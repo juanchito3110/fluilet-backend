@@ -197,7 +197,9 @@ class AdaptationPipeline:
             original_text=text,
         )
 
-    async def run(self, text: str, level: int = 3, *, child_age=None) -> AdaptationResult:
+    async def run(
+        self, text: str, level: int = 3, *, child_age=None, allow_local_excerpt=False
+    ) -> AdaptationResult:
         from app.services.pedagogy import VERSION, _local_plan, choose_levels, replacements
         from app.services.ranker import checkpoint
 
@@ -210,7 +212,12 @@ class AdaptationPipeline:
             # summarize. Retain every occurrence instead of spending the whole
             # generation budget on quadratic alignment of identical tokens.
             return await asyncio.to_thread(original_result, text, "repetitive_input_retained")
-        local = await asyncio.to_thread(_local_plan, text)
+        excerpt_options = {"allow_local_excerpt": True} if allow_local_excerpt else {}
+        local = (
+            await asyncio.to_thread(_local_plan, text, allow_excerpt=True)
+            if allow_local_excerpt
+            else await asyncio.to_thread(_local_plan, text)
+        )
         legacy = None if local else await self._run_legacy(text, 1, child_age=child_age)
         # For large documents operate on the existing source chunks, preserving
         # their alignment and bounds; preview inference never loads mT5 five times.
@@ -223,7 +230,7 @@ class AdaptationPipeline:
         removed = []
         if len(chunks) == 1:
             chosen, previews, progressive = await asyncio.to_thread(
-                choose_levels, text, legacy.adapted_text if legacy else None
+                choose_levels, text, legacy.adapted_text if legacy else None, **excerpt_options
             )
             selections = [chosen[level - 1]]
             removed.extend(chosen[level - 1].removed)

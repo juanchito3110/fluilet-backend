@@ -15,6 +15,7 @@ from app.encyclopedia import ARTICLES, BANK, Article
 from app.nlp.segmentation import sentences, words
 
 WIKIPEDIA_API = "https://es.wikipedia.org/w/api.php"
+LESSON_WORD_LIMITS = {"6-8": 120, "9-11": 180, "12+": 240}
 _CONTEXT = {
     "ciencia_espacio": "ciencia astronomía",
     "animales_naturaleza": "biología naturaleza",
@@ -117,7 +118,26 @@ def local_article(resolution):
     return ARTICLES.get(resolution.local_key)
 
 
-def clean_extract(value):
+def lesson_excerpt(text, age_group):
+    """Keep a source prefix at sentence boundaries, with at least three units.
+
+    If those first three sentences alone exceed the budget, their completeness
+    takes precedence. Shorter sources remain intact; no new sentence is invented.
+    """
+    limit = LESSON_WORD_LIMITS[age_group]
+    kept, count, end = 0, 0, 0
+    for sentence in sentences(text):
+        size = len(words(sentence))
+        if kept >= 3 and count + size > limit:
+            break
+        end = text.index(sentence, end) + len(sentence)
+        kept += 1
+        count += size
+    # Keep the exact prefix, including paragraph breaks used as sentence ends.
+    return text[:end].strip()
+
+
+def clean_extract(value, age_group="12+"):
     text = html.unescape(re.sub(r"<[^>]+>", "", value))
     text = re.sub(r"\[(?:\d+(?:[,–-]\d+)*|[a-z]|cita requerida)\]", "", text, flags=re.I)
     text = re.sub(
@@ -132,14 +152,7 @@ def clean_extract(value):
             continue
         lines.append(line)
     text = " ".join(" ".join(lines).split())
-    parts, count = [], 0
-    for sentence in sentences(text):
-        size = len(words(sentence))
-        if count + size > 1200:
-            break
-        parts.append(sentence)
-        count += size
-    return " ".join(parts)
+    return lesson_excerpt(text, age_group)
 
 
 def _candidate_score(resolution, title, extract):
@@ -250,8 +263,8 @@ class WikipediaSource:
                         title, raw = page.get("title", ""), page.get("extract", "")
                         if not isinstance(title, str) or not isinstance(raw, str):
                             continue
-                        # Preserve the entire plaintext introduction for the original side.
-                        # Noise cleanup belongs to the adapted derivation, not the source.
+                        # Keep the bounded response for ranking; generate selects
+                        # its age-specific sentence excerpt before adaptation.
                         text = raw.strip()
                         if len(words(text)) < 20:
                             continue
