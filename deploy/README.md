@@ -59,6 +59,15 @@ entorno alternativo para Compose sin sobrescribir el `.env` local.
 
 ## Conexión Android desde fuera del Droplet
 
+La sonda `/health/ready` identifica el motor residente: `model: loaded`,
+`active_model_type: context_ranker`, `engine_mode: context_ranker_refinement` y
+`rules_fallback: false` cuando el ranker final está cargado. `mt5_model` conserva
+por separado el estado del módulo neuronal opcional. Las reglas siguen formando
+parte del refinamiento; `rules_fallback_available` indica que existe un respaldo.
+La sonda solo consulta el modelo ya cargado en memoria, sin abrir pesos ni iniciar
+inferencias mT5. `RANKER_CHECKPOINT` y su SHA-256 fijan el JSON validado que lifespan
+carga antes de abrir HTTP; este estado no acredita el ensayo mT5 `easier-smoke`.
+
 El cliente nativo Retrofit/OkHttp puede usar `https://api.tu-dominio.example/`
 (con `/` final). Expón TCP 443 en el firewall del Droplet y asigna el DNS y un
 certificado cuyo nombre coincida con ese dominio. También puede usarse una IP

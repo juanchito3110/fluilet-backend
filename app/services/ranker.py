@@ -308,6 +308,11 @@ def quality(source, target, level, original=None, adapted=None):
     )
 
 
+def loaded_checkpoint():
+    """Return only the resident model; probes must not load files or weights."""
+    return checkpoint() if checkpoint.cache_info().currsize else None
+
+
 def model_info():
     model = checkpoint()
     if not model:

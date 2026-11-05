@@ -87,6 +87,8 @@ class AdaptationPipeline:
 
     def readiness(self) -> dict:
         """Content-free CPU probe; never load weights or run model generation."""
+        from app.services.ranker import loaded_checkpoint
+
         sample = (
             "Los alumnos utilizan libros y posteriormente realizan actividades con sus amigos "
             "en la escuela. "
@@ -94,10 +96,17 @@ class AdaptationPipeline:
         candidate = refine(sample)
         usable = fidelity_ok(sample, candidate) and accepted(measure(sample), measure(candidate))
         loaded = self.model.is_loaded
+        mt5_state = (
+            "not_loaded" if self.model.state == "loaded" and not loaded else self.model.state
+        )
+        ranker = loaded_checkpoint()
+        ranker_loaded = ranker is not None
         return {
             "pipeline": "operational" if usable else "unavailable",
             "engine_mode": (
-                "hybrid"
+                "context_ranker_refinement"
+                if usable and ranker_loaded
+                else "hybrid"
                 if usable and loaded and settings.ALLOW_RULE_BASED_FALLBACK
                 else "mt5_refinement"
                 if usable and loaded
@@ -105,8 +114,12 @@ class AdaptationPipeline:
                 if usable
                 else "unavailable"
             ),
-            "model": self.model.state,
-            "rules_fallback": True,
+            "model": "loaded" if ranker_loaded or loaded else mt5_state,
+            "rules_fallback": not (ranker_loaded or loaded),
+            "ranker_model": "loaded" if ranker_loaded else "not_loaded",
+            "mt5_model": mt5_state,
+            "active_model_type": "context_ranker" if ranker_loaded else "mt5" if loaded else None,
+            "rules_fallback_available": True,
         }
 
     @staticmethod
