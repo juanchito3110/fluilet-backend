@@ -1,19 +1,36 @@
-"""Multipart recovery mail, bounded SMTP off the loop, development-only codes."""
+"""Recovery mail through Brevo HTTPS or SMTP, bounded off the event loop."""
 
 import asyncio
 import logging
 import re
 import smtplib
 import ssl
+from dataclasses import dataclass
 from email.message import EmailMessage
 from email.utils import formataddr
 from html import escape
+
+import httpx
 
 from app.config import settings
 
 logger = logging.getLogger("fluilet.email")
 _smtp_slots = asyncio.Semaphore(2)
 _smtp_jobs: set[asyncio.Task] = set()
+BREVO_EMAIL_URL = "https://api.brevo.com/v3/smtp/email"
+
+
+@dataclass(frozen=True)
+class DeliveryReceipt:
+    provider: str
+    status_code: int
+    message_id: str | None = None
+
+
+class DeliveryError(Exception):
+    def __init__(self, status_code: int):
+        super().__init__("Brevo no aceptó el correo de recuperación.")
+        self.status_code = status_code
 
 
 def recovery_message(recipient: str, code: str) -> EmailMessage:
@@ -74,7 +91,42 @@ def recovery_message(recipient: str, code: str) -> EmailMessage:
     return message
 
 
+def _send_brevo(recipient: str, message: EmailMessage) -> DeliveryReceipt:
+    payload = {
+        "sender": {
+            "name": "Fluilet",
+            "email": settings.SMTP_FROM_EMAIL or settings.SMTP_USER or "fluilet123@gmail.com",
+        },
+        "to": [{"email": recipient}],
+        "subject": str(message["Subject"]),
+        "htmlContent": message.get_body(preferencelist=("html",)).get_content(),
+        "textContent": message.get_body(preferencelist=("plain",)).get_content(),
+    }
+    with httpx.Client(
+        timeout=httpx.Timeout(10, connect=5), trust_env=False, follow_redirects=False
+    ) as client:
+        response = client.post(
+            BREVO_EMAIL_URL,
+            headers={
+                "api-key": settings.BREVO_API_KEY.get_secret_value(),
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            json=payload,
+        )
+    if response.status_code != 201:
+        # Provider bodies and HTTP exceptions may contain credentials or codes.
+        raise DeliveryError(response.status_code)
+    try:
+        message_id = response.json().get("messageId")
+    except (ValueError, AttributeError):
+        message_id = None
+    return DeliveryReceipt("brevo", 201, message_id if isinstance(message_id, str) else None)
+
+
 def _send(recipient: str, code: str):
+    if settings.BREVO_API_KEY.get_secret_value():
+        return _send_brevo(recipient, recovery_message(recipient, code))
     password = settings.SMTP_PASSWORD.get_secret_value()
     if not settings.SMTP_USER or not password:
         if settings.DEPLOYMENT_ENV == "development":
@@ -105,10 +157,14 @@ async def send_reset_code(recipient: str, code: str):
 
     async def deliver():
         try:
-            await asyncio.to_thread(_send, recipient, code)
+            return await asyncio.to_thread(_send, recipient, code)
+        except DeliveryError as error:
+            logger.error(
+                "Fluilet: Brevo rechazó el correo de recuperación (HTTP %d).", error.status_code
+            )
         except Exception:
-            # SMTP exceptions may include credentials/addresses/server replies.
-            logger.error("Fluilet: no se pudo enviar el correo de recuperación. Revisa SMTP.")
+            # Never log provider replies, HTTP headers, recipients or codes.
+            logger.error("Fluilet: no se pudo enviar el correo de recuperación. Revisa el correo.")
         finally:
             _smtp_slots.release()
 
@@ -116,7 +172,7 @@ async def send_reset_code(recipient: str, code: str):
     _smtp_jobs.add(task)
     task.add_done_callback(_smtp_jobs.discard)
     # A disconnected request must not release a slot while its thread still runs.
-    await asyncio.shield(task)
+    return await asyncio.shield(task)
 
 
 async def close():

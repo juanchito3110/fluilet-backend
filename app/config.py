@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     ALLOW_RULE_BASED_FALLBACK: bool = True
     REQUESTS_PER_MINUTE: int = Field(default=120, ge=1)
     AUTH_REQUESTS_PER_MINUTE: int = Field(default=15, ge=1)
+    BREVO_API_KEY: SecretStr = SecretStr("")
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = Field(default=587, ge=1, le=65535)
     SMTP_USE_TLS: bool = True

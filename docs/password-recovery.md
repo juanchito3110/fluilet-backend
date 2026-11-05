@@ -41,11 +41,28 @@ contraseña sigue siendo bcrypt con el costo configurado. Un cambio de versión 
 autenticación también invalida códigos pendientes. Las cuentas demo gestionadas
 conservan su restauración de credenciales al arrancar; ese comportamiento no cambia.
 
-## SMTP y plantilla
+## Brevo HTTPS, SMTP y plantilla
+
+`BREVO_API_KEY` activa el envío por HTTPS mediante
+`POST https://api.brevo.com/v3/smtp/email`, con autenticación en el header `api-key`.
+Es la vía preferente cuando está configurada, aunque también existan credenciales
+SMTP. La clave se trata como secreto y se guarda únicamente en el `.env` privado.
+El remitente usa el nombre `Fluilet` y `SMTP_FROM_EMAIL` (o `SMTP_USER`); en el
+despliegue actual es `fluilet123@gmail.com`. Debe estar autorizado en Brevo.
+
+Se envían `sender`, `to`, `subject`, `htmlContent` y `textContent`, reutilizando
+exactamente la misma plantilla y el código de seis dígitos. La confirmación del
+proveedor es HTTP 201. No se siguen redirecciones, se valida TLS y los timeouts
+son de cinco segundos para conectar y diez para leer. Un rechazo o timeout de
+Brevo conserva la respuesta pública genérica; no expone claves, códigos ni
+respuestas del proveedor y no dispara un segundo envío por SMTP.
+
+Si `BREVO_API_KEY` está vacía, se conserva el envío SMTP descrito debajo.
 
 Configurar en `.env` (o el archivo privado de Compose):
 
 ```dotenv
+BREVO_API_KEY=
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USE_TLS=true

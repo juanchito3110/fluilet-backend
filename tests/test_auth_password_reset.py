@@ -32,6 +32,7 @@ def isolated_smtp(monkeypatch):
         SMTP_PASSWORD=SecretStr(""),
         SMTP_FROM_EMAIL="",
         SMTP_FROM_NAME="Fluilet Soporte",
+        BREVO_API_KEY=SecretStr(""),
         DEPLOYMENT_ENV="development",
     ).items():
         monkeypatch.setattr(settings, name, value)

@@ -9,6 +9,7 @@ os.environ["DATABASE_URL"] = "postgresql+psycopg://test:test@127.0.0.1:1/unused"
 os.environ["MT5_ENABLED"] = "false"
 os.environ["WIKIPEDIA_ENABLED"] = "false"
 os.environ["DEMO_ACCOUNTS_ENABLED"] = "false"
+os.environ["BREVO_API_KEY"] = ""
 
 import httpx
 import pytest

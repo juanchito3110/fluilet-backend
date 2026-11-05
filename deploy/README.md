@@ -75,6 +75,13 @@ firewall ni el `BASE_URL` de Android. Esta entrega no ha creado un Droplet remot
 
 ## Recuperación de contraseña por SMTP
 
+Para Brevo por HTTPS, configura `BREVO_API_KEY` en el `.env` privado. Esta vía
+tiene prioridad sobre SMTP y utiliza el mismo HTML y remitente configurado.
+El POST a `https://api.brevo.com/v3/smtp/email` usa el puerto 443 y requiere
+confirmación HTTP 201; no necesita nuevas dependencias. No incluyas la clave en
+imágenes, scripts, commits ni archivos de ejemplo. Un fallo no reintenta por SMTP.
+Sin la clave se mantiene el comportamiento SMTP existente.
+
 El archivo privado de entorno incluye `SMTP_HOST`, `SMTP_PORT`, `SMTP_USE_TLS`,
 `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM_EMAIL` y `SMTP_FROM_NAME`; Compose los pasa
 mediante `env_file`. El ejemplo usa Gmail/587/STARTTLS. Completa usuario y password
