@@ -22,7 +22,7 @@ _CONTEXT = {
     "historia_misterios": "historia civilización",
     "deportes": "deporte",
     "tecnologia": "tecnología informática",
-    "cuentos_aventuras": "literatura novela",
+    "cuentos_aventuras": "naturaleza exploración historia",
 }
 _KEYWORDS = {
     "ciencia_espacio": "ciencia cientifico cientifica astronomia planeta planetas estrella estrellas solar tierra universo gravedad energia volcan atmosfera biologia oceano oceanos agua espacio",
@@ -33,6 +33,20 @@ _KEYWORDS = {
     "cuentos_aventuras": "literatura novela escritor escritora libro cuentos cuento narracion autor personaje aventura ficcion publicado publicada",
 }
 _ALIASES = {
+    "la nasa": "nasa",
+    "planetas y la nasa": "nasa",
+    "bosque encantado": "bosque encantado",
+    "dragones": "dragones",
+    "tesoros piratas": "tesoros piratas",
+    "viaje al espacio": "viaje al espacio",
+    "animales marinos": "biologia marina",
+    "tiburon blanco": "tiburon",
+    "piramides de egipto": "antiguo egipto",
+    "piratas del caribe": "piratas caribe",
+    "los vikingos": "vikingos",
+    "castillos medievales": "castillos",
+    "inventos increibles": "inventos",
+    "deportes": "futbol",
     "real madrid": "real madrid",
     "real madrid club de futbol": "real madrid",
     "futbol": "futbol",
@@ -98,6 +112,16 @@ def resolve_topic(category, topic=None):
         entry = ARTICLES[key]
         return ResolvedTopic(category, entry.title, entry.title, key)
     key = normalized(" ".join(topic.split())).strip()
+    contextual = {
+        "bosque": "bosque encantado" if category == "cuentos_aventuras" else "bosques",
+        "piratas": "tesoros piratas" if category == "cuentos_aventuras" else "piratas caribe",
+        "espacio": "viaje al espacio" if category == "cuentos_aventuras" else "sistema solar",
+        "dragon": "dragones",
+        "tesoro": "tesoros piratas",
+        "selva": "selva amazonica",
+        "planetas": "sistema solar",
+    }
+    key = contextual.get(key, key)
     key = _ALIASES.get(key, key if key in ARTICLES else None)
     # The same short adjective gets interpreted as marine science in both
     # relevant categories, never as a singer, military branch or given name.
@@ -138,6 +162,9 @@ def lesson_excerpt(text, age_group):
 
 
 def clean_extract(value, age_group="12+"):
+    from app.services.source_cleanup import sanitize
+
+    value, _ = sanitize(value)
     text = html.unescape(re.sub(r"<[^>]+>", "", value))
     text = re.sub(r"\[(?:\d+(?:[,–-]\d+)*|[a-z]|cita requerida)\]", "", text, flags=re.I)
     text = re.sub(
@@ -158,6 +185,16 @@ def clean_extract(value, age_group="12+"):
 def _candidate_score(resolution, title, extract):
     if "desambiguacion" in normalized(title) or re.search(
         r"puede(?:n)? (?:referirse|hacer referencia) a", extract, re.I
+    ):
+        return None
+    # A title match is insufficient: reject media/biography introductions even
+    # when their synopsis happens to contain many category keywords.
+    introduction = normalized(extract[:1200])
+    if re.search(
+        r"\b(?:es|fue) (?:una? |el |la )?(?:novela|pelicula|cancion|serie de television|"
+        r"album|cantante|actor|actriz|escritor|escritora|editor|editora)\b|"
+        r"\b(?:novela|pelicula) (?:escrita|publicada|dirigida)|the hazel wood",
+        introduction,
     ):
         return None
     topic = set(words(normalized(resolution.title))) - _STOP
@@ -265,7 +302,13 @@ class WikipediaSource:
                             continue
                         # Keep the bounded response for ranking; generate selects
                         # its age-specific sentence excerpt before adaptation.
-                        text = raw.strip()
+                        from app.services.source_cleanup import sanitize
+
+                        text, _ = sanitize(raw)
+                        # Do not turn a truncated last fragment into a fact.
+                        units = sentences(text)
+                        if units and not units[-1].endswith((".", "!", "?", "»")):
+                            text = " ".join(units[:-1])
                         if len(words(text)) < 20:
                             continue
                         score = _candidate_score(resolution, title, text)
@@ -296,6 +339,14 @@ wikipedia = WikipediaSource()
 
 async def resolve_lesson(category, topic=None):
     resolution = resolve_topic(category, topic)
+    from app.services.topic_library import TOPICS, VARIANTS
+
+    if resolution.local_key in TOPICS:
+        # Child adventure topics are stories, never Wikipedia book synopses.
+        import secrets
+
+        key = secrets.choice(VARIANTS.get(resolution.local_key, (resolution.local_key,)))
+        return resolution.category, ARTICLES[key]
     article = await wikipedia.retrieve(resolution) if settings.WIKIPEDIA_ENABLED else None
     article = article or local_article(resolution)
     if article is None:

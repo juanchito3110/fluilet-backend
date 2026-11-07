@@ -4,8 +4,9 @@ import difflib
 import hashlib
 import re
 from collections import Counter
+from copy import deepcopy
 from dataclasses import dataclass
-from functools import cached_property
+from functools import cached_property, lru_cache
 
 from app.nlp.readability import measure
 from app.nlp.refinement import fidelity_ok, refine
@@ -15,7 +16,7 @@ from app.services.lexicon_es import CURATED
 from app.services.local_plans import SIMPLE
 from app.services.resources import choose_corpus, resources
 
-VERSION = "pedagogical-es-v2.3"
+VERSION = "pedagogical-es-v3.0"
 GOALS = {
     1: (82, 100, 6, 9),
     2: (74, 84, 9, 12),
@@ -83,7 +84,10 @@ def source_hash(text):
 
 
 def cleanup(text):
-    removed = []
+    from app.services.source_cleanup import sanitize
+
+    text, noise = sanitize(text)
+    removed = list(noise)
 
     def strip(match):
         body = match[0]
@@ -213,6 +217,11 @@ def join_related(text, limit):
     joined = []
     for unit in units:
         if joined and len(words(joined[-1])) + len(words(unit)) <= limit:
+            if re.match(
+                r"(?:El|La|Los|Las|Un|Una|Su|Sus|Este|Esta|Estos|Estas|Desde|También|Después|Así)\s+[a-záéíóúñ]",
+                unit,
+            ):
+                unit = unit[0].lower() + unit[1:]
             joined[-1] = joined[-1].rstrip(".") + "; " + unit
         else:
             joined.append(unit)
@@ -252,6 +261,44 @@ def _local_candidates(text, level, plan):
     # a measured progression without arbitrary cuts or score manipulation.
     hardness = sorted(range(n), key=lambda i: measure(original[i]).score)
     variants = []
+    if level == 2:
+        from app.services.calibration import pack
+
+        units = sentences(" ".join(simple))
+        vocabulary = set(words(" ".join(simple).casefold()))
+        # The basic tier introduces a simple additive link between existing
+        # facts. No date, causal relationship or new proposition is invented.
+        for connector in ("Además", "También"):
+            if connector.casefold() in vocabulary:
+                continue
+            for index, unit in enumerate(units[1:], 1):
+                if len(words(unit)) >= 14 or re.match(r"(?:Si|Aunque|Cuando)\b", unit):
+                    continue
+                linked = units.copy()
+                start = (
+                    unit[0].lower() + unit[1:]
+                    if re.match(r"(?:El|La|Los|Las|Un|Una|Su|Sus|Ese|Esa|Esos|Esas)\b", unit)
+                    else unit
+                )
+                linked[index] = connector + ", " + start
+                variants.append(
+                    Candidate(pack(" ".join(linked), 14), "reviewed_additive_connection")
+                )
+                if index >= 3:
+                    break
+    if level in (2, 3):
+        from app.services.foundation_readings import INTERMEDIATE
+
+        for key, middle in INTERMEDIATE.items():
+            if tuple(simple) != SIMPLE[key][:n]:
+                continue
+            for count in range(n + 1):
+                variants.append(
+                    Candidate(
+                        " ".join(middle[i] if i < count else simple[i] for i in range(n)),
+                        "reviewed_intermediate_alignment",
+                    )
+                )
     counts = {desired, max(0, desired - 1), min(n - 1, desired + 1)} if level > 1 else {0}
     for count in sorted(counts):
         for shift in range(min(n, 4)):
@@ -266,8 +313,20 @@ def _local_candidates(text, level, plan):
 
 
 def _general_candidates(text, level, legacy):
+    from app.services.clinical_frames import rewrite_frame
+
     cleaned, removed = cleanup(text)
-    variants = [Candidate(text, "original")]
+    variants = [Candidate(cleaned, "source_cleanup", removed)]
+    frame = rewrite_frame(cleaned, level)
+    if frame:
+        variants.append(Candidate(frame, "reviewed_scoped_frame", removed))
+    from app.services.clear_spanish import rewrite
+
+    # Analyze the original clause before lexical substitutions can obscure its
+    # subject or antecedent. Then simplify the resulting independent statements.
+    structured = rewrite(cleaned, level)
+    variants.append(Candidate(structured, "structured_definition", removed))
+    variants.append(Candidate(lexical(structured, level), "structured_definition", removed))
     value = syntax(lexical(cleaned, level), level)
     variants.append(Candidate(value, "pedagogical_rules", removed))
     # Re-use legacy rules only after their own fidelity guard passes.
@@ -281,6 +340,8 @@ def _general_candidates(text, level, legacy):
 
 
 def _loss(candidate, level, estimate=0.0):
+    from app.services.clear_spanish import overflow
+
     score = candidate.metric
     low, high, min_length, max_length = GOALS[level]
     target = (low + high) / 2
@@ -288,7 +349,8 @@ def _loss(candidate, level, estimate=0.0):
     distance = max(0, low - score.score, score.score - high)
     length_distance = max(0, min_length - length, length - max_length)
     return (
-        distance * 1000
+        (overflow(candidate.text, level) * 100000 if level <= 3 else 0)
+        + distance * 1000
         + abs(score.score - target) * 0.01
         + length_distance * 0.002
         - estimate * 0.01
@@ -306,24 +368,46 @@ def _safe_numbers(source, candidate):
     return numbers(cleaned) == numbers(candidate.text)
 
 
+def _surface_safe(text):
+    return not re.search(
+        r"\b(?:esa poder|esta poder|la poder|de el|a el|no no|el el|la la|que están que)\b|"
+        r"\bun (?:sección|capacidad|forma|luz|capa)\b|\buna (?:club|equipo|poder|campo)\b|"
+        r"\b(?:estas|esas|las|unas) útiles\b|"
+        r"\bpaso de agua a vapor del agua\b|(?-i:\bmientras que (?:El|La|Los|Las|Un|Una) [a-záéíóúñ])",
+        text,
+        re.I,
+    )
+
+
 def choose_levels(text, legacy=None, *, allow_local_excerpt=False):
     from app.nlp.readability import measurement_session
 
     with measurement_session():
+        full, excerpts = _public_references()
+        canonical = full.get(text) or (excerpts.get(text) if allow_local_excerpt else None)
+        if canonical is not None:
+            from app.services.ranker import checkpoint
+
+            model = checkpoint()
+            identity = model.get("_artifact_sha256", "unavailable") if model else "rules"
+            # Only an exact public source can enter this cache. Return copies so
+            # a response consumer cannot mutate another reader's previews.
+            return deepcopy(_public_levels(canonical, identity))
         original = measure(text)
         if original.score > 128.535:
-            item = Candidate(text, "original")
+            cleaned, removed = cleanup(text)
+            item = Candidate(cleaned, "source_cleanup" if removed else "original", removed)
             return (
                 [item] * 5,
                 [
                     dict(
                         level=level,
-                        adapted_text=text,
-                        readability_score=original.score,
-                        readability_level=label(original.score),
-                        avg_sentence_length=original.word_count / original.sentence_count,
+                        adapted_text=item.text,
+                        readability_score=item.metric.score,
+                        readability_level=label(item.metric.score),
+                        avg_sentence_length=item.metric.word_count / item.metric.sentence_count,
                         target_met=False,
-                        method="original",
+                        method=item.method,
                     )
                     for level in range(1, 6)
                 ],
@@ -335,6 +419,48 @@ def choose_levels(text, legacy=None, *, allow_local_excerpt=False):
         if allow_local_excerpt:
             return _choose_levels(text, legacy, allow_local_excerpt=True)
         return _choose_levels(text, legacy)
+
+
+@lru_cache(maxsize=1)
+def _public_references():
+    from app.encyclopedia import ARTICLES
+
+    full, excerpts = {}, {}
+    for article in ARTICLES.values():
+        full[article.text] = article.text
+        units = sentences(article.text)
+        for count in range(3, len(units)):
+            prefix = " ".join(units[:count])
+            excerpts[prefix] = prefix
+    return full, excerpts
+
+
+@lru_cache(maxsize=192)
+def _public_levels(canonical, artifact_sha256):
+    # artifact_sha256 is part of the key, so loading different approved weights
+    # cannot reuse a previous model's selection. No private input reaches here.
+    return _choose_levels(canonical, allow_local_excerpt=True)
+
+
+def _keeps_named_concepts(source, text):
+    # Keep a necessary educational name alongside its accessible explanation.
+    terms = (
+        "inteligencia artificial",
+        "biología marina",
+        "bioluminiscencia",
+        "cartílago",
+        "branquias",
+        "jeroglíficos",
+        "papiro",
+        "magma",
+        "baloncesto",
+    )
+    return all(term not in source.casefold() or term in text.casefold() for term in terms)
+
+
+def _no_inserted_meta(source, text):
+    pattern = r"\bel texto (?:habla de|se refiere a)|\ben la biblioteca aprendemos|\bbuscan (?:sobre .+ )?en (?:los )?libros"
+    return not re.search(pattern, text, re.I) or bool(re.search(pattern, source, re.I))
 
 
 def _compose_levels(text, units):
@@ -469,6 +595,9 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
             costs[key] = _loss(item, level, qualities[item.text])
         return costs[key]
 
+    from app.services.clear_spanish import overflow, rewrite
+
+    _, noise = cleanup(text)
     groups = []
     for level in range(1, 6):
         raw = (
@@ -476,6 +605,20 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
             if plan
             else _general_candidates(text, level, legacy)
         )
+        if plan and level <= 3:
+            from app.services.algebraic import restore_variants
+
+            simple = " ".join(plan[1])
+            restored = restore_variants(text, simple)
+            raw.extend(
+                Candidate(value, "reviewed_lexical_progression") for value in [simple, *restored]
+            )
+            if level == 3:
+                raw.extend(
+                    Candidate(value, "reviewed_lexical_progression")
+                    for seed in restored[:8]
+                    for value in restore_variants(text, seed)
+                )
         raw.extend(Candidate(value, "trained_context_ranker") for value in learned)
         if level in gated:
             value, decision = gated[level]
@@ -483,11 +626,19 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
         raw = list({item.text: item for item in raw}.values())
         # Candidate expansion uses source-complete clauses; no tail truncation.
         seeds = sorted(raw, key=lambda item: -item.metric.score)[:3]
-        expanded = alternatives(text, [item.text for item in seeds], glosses=level <= 2)
+        expanded = alternatives(
+            text, [item.text for item in seeds], glosses=level <= 2 and not plan
+        )
         raw.extend(Candidate(value, "joint_calibrated") for value in expanded)
         density_seeds = sorted(raw, key=lambda item: -item.metric.score)[:3]
         density = calibrate_density(text, [item.text for item in density_seeds], level)
         raw.extend(Candidate(value, "analytic_closed_loop") for value in density)
+        if level <= 3:
+            raw.extend(
+                Candidate(rewrite(item.text, level), "clear_spanish_clauses", item.removed)
+                for item in tuple(raw)
+                if not item.support
+            )
         raw = [candidates_by_text.setdefault((item.text, item.removed), item) for item in raw]
         unique = {
             item.text: item
@@ -495,7 +646,10 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
             if item.text
             and words(item.text)
             and _safe_numbers(text, item)
-            and not re.search(r"\b(no no|el el|la la|que están que)\b", item.text, re.I)
+            and _surface_safe(item.text)
+            and _keeps_named_concepts(text, item.text)
+            and _no_inserted_meta(text, item.text)
+            and not any(fragment in item.text for fragment in noise)
         }
         if plan and len(unique) > 1:
             # Catalog lessons have authored alternatives at every level. Keep
@@ -510,7 +664,10 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
         # easy source may yield a lower (truthfully reported) advanced score;
         # no fabricated complexity/filler is introduced to reach that band.
         candidates = [
-            item for item in unique.values() if level > 1 or item.metric.score >= source.score
+            item
+            for item in unique.values()
+            if (level > 1 or item.metric.score >= source.score)
+            and (source.score >= 50 or item.metric.score >= source.score)
         ]
         ranked = sorted(
             candidates or [Candidate(text, "original")],
@@ -521,8 +678,15 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
         controlled = []
         for seed in ranked[:2]:
             result = control(text, seed.text, level, allow_local_excerpt=allow_local_excerpt)
-            if _safe_numbers(text, Candidate(result.text, "algebraic", seed.removed)) and (
-                not plan or source_hash(result.text.casefold()) != source_hash(text.casefold())
+            if (
+                _surface_safe(result.text)
+                and _keeps_named_concepts(text, result.text)
+                and _no_inserted_meta(text, result.text)
+                and not any(fragment in result.text for fragment in noise)
+                and _safe_numbers(text, Candidate(result.text, "algebraic", seed.removed))
+                and (
+                    not plan or source_hash(result.text.casefold()) != source_hash(text.casefold())
+                )
             ):
                 controlled.append(
                     Candidate(
@@ -553,6 +717,12 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
                 (loss + cost(item, level), path + [item])
                 for loss, path in paths
                 if path[-1].metric.score > item.metric.score + 0.001
+                and (not plan or level > 3 or not overflow(item.text, level))
+                and (
+                    not plan
+                    or level > 3
+                    or set(words(path[-1].text.casefold())) != set(words(item.text.casefold()))
+                )
             ]
             if options:
                 next_paths.append(min(options, key=lambda pair: pair[0]))

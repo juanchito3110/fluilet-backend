@@ -111,7 +111,7 @@ def grouped_variants(text, low, high):
     for i in range(min(len(units) - 1, 12)):
         if re.match(r"(?:Si|Aunque|Cuando|Siempre que|Solo si)\b", units[i], re.I):
             continue
-        for link in ("; ", "; asimismo, ", "; además, "):
+        for link in ("; ",):
             pair = units[i].rstrip(".") + link + _lower(units[i + 1])
             values.add(" ".join(units[:i] + [pair] + units[i + 2 :]))
     return sorted(values)

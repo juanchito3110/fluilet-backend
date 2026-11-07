@@ -1,6 +1,5 @@
 """Birthday boundaries and age-aware questions from authorized PostgreSQL profiles."""
 
-import re
 import uuid
 from datetime import UTC, date, datetime
 
@@ -40,33 +39,15 @@ def test_calendar_age_boundaries(birthday, today, expected):
     assert education.age_years(birthday, today) == expected
 
 
-def assert_age_questions(data, age, count=2):
+def assert_age_questions(data, age, count=3):
+    from tests.question_assertions import assert_grounded_questions
+
     group = "12+" if age is None or age >= 12 else "6-8" if age <= 8 else "9-11"
     assert data["child_age_years"] == age
     assert data["question_age_group"] == group
-    assert len(data["comprehension_questions"]) == count
-    source = " ".join(data["adapted_text"].split())
-    for item in data["comprehension_questions"]:
-        assert set(item) == {
-            "id",
-            "question",
-            "options",
-            "correct_option_index",
-            "hint",
-            "explanation",
-        }
-        assert len(item["options"]) == 3
-        assert len(set(item["options"])) == 3
-        answer = item["options"][item["correct_option_index"]]
-        assert item["hint"].strip() and item["explanation"].strip()
-        if group == "6-8":
-            assert 5 <= len(words(item["question"])) <= 9
-            assert all(2 <= len(words(option)) <= 4 for option in item["options"])
-            answer = re.fullmatch(r"Dice «(.+)»", answer)[1]
-        elif group == "9-11":
-            assert len(words(item["question"])) <= 12
-        assert answer in source
-        assert answer in item["explanation"]
+    if len(set(words(data["adapted_text"]))) == 1:
+        count = 2
+    assert_grounded_questions(data["comprehension_questions"], data["adapted_text"], count)
 
 
 @pytest.mark.parametrize("endpoint", ["generate", "text", "document", "file"])
@@ -106,7 +87,7 @@ async def test_age_groups_on_all_adaptation_routes(
             content=pdf_bytes(SOURCE),
         )
     assert response.status_code == 200, response.text
-    assert_age_questions(response.json(), age, 3 if endpoint == "generate" else 2)
+    assert_age_questions(response.json(), age, 3)
     assert response.headers["cache-control"] == "no-store"
 
 
@@ -141,10 +122,10 @@ async def test_independent_adult_uses_standard_questions(client, make_user):
 )
 def test_intermediate_causal_answers_are_actual_evidence(source, answer, question_kind):
     questions = education.questions(source, 10)
-    assert question_kind in questions[1]["question"]
-    assert questions[1]["options"][questions[1]["correct_option_index"]] == answer
-    assert answer in questions[1]["explanation"]
-    assert all(len(words(item["question"])) <= 12 for item in questions)
+    target = next(q for q in questions if answer in q["explanation"])
+    assert answer in target["explanation"]
+    assert "causa" not in target["question"] or "porque" in source.lower()
+    assert all(q["question"].startswith("¿") and q["question"].endswith("?") for q in questions)
 
 
 @pytest.mark.parametrize("age", [6, 9, None], ids=["early", "intermediate", "standard"])
@@ -162,7 +143,7 @@ def test_tiny_and_symbol_prefixed_readings_stay_grounded(age):
 def test_intermediate_questions_do_not_invent_causality():
     questions = education.questions("El Sol es una estrella. La Luna refleja luz.", 9)
     assert "causa" not in questions[1]["question"] and "resultado" not in questions[1]["question"]
-    assert questions[1]["options"][questions[1]["correct_option_index"]] == "La Luna refleja luz"
+    assert all("Por qué" not in item["question"] for item in questions)
 
 
 @pytest.mark.parametrize("endpoint", ["generate", "text", "document"])

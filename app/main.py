@@ -96,6 +96,13 @@ async def register(payload: schemas.UserCreate, db: AsyncSession = Depends(get_d
         role=payload.role,
     )
     db.add(user)
+    try:
+        await db.flush()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(409, "No fue posible completar la operación.") from None
+    if user.role == models.UserRole.ADULTO_INDEPENDIENTE:
+        db.add(models.ReaderControl(user_id=user.id))
     await commit(db)
     await db.refresh(user)
     return user

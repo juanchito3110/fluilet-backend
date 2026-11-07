@@ -202,6 +202,10 @@ def alternatives(source, seeds, *, glosses=True):
             definition
             for term, definition in GLOSSES.items()
             if re.search(r"(?<!\w)" + re.escape(term) + r"(?!\w)", source, re.I)
+            and (
+                term != "corriente"
+                or re.search(r"\b(?:eléctric\w*|cargas|circuito)\b", source, re.I)
+            )
         ]
         # At most three definitions, only for technical terms in the source.
         for seed in tuple(seeds)[:2]:

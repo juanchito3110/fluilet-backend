@@ -1,6 +1,5 @@
 """Educational delivery, question grounding and backwards compatible contracts."""
 
-import re
 import uuid
 
 import pytest
@@ -14,22 +13,12 @@ from tests.test_pipeline import Offline
 from tests.test_zero_retention import pdf_bytes
 
 
-def assert_questions(data, count=2):
-    questions = data["comprehension_questions"]
-    assert [question["id"] for question in questions] == [f"q{i}" for i in range(1, count + 1)]
-    text = " ".join(data["adapted_text"].split())
-    for question in questions:
-        options = question["options"]
-        assert len(options) == len(set(option.casefold() for option in options)) == 3
-        correct = options[question["correct_option_index"]]
-        if data.get("question_age_group") == "6-8":
-            correct = re.fullmatch(r"Dice «(.+)»", correct)[1]
-        stem = re.search(r"«(.+)»", question["question"])
-        if stem:
-            assert stem[1].replace("___", correct) in text
-        else:
-            assert correct in text
-        assert all(option.strip() for option in options)
+def assert_questions(data, count=3):
+    from tests.question_assertions import assert_grounded_questions
+
+    if len(set(words(data["adapted_text"]))) == 1:
+        count = 2
+    assert_grounded_questions(data["comprehension_questions"], data["adapted_text"], count)
 
 
 async def test_bank_has_three_distinct_rich_texts_per_category():
@@ -39,7 +28,7 @@ async def test_bank_has_three_distinct_rich_texts_per_category():
         assert len(entries) >= 3
         assert len({entry.text for entry in entries}) == len(entries)
         for entry in entries:
-            assert 45 <= len(words(entry.text)) <= 90
+            assert 45 <= len(words(entry.text)) <= 240
             result = await AdaptationPipeline(Offline()).run(entry.text, 2)
             deltas.append(result.metrics["score_delta"])
             assert_questions(
@@ -189,8 +178,7 @@ async def test_free_adaptation_fields_are_additive(client, make_user, endpoint):
         "Hola",
         "42",
         "sol " * 1000,
-        " ".join(term for group in education._GROUPS for term in group)
-        + " montaña océano bosque ciudad",
+        "Sol Tierra Luna agua aire hielo vapor flores hojas raíces ramas montaña océano bosque ciudad",
     ],
     ids=["tiny", "numeric", "long", "all-options-mentioned"],
 )

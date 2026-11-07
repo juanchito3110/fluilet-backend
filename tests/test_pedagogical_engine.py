@@ -12,10 +12,12 @@ from app.encyclopedia import ARTICLES
 from app.lesson_sources import lesson_excerpt
 from app.nlp.pipeline import pipeline
 from app.nlp.readability import measure
+from app.nlp.segmentation import sentences, words
 from app.services import resources as lexical_resources
 from app.services.demo_refresh import refresh_marked
 from app.services.lexicon_es import CURATED
-from app.services.pedagogy import GOALS, VERSION, cleanup, lexical, syntax
+from app.services.pedagogy import VERSION, cleanup, lexical, syntax
+from tests.question_assertions import assert_measured_level
 
 
 @pytest.mark.parametrize("key", list(ARTICLES))
@@ -32,8 +34,14 @@ async def test_reviewed_bank_has_five_measured_progressive_versions(key):
 
     for item in result.level_previews:
         metric = measure(item["adapted_text"])
-        low, high, *_ = GOALS[item["level"]]
-        assert low <= metric.score <= high
+        assert_measured_level(item)
+        if item["level"] <= 3:
+            from app.services.clear_spanish import LIMITS
+
+            assert (
+                max(len(words(unit)) for unit in sentences(item["adapted_text"]))
+                <= LIMITS[item["level"]]
+            )
         for support in item.get("pedagogical_support", []):
             assert support["evidence"] in original
         assert len({f["text"] for f in item.get("pedagogical_support", [])}) == len(

@@ -498,7 +498,7 @@ async def test_password_reset_migration_upgrades_and_rolls_back_only_ephemeral_c
         async with engine.begin() as connection:
             assert (
                 await connection.scalar(text("SELECT version_num FROM alembic_version"))
-                == "0009_password_reset"
+                == "0010_reader_controls"
             )
             assert (
                 await connection.scalar(text("SELECT hashed_password FROM users")) == password_hash

@@ -276,7 +276,7 @@ class AdaptationPipeline:
             if " ".join(value.split()).casefold() == " ".join(text.split()).casefold():
                 value = text
             metric = await asyncio.to_thread(measure, value)
-            if index == 1 and metric.score < original.score:
+            if index == 1 and metric.score < original.score and not removed:
                 value, metric = text, original
             lower, upper, min_length, max_length = GOALS[index]
             average = metric.word_count / metric.sentence_count
@@ -338,6 +338,10 @@ class AdaptationPipeline:
             result.warnings.append("level_progression_not_available")
         if not previews[level - 1]["target_met"]:
             result.warnings.append("level_goal_not_met")
+        from app.services.clear_spanish import overflow
+
+        if level <= 3 and overflow(selected_text, level):
+            result.warnings.append("short_sentence_budget_not_met")
         if method == "original":
             result.warnings.append("original_text_retained")
         if adapted.score < original.score:

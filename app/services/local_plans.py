@@ -5,6 +5,9 @@ reviewed local teaching material, not mT5 predictions or unseen evaluation data.
 No plan is selected by topic alone: the whole source must match exactly.
 """
 
+from app.services.foundation_readings import REVISIONS
+from app.services.topic_library import TOPICS
+
 # A new formal reference revision for the club replaces the former short overview.
 # Its facts/dates are the same, and its provider remains 'local', never Wikipedia.
 SOURCE_REVISIONS = {
@@ -99,9 +102,9 @@ SIMPLE = {
         "En el béisbol juegan dos equipos. Se turnan para atacar y defender.",
         "El equipo que defiende tiene nueve jugadores en el campo.",
         "Quien batea trata de dar a la pelota con un bate. Así puede avanzar por las bases.",
-        "Para lograr una carrera hay que pasar por las bases en orden. Luego se vuelve al home, el punto de salida.",
+        "Para lograr una carrera se recorren las bases en orden. Luego se vuelve al home, el punto de salida.",
         "Tras tres eliminaciones se cambia de turno. Quien ataca pasa a defender y quien defiende pasa a atacar.",
-        "En cada entrada, cada equipo tiene un turno para atacar. Los partidos de profesionales suelen tener nueve entradas. Hay casos distintos y, si hay empate, pueden hacer falta más entradas.",
+        "En cada entrada, cada equipo tiene un turno para atacar. Los partidos de profesionales suelen tener nueve entradas. Hay casos distintos. Si hay empate, pueden hacer falta más entradas.",
     ),
     "baloncesto": (
         "En el baloncesto se enfrentan dos equipos. Intentan meter el balón en la canasta rival.",
@@ -261,3 +264,7 @@ SIMPLE = {
         "Los personajes del cuento son de ficción. Los datos sobre señales de los faros son reales.",
     ),
 }
+
+
+SIMPLE.update({key: tuple(pair[1] for pair in row[3]) for key, row in TOPICS.items()})
+SIMPLE.update(REVISIONS)

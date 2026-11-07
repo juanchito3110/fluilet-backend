@@ -4,6 +4,8 @@ Levels 1..3 prefer shorter forms; technical concepts with ambiguous meanings are
 expressed as phrases, not blindly substituted with unrelated corpus synonyms.
 """
 
+from app.services.child_lexicon import CHILD_PAIRS
+
 # Each line is source | accessible equivalent. Inflections are explicit.
 PAIRS = """
 con la finalidad de|para
@@ -575,6 +577,9 @@ for context_dependent in (
     CURATED.pop(context_dependent, None)
 
 CURATED.update({"realizar actividades": "hacer tareas", "realizan actividades": "hacen tareas"})
+
+
+CURATED.update(CHILD_PAIRS)
 
 for needs_sense_or_modifier_analysis in (
     "mamíferos",

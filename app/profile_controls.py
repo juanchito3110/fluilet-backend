@@ -38,6 +38,10 @@ def apply_control(result, control):
 
 
 async def profile_summary(child, db, *, apply_adjustments=True):
+    if getattr(child, "is_account_reader", False):
+        from app.services.independent_reader import reader_summary
+
+        return await reader_summary(child.id, db, apply_adjustments=apply_adjustments)
     sessions = (
         await db.scalars(
             select(models.ReadingSession)

@@ -10,10 +10,10 @@ import pytest
 from app.nlp.pipeline import pipeline
 from app.nlp.readability import measure
 from app.services.morphology import FORMS, form
-from app.services.pedagogy import GOALS
 from app.services.ranker import ASSET, checkpoint, model_info
 from ml_training.build_enhanced_dataset import build
 from ml_training.metrics import sari
+from tests.question_assertions import assert_measured_level
 
 FIXTURES = Path(__file__).parents[1] / "ml_training/fixtures"
 EASIER = json.loads((FIXTURES / "easier_diagnostic.json").read_text())
@@ -85,10 +85,8 @@ async def test_fixed_diagnostics_have_five_real_progressive_outputs(row):
     scores = [measure(p["adapted_text"]).score for p in result.level_previews]
     assert scores == [p["readability_score"] for p in result.level_previews]
     assert result.level_progression_met
-    assert all(
-        GOALS[p["level"]][0] <= p["readability_score"] <= GOALS[p["level"]][1]
-        for p in result.level_previews
-    )
+    for preview in result.level_previews:
+        assert_measured_level(preview)
     assert all(a > b for a, b in zip(scores, scores[1:], strict=False))
     assert scores[0] - measure(row["source"]).score >= 15
 

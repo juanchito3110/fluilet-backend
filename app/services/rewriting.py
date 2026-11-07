@@ -110,8 +110,6 @@ def candidates(text, weights=None):
             for index, match in enumerate(matches):
                 if mask & (1 << index):
                     edits.append((match.start(), match.end(), match["name"], 1))
-                    glosses.append(
-                        f"Con {match['name']}, el texto se refiere a {match['meaning']}."
-                    )
+                    glosses.append(f"La palabra {match['name']} significa «{match['meaning']}».")
             values.add(apply(seed, edits).rstrip(".") + ". " + " ".join(glosses))
     return sorted(values)

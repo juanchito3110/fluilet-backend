@@ -17,6 +17,7 @@ from app.database import get_db
 from app.ingestion import IngestionError, clean_text, extract_safely, read_stream
 from app.lesson_sources import (
     SourceUnavailable,
+    clean_extract,
     lesson_excerpt,
     local_article,
     resolve_lesson,
@@ -81,6 +82,10 @@ async def process(
                 else await extract_safely(data, media_type)
             )
             await asyncio.to_thread(validate_text, source)
+            from app.services.source_cleanup import sanitize
+
+            meaningful, _ = await asyncio.to_thread(sanitize, source)
+            await asyncio.to_thread(validate_text, meaningful)
         except TextTooLarge:
             raise HTTPException(413, "El documento supera el límite permitido.") from None
         except (InvalidText, IngestionError):
@@ -134,7 +139,9 @@ async def persist(
             education.lesson_questions, result.adapted_text, effective_age, result.original_text
         )
         if generated
-        else await asyncio.to_thread(education.questions, result.adapted_text, effective_age)
+        else await asyncio.to_thread(
+            education.questions, result.adapted_text, effective_age, result.original_text
+        )
     )
     fact, terms = await asyncio.to_thread(
         vocabulary.enrich, result.adapted_text, article.fact_hint if article else ""
@@ -376,7 +383,7 @@ async def generate_lesson(
         raise HTTPException(
             503, "No hay un artículo disponible para ese tema. Prueba un tema más específico."
         ) from None
-    entry = replace(entry, text=lesson_excerpt(entry.text, group))
+    entry = replace(entry, text=clean_extract(entry.text, group))
     result, digest = await process(
         entry.text,
         None,
@@ -464,6 +471,16 @@ async def get_adaptation(
         "original_text": content.original_text,
         "adapted_text": content.adapted_text,
     }
+    historical_questions = payload.get("comprehension_questions", [])
+    if len(historical_questions) < 3 or any(
+        len(q.get("options", [])) != 4 for q in historical_questions
+    ):
+        payload["comprehension_questions"] = await asyncio.to_thread(
+            education.lesson_questions,
+            content.adapted_text,
+            {"6-8": 7, "9-11": 10, "12+": 12}.get(content.age_group),
+            content.original_text,
+        )
     if not payload.get("level_previews"):
         # Old retained versions get truthful comparisons of their stored pair.
         # GET enriches in RAM; it never silently rewrites their historical content.

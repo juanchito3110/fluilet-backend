@@ -14,7 +14,7 @@ from app.nlp.readability import measure
 from tests.conftest import SOURCE
 
 
-def assert_comparison(data, count=2):
+def assert_comparison(data, count=3):
     original, adapted = measure(data["original_text"]), measure(data["adapted_text"])
     assert data["original_readability_score"] == pytest.approx(original.score)
     assert data["readability_score"] == pytest.approx(adapted.score)

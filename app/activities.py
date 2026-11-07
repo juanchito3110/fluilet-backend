@@ -8,9 +8,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import auth, models, schemas
-from app.daily_missions import authorized_activity, record_activity, snapshot
+from app.daily_missions import record_activity, snapshot
 from app.database import get_db
-from app.educational_progress import EDUCATIONAL_FIELDS, summarize, update_practice
+from app.educational_progress import EDUCATIONAL_FIELDS, update_practice
 from app.profile_controls import profile_summary
 
 router = APIRouter(prefix="/api/v1", tags=["activities"])
@@ -237,18 +237,9 @@ async def independent_educational_progress(
     user: models.User = Depends(auth.require_roles(models.UserRole.ADULTO_INDEPENDIENTE)),
     db: AsyncSession = Depends(get_db),
 ):
-    sessions = (
-        await db.scalars(
-            select(models.ReadingSession)
-            .where(
-                models.ReadingSession.reader_user_id == user.id,
-                models.ReadingSession.child_id.is_(None),
-            )
-            .order_by(models.ReadingSession.started_at, models.ReadingSession.id)
-        )
-    ).all()
-    activity = await authorized_activity(db, reader_user_id=user.id)
-    return summarize(sessions, activity_days=activity)
+    from app.services.independent_reader import reader_summary
+
+    return await reader_summary(user.id, db)
 
 
 @router.get("/readings/{reading_id}", response_model=schemas.ReadingRead)

@@ -39,8 +39,8 @@ def test_restrictive_relative_and_concession_are_not_turned_into_assertions():
 def test_explicit_glosses_preserve_entities_and_refuse_conditional_parentheses():
     source = "El mercado ofrece Stollen (pan dulce) y Bratwurst (salchichas)."
     candidate = refine(source)
-    assert "Con Stollen, el texto se refiere a pan dulce." in candidate
-    assert "Con Bratwurst, el texto se refiere a salchichas." in candidate
+    assert "La palabra Stollen significa «pan dulce»." in candidate
+    assert "La palabra Bratwurst significa «salchichas»." in candidate
     assert fidelity_ok(source, candidate)
     for text in ["Stollen (pan si llueve)", "Stollen (pan sin gluten)", "Ana (no está enferma)"]:
         assert split_domain_clauses(text) == text

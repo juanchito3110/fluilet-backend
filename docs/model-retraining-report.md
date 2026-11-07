@@ -1,5 +1,11 @@
 # v2.3: compuerta selectiva y controlador algebraico
 
+> Informe histórico del checkpoint y motor anteriores. El comportamiento activo
+> de `pedagogical-es-v3.0`, sus límites de frase y sus métricas actuales se
+> documentan en [la revisión de calidad v3](pedagogical-quality-v3.md).
+> Las bandas históricas y `acceptance_criteria_met` no son una nueva evaluación
+> del motor de servicio v3.
+
 28 de octubre de 2026. **`acceptance_criteria_met = true`** en las cohortes medidas. Se conserva el [reporte v2.2](model-retraining-v2.2.md), incluidos sus criterios fallidos. Las decisiones usan valores sin redondear.
 
 ## Resultados reproducibles

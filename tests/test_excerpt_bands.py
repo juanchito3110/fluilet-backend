@@ -9,8 +9,9 @@ from app.encyclopedia import ARTICLES
 from app.lesson_sources import LESSON_WORD_LIMITS, lesson_excerpt, resolve_topic
 from app.nlp.readability import measure
 from app.nlp.segmentation import sentences, words
-from app.services.pedagogy import GOALS, choose_levels
+from app.services.pedagogy import choose_levels
 from app.services.scaffolding import supports
+from tests.question_assertions import assert_measured_level
 
 
 def assert_bands(previews):
@@ -18,30 +19,20 @@ def assert_bands(previews):
     scores = [p["readability_score"] for p in previews]
     assert all(a > b for a, b in zip(scores, scores[1:], strict=False))
     for item in previews:
-        low, high, *_ = GOALS[item["level"]]
-        assert low <= item["readability_score"] <= high
+        assert_measured_level(item)
         assert item["readability_score"] == measure(item["adapted_text"]).score
 
 
 def assert_questions(items, source, adapted, group):
-    assert [q["id"] for q in items] == ["q1", "q2", "q3"]
-    answers = []
-    for question in items:
-        options = question["options"]
-        assert len(options) == len(set(options)) == 3
-        answer = options[question["correct_option_index"]]
-        if group == "6-8":
-            answer = answer.removeprefix("Dice «").removesuffix("»")
-        assert answer.casefold() in source.casefold()
-        assert answer in adapted and answer in question["explanation"]
-        assert question["question"] and question["hint"] and question["explanation"]
-        answers.append(answer.casefold())
-    assert len(set(answers)) == 3
+    from tests.question_assertions import assert_grounded_questions
+
+    assert_grounded_questions(items, adapted)
+    assert len({item["question"] for item in items}) == 3
 
 
 @pytest.mark.parametrize("group", LESSON_WORD_LIMITS)
 @pytest.mark.parametrize("key", ARTICLES)
-def test_every_local_excerpt_retains_all_five_bands_and_grounded_questions(key, group):
+def test_every_local_excerpt_has_five_measured_levels_and_grounded_questions(key, group):
     source = lesson_excerpt(ARTICLES[key].text, group)
     _, previews, progressive = choose_levels(source, allow_local_excerpt=True)
     assert progressive

@@ -57,11 +57,16 @@ async def overview(
     controls = {
         row.child_id: row for row in (await db.scalars(select(models.ProfileControl))).all()
     }
+    reader_controls = {
+        row.user_id: row for row in (await db.scalars(select(models.ReaderControl))).all()
+    }
     owners = {item.id: item for item in users}
     counts = Counter(child.tutor_id for child in children)
-    by_child, by_reading = defaultdict(list), defaultdict(list)
+    by_child, by_reading, by_reader = defaultdict(list), defaultdict(list), defaultdict(list)
     for session in sessions:
         by_child[session.child_id].append(session)
+        if session.child_id is None and session.reader_user_id is not None:
+            by_reader[session.reader_user_id].append(session)
     for event in events:
         by_reading[event.reading_id].append(event)
     profiles = []
@@ -89,11 +94,42 @@ async def overview(
                 unlocked_badges_count=sum(item.unlocked for item in result.badges),
             )
         )
+    from app.services.independent_reader import reader_view
+
+    for account in users:
+        if account.role != models.UserRole.ADULTO_INDEPENDIENTE:
+            continue
+        control = reader_controls.get(account.id)
+        reader = reader_view(account, control)
+        history = by_reader[account.id]
+        activity = [event for session in history for event in by_reading[session.id]]
+        result = apply_control(
+            summarize(history, reader.nivel_simplificacion_nlp, activity), control
+        )
+        counts[account.id] += 1
+        profiles.append(
+            schemas.AdminProfile(
+                profile_id=account.id,
+                name=account.full_name,
+                tutor_id=account.id,
+                tutor_email=account.email,
+                is_active=account.is_active,
+                age_group=reader.age_group_override,
+                current_level=reader.nivel_simplificacion_nlp,
+                total_gems=result.total_gems,
+                total_xp=result.total_xp,
+                evolution_stage=result.mascot.stage,
+                evolution_title=result.mascot.stage_name,
+                current_streak_days=result.current_streak_days,
+                completed_lessons_count=result.completed_lessons,
+                unlocked_badges_count=sum(item.unlocked for item in result.badges),
+            )
+        )
     scores = [row.comprehension_score for row in sessions if row.comprehension_score is not None]
     return schemas.AdminOverview(
         model_info=model_info(),
         total_tutors=sum(item.role == models.UserRole.TUTOR for item in users),
-        total_profiles=len(children),
+        total_profiles=len(profiles),
         total_adaptations=await db.scalar(
             select(func.count()).select_from(models.AdaptationContent)
         ),
@@ -118,7 +154,19 @@ async def overview(
 async def lock_profile(profile_id, db):
     child = await db.get(models.ChildProfile, profile_id)
     if child is None:
-        raise HTTPException(404, "Perfil no encontrado.")
+        from app.services.independent_reader import reader_view
+
+        account = await db.scalar(
+            select(models.User)
+            .where(
+                models.User.id == profile_id,
+                models.User.role == models.UserRole.ADULTO_INDEPENDIENTE,
+            )
+            .with_for_update()
+        )
+        if account is None:
+            raise HTTPException(404, "Perfil no encontrado.")
+        return reader_view(account, await db.get(models.ReaderControl, profile_id))
     await db.scalar(select(models.User).where(models.User.id == child.tutor_id).with_for_update())
     return await db.scalar(
         select(models.ChildProfile)
@@ -139,10 +187,15 @@ async def grant(
     child = await lock_profile(profile_id, db)
     current = await profile_summary(child, db)
     base = await profile_summary(child, db, apply_adjustments=False)
-    control = await db.get(models.ProfileControl, child.id)
+    account_reader = getattr(child, "is_account_reader", False)
+    control_type = models.ReaderControl if account_reader else models.ProfileControl
+    control = await db.get(control_type, child.id)
     if control is None:
-        control = models.ProfileControl(
-            child_id=child.id, gems_offset=0, xp_offset=0, unlock_all_rewards=False
+        control = control_type(
+            **({"user_id": child.id} if account_reader else {"child_id": child.id}),
+            gems_offset=0,
+            xp_offset=0,
+            unlock_all_rewards=False,
         )
         db.add(control)
     gems = (
@@ -165,7 +218,10 @@ async def grant(
     if payload.set_level is not None:
         control.level_override = child.nivel_simplificacion_nlp = payload.set_level
     if payload.set_age_group is not None:
-        child.age_group_override = payload.set_age_group
+        if account_reader:
+            control.age_group_override = payload.set_age_group
+        else:
+            child.age_group_override = payload.set_age_group
     if payload.set_streak_days is not None:
         control.streak_override = payload.set_streak_days
     await db.commit()
@@ -210,7 +266,10 @@ async def remove_profile(
 ):
     await admin_lock(db)
     child = await lock_profile(profile_id, db)
-    await delete_profile(child, db)
+    if getattr(child, "is_account_reader", False):
+        await db.execute(delete(models.User).where(models.User.id == child.id))
+    else:
+        await delete_profile(child, db)
     await db.commit()
     return Response(status_code=204)
 

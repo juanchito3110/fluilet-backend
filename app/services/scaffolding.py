@@ -295,7 +295,9 @@ def supports(source, *, allow_local_excerpt=False):
         )
         if exact or prefix:
             return [
-                Support(text, units[index]) for index, text in LOCAL[key] if exact or index < count
+                Support(text, units[index])
+                for index, text in LOCAL.get(key, ())
+                if exact or index < count
             ]
     # Bounded positive frames. Unknown negations/conditions get no new assertion.
     normalized = " ".join(source.split())

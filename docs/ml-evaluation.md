@@ -1,5 +1,11 @@
 # Evaluación técnica de mT5 + EASIER
 
+> Informe histórico del checkpoint y motor anteriores. El comportamiento activo
+> de `pedagogical-es-v3.0`, sus límites de frase y sus métricas actuales se
+> documentan en [la revisión de calidad v3](pedagogical-quality-v3.md).
+> Las bandas históricas y `acceptance_criteria_met` no son una nueva evaluación
+> del motor de servicio v3.
+
 > Actualización: el motor vigente y sus resultados están en [simplificación pedagógica](pedagogical-simplification.md). Las mediciones siguientes son históricas.
 
 **Fluilet · 20 de octubre de 2026 (entrenamiento: 19 de octubre) · Entregable para el asesor Aldo Maciel**

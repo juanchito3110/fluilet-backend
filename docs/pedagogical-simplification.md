@@ -1,5 +1,11 @@
 # Simplificación pedagógica v2.3
 
+> Informe histórico del checkpoint y motor anteriores. El comportamiento activo
+> de `pedagogical-es-v3.0`, sus límites de frase y sus métricas actuales se
+> documentan en [la revisión de calidad v3](pedagogical-quality-v3.md).
+> Las bandas históricas y `acceptance_criteria_met` no son una nueva evaluación
+> del motor de servicio v3.
+
 **Aceptación medida: true**. Cinco bandas y progresión estricta: **31/31 catálogo, 6/6 EASIER, 6/6 controlados, 15/15 demos**. SARI de selección **44.557636125 > 44.543847868**; top-1 **73.245614% > 53.070175%**. [Métricas, protocolo y límites](model-retraining-report.md). [Historial anterior](pedagogical-simplification-v2.2.md).
 
 ## Dos etapas explícitas

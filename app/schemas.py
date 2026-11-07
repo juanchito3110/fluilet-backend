@@ -284,12 +284,18 @@ class LessonGenerate(InputModel):
 
 
 class ComprehensionQuestion(BaseModel):
-    id: Literal["q1", "q2", "q3"]
+    id: Literal["q1", "q2", "q3", "q4", "q5"]
     question: str
-    options: list[str] = Field(min_length=3, max_length=3)
-    correct_option_index: int = Field(ge=0, le=2)
+    options: list[str] = Field(min_length=3, max_length=4)
+    correct_option_index: int = Field(ge=0, le=3)
     hint: str
     explanation: str
+
+    @model_validator(mode="after")
+    def valid_answer_index(self):
+        if self.correct_option_index >= len(self.options):
+            raise ValueError("La respuesta correcta debe corresponder a una opción.")
+        return self
 
 
 class DocumentRead(TelemetryRead):
@@ -436,7 +442,7 @@ class AdaptationRead(BaseModel):
     title: str
     category: str
     simplification_level: int
-    comprehension_questions: list[ComprehensionQuestion] = Field(min_length=2, max_length=3)
+    comprehension_questions: list[ComprehensionQuestion] = Field(min_length=2, max_length=5)
     question_age_group: Literal["6-8", "9-11", "12+"]
     child_age_years: int | None
     fun_fact: str

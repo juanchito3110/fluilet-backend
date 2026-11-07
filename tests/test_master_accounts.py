@@ -15,7 +15,7 @@ from app.demo_accounts import (
     ensure_accounts,
 )
 from app.nlp.readability import measure
-from app.services.pedagogy import GOALS
+from tests.question_assertions import assert_measured_level
 
 
 @pytest_asyncio.fixture
@@ -90,12 +90,11 @@ async def test_accounts_phases_real_lesson_payloads_and_regular_registration(cli
                 measure(lesson["adapted_text"]).score
             )
             assert lesson["fun_fact"] and len(lesson["key_vocabulary"]) in (3, 4)
-            assert len(lesson["comprehension_questions"]) == 2
+            assert len(lesson["comprehension_questions"]) == 3
             assert lesson["level_progression_met"]
             for preview in lesson["level_previews"]:
                 actual = measure(preview["adapted_text"]).score
-                low, high, *_ = GOALS[preview["level"]]
-                assert low <= actual <= high
+                assert_measured_level(preview)
                 assert actual == preview["readability_score"]
     assert (
         await client.post("/api/v1/auth/verify-parental-pin", headers=headers, json={"pin": "1234"})

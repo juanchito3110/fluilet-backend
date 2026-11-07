@@ -132,7 +132,7 @@ async def test_container_startup_applies_all_revisions_idempotently():
         from alembic.script import ScriptDirectory
 
         script = ScriptDirectory.from_config(Config(str(Path(__file__).parents[1] / "alembic.ini")))
-        assert len(list(script.walk_revisions())) == 9
+        assert len(list(script.walk_revisions())) == 10
     finally:
         async with admin.begin() as connection:
             await connection.execute(text(f'DROP SCHEMA "{schema}" CASCADE'))

@@ -133,13 +133,9 @@ async def test_custom_topic_returns_subject_facts_glossary_and_questions(
         assert set(item) == {"word", "definition", "example"}
         assert item["word"] in data["adapted_text"] and item["word"] in item["example"]
         assert item["definition"].strip()
-    for question in data["comprehension_questions"]:
-        answer = question["options"][question["correct_option_index"]]
-        if data["question_age_group"] == "6-8":
-            assert answer.startswith("Dice «") and answer.endswith("»")
-            answer = answer[len("Dice «") : -1]
-        assert answer in data["adapted_text"]
-        assert question["hint"] and question["explanation"]
+    from tests.question_assertions import assert_grounded_questions
+
+    assert_grounded_questions(data["comprehension_questions"], data["adapted_text"])
 
 
 async def test_unknown_offline_topic_fails_without_filler_or_retention(

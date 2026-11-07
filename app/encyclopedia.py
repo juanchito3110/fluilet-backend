@@ -3,6 +3,7 @@
 from dataclasses import dataclass, replace
 
 from app.services.local_plans import SOURCE_REVISIONS
+from app.services.topic_library import TOPICS
 
 
 @dataclass(frozen=True)
@@ -244,14 +245,31 @@ ARTICLES = {
 }
 
 BANK = {
-    "ciencia_espacio": ("tierra", "luna", "telescopio"),
-    "animales_naturaleza": ("abejas", "bosques", "agua"),
-    "historia_misterios": ("arqueologia", "escritura", "mapas"),
-    "deportes": ("futbol", "atletismo", "baloncesto"),
-    "tecnologia": ("robots", "internet", "energia solar"),
-    "cuentos_aventuras": ("julio verne", "vuelta mundo", "isla tesoro"),
+    "ciencia_espacio": ("tierra", "luna", "telescopio", "nasa", "marte", "estrellas"),
+    "animales_naturaleza": ("abejas", "bosques", "agua", "selva amazonica", "tiburon"),
+    "historia_misterios": (
+        "arqueologia",
+        "escritura",
+        "mapas",
+        "vikingos",
+        "castillos",
+        "antiguo egipto",
+    ),
+    "deportes": ("futbol", "atletismo", "baloncesto", "natacion"),
+    "tecnologia": ("robots", "internet", "energia solar", "videojuegos", "inventos"),
+    "cuentos_aventuras": (
+        "bosque encantado",
+        "dragones",
+        "tesoros piratas",
+        "viaje al espacio",
+        "pequeno faro",
+    ),
 }
 
 # Updated public reference material; received Wikipedia/user originals are untouched.
 for _key, _units in SOURCE_REVISIONS.items():
     ARTICLES[_key] = replace(ARTICLES[_key], text=" ".join(_units))
+
+
+for _key, (_title, _category, _url, _pairs) in TOPICS.items():
+    ARTICLES[_key] = Article(_title, " ".join(pair[0] for pair in _pairs), _category, _url)

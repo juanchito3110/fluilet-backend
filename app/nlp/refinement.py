@@ -254,7 +254,7 @@ def split_domain_clauses(sentence: str) -> str:
             "sin",
         }:
             return match[0]
-        glosses.append(f"Con {name}, el texto se refiere a {meaning}.")
+        glosses.append(f"La palabra {name} significa «{meaning}».")
         return name
 
     # Expand only explicit, short nominal food glosses, not arbitrary parentheses

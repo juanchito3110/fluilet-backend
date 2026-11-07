@@ -314,6 +314,8 @@ def loaded_checkpoint():
 
 
 def model_info():
+    from app.services.pedagogy import VERSION
+
     model = checkpoint()
     if not model:
         return {"model_version": "unavailable", "checkpoint_name": None, "active": False}
@@ -323,4 +325,6 @@ def model_info():
         "checkpoint_name": model["checkpoint_name"],
         "active": True,
         "artifact_sha256": model["_artifact_sha256"],
+        "runtime_engine_version": VERSION,
+        "acceptance_criteria_scope": "frozen_context_ranker_v2.3_benchmark",
     }

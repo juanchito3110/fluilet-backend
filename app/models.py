@@ -524,3 +524,37 @@ class ProfileControl(Base):
     unlock_all_rewards: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
+
+
+class ReaderControl(Base):
+    """Independent account's real reader profile, without inventing a child's DOB."""
+
+    __tablename__ = "reader_controls"
+    __table_args__ = (
+        CheckConstraint(
+            "level_override IS NULL OR level_override BETWEEN 1 AND 5", name="ck_reader_level"
+        ),
+        CheckConstraint(
+            "streak_override IS NULL OR streak_override BETWEEN 0 AND 36500",
+            name="ck_reader_streak",
+        ),
+        CheckConstraint(
+            "age_group_override IS NULL OR age_group_override IN ('6-8','9-11','12+')",
+            name="ck_reader_age",
+        ),
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    gems_offset: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, default=0, server_default="0"
+    )
+    xp_offset: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, default=0, server_default="0"
+    )
+    level_override: Mapped[int | None] = mapped_column(Integer)
+    streak_override: Mapped[int | None] = mapped_column(Integer)
+    age_group_override: Mapped[str | None] = mapped_column(String(8))
+    unlock_all_rewards: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )

@@ -168,11 +168,9 @@ async def test_generated_comparator_previews_questions_and_fact_use_the_excerpt(
     assert data["adapted_text"] == data["level_previews"][data["target_level"] - 1]["adapted_text"]
     assert question_inputs == enrichment_inputs == [data["adapted_text"]]
     assert len(data["comprehension_questions"]) == 3
-    for item in data["comprehension_questions"]:
-        answer = item["options"][item["correct_option_index"]]
-        if group == "6-8":
-            answer = answer[len("Dice «") : -1]
-        assert answer in data["adapted_text"]
+    from tests.question_assertions import assert_grounded_questions
+
+    assert_grounded_questions(data["comprehension_questions"], data["adapted_text"])
     fact = data["fun_fact"].split("«", 1)[1].rsplit("»", 1)[0]
     assert fact in data["adapted_text"]
     visible = [data["original_text"], data["adapted_text"], data["fun_fact"]]
