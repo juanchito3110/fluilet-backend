@@ -94,7 +94,7 @@ async def test_accounts_phases_real_lesson_payloads_and_regular_registration(cli
             assert lesson["level_progression_met"]
             for preview in lesson["level_previews"]:
                 actual = measure(preview["adapted_text"]).score
-                assert_measured_level(preview)
+                assert_measured_level(preview, lesson["original_text"])
                 assert actual == preview["readability_score"]
     assert (
         await client.post("/api/v1/auth/verify-parental-pin", headers=headers, json={"pin": "1234"})

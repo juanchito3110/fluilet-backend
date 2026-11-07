@@ -232,6 +232,18 @@ class AdaptationPipeline:
             else await asyncio.to_thread(_local_plan, text)
         )
         legacy = None if local else await self._run_legacy(text, 1, child_age=child_age)
+        if (
+            legacy
+            and legacy.metrics["score_delta"] == 0
+            and legacy.adapted_text.strip() == text.strip()
+            and legacy.metrics["original_szigriszt_score"] < 0
+        ):
+            from app.vocabulary import key_vocabulary
+
+            if not await asyncio.to_thread(key_vocabulary, text):
+                return await asyncio.to_thread(
+                    original_result, text, "level_progression_not_available"
+                )
         # For large documents operate on the existing source chunks, preserving
         # their alignment and bounds; preview inference never loads mT5 five times.
         selections = []
@@ -267,7 +279,8 @@ class AdaptationPipeline:
                         dict(text=f.text, evidence=f.evidence, kind=f.kind) for f in item.support
                     )
                     preview_methods[index].add(item.method)
-        from app.services.pedagogy import GOALS, label
+        from app.services.pedagogy import cleanup, label
+        from app.services.sentence_bands import meets_band
 
         original = await asyncio.to_thread(measure, text)
         previews = []
@@ -278,7 +291,6 @@ class AdaptationPipeline:
             metric = await asyncio.to_thread(measure, value)
             if index == 1 and metric.score < original.score and not removed:
                 value, metric = text, original
-            lower, upper, min_length, max_length = GOALS[index]
             average = metric.word_count / metric.sentence_count
             previews.append(
                 {
@@ -287,8 +299,7 @@ class AdaptationPipeline:
                     "readability_score": metric.score,
                     "readability_level": label(metric.score),
                     "avg_sentence_length": average,
-                    "target_met": lower <= metric.score <= upper
-                    and min_length <= average <= max_length,
+                    "target_met": meets_band(value, index, cleanup(text)[0]),
                     "method": "+".join(sorted(preview_methods[index - 1]))
                     if value != text
                     else "original",
@@ -303,6 +314,14 @@ class AdaptationPipeline:
                     "pedagogical_support": preview_support[index - 1],
                 }
             )
+        if (
+            not local
+            and max(p["readability_score"] for p in previews) <= original.score
+            and all(words(p["adapted_text"].casefold()) == tokens for p in previews)
+        ):
+            # Unknown terminology cannot become a real adaptation by merging
+            # its unchanged sentences. Keep the faithful reading available.
+            return await asyncio.to_thread(original_result, text, "level_progression_not_available")
         progressive = progressive and all(
             previews[i]["readability_score"] > previews[i + 1]["readability_score"]
             for i in range(4)

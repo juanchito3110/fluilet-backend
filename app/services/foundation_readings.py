@@ -68,6 +68,26 @@ REVISIONS = {
 }
 
 INTERMEDIATE = {
+    "estrellas": (
+        "Una estrella es una esfera grande de gas muy caliente. En su interior ocurren reacciones que producen energía.",
+        "El Sol es la estrella más cercana a nuestro planeta. Su luz proporciona energía a muchos seres vivos de la Tierra.",
+        "Los colores de las estrellas dependen de su temperatura. Las estrellas azules tienen más calor que las estrellas rojas.",
+        "La gran distancia hace que muchas parezcan puntos de luz. Podemos observar esos puntos cuando miramos el cielo de noche.",
+    ),
+    "isla tesoro": (
+        "Robert Louis Stevenson es el autor de La isla del tesoro. La novela se publicó como libro en el año 1883.",
+        "Jim Hawkins es el joven protagonista de esta novela de aventuras.",
+        "Un mapa inicia una expedición para buscar un tesoro. Long John Silver aparece con otros personajes en la historia.",
+        "El autor utiliza la navegación y las decisiones para construir el relato. Los conflictos entre personajes también forman parte de esta historia.",
+        "El mapa y los piratas pertenecen a una historia de ficción.",
+    ),
+    "dragones": (
+        "En este cuento inventado, Lía vive muy cerca de un pueblo. Su horno deja de funcionar cuando llega el invierno.",
+        "Mara, la panadera, pide ayuda para preparar pan para las familias. Pide a Lía que caliente los ladrillos del horno del pueblo.",
+        "Lía controla su fuego y Mara se mantiene a una distancia segura. La panadera también comprueba que el horno tenga el calor adecuado.",
+        "Los vecinos comparten el pan y reparan juntos el horno del pueblo. Así el horno puede volver a funcionar después de esta aventura.",
+        "Lía aprende a escuchar lo que necesitan las demás personas. También aprende a usar su fuerza con cuidado para ayudar.",
+    ),
     "real madrid": (
         "El Real Madrid es una entidad deportiva con sede en Madrid, España. Su fundación tuvo lugar el 6 de marzo de 1902. Su primer nombre fue Madrid Foot Ball Club.",
         "La entidad recibió el título de Real en 1920. Desde entonces, esa distinción forma parte de su nombre.",

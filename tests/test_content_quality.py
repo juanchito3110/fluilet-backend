@@ -20,7 +20,7 @@ from app.lesson_sources import (
 from app.nlp.pipeline import pipeline
 from app.nlp.readability import measure
 from app.nlp.segmentation import sentences, words
-from app.services.clear_spanish import LIMITS, rewrite
+from app.services.clear_spanish import rewrite
 from app.services.comprehension import build_questions, norm
 from app.services.lexicon_es import CURATED
 from app.services.source_cleanup import sanitize
@@ -260,10 +260,9 @@ async def test_real_generation_has_measurable_short_levels_and_grounded_challeng
     assert_complete_questions(data["comprehension_questions"])
     assert len(data["level_previews"]) == 5
     for preview in data["level_previews"][:3]:
-        assert (
-            max(len(words(unit)) for unit in sentences(preview["adapted_text"]))
-            <= LIMITS[preview["level"]]
-        )
+        low, high = {1: (6, 9), 2: (9, 12), 3: (12, 15)}[preview["level"]]
+        actual = measure(preview["adapted_text"])
+        assert low <= actual.word_count / actual.sentence_count <= high
         assert preview["readability_score"] == measure(preview["adapted_text"]).score
     assert data["adapted_avg_sentence_length"] < data["original_avg_sentence_length"]
     assert len({p["adapted_text"] for p in data["level_previews"]}) == 5

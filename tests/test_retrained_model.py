@@ -86,7 +86,7 @@ async def test_fixed_diagnostics_have_five_real_progressive_outputs(row):
     assert scores == [p["readability_score"] for p in result.level_previews]
     assert result.level_progression_met
     for preview in result.level_previews:
-        assert_measured_level(preview)
+        assert_measured_level(preview, row["source"])
     assert all(a > b for a, b in zip(scores, scores[1:], strict=False))
     assert scores[0] - measure(row["source"]).score >= 15
 

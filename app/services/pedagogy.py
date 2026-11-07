@@ -15,8 +15,9 @@ from app.nlp.syllables import count_syllables
 from app.services.lexicon_es import CURATED
 from app.services.local_plans import SIMPLE
 from app.services.resources import choose_corpus, resources
+from app.services.sentence_bands import basic_links, meets_band, original_structure
 
-VERSION = "pedagogical-es-v3.0"
+VERSION = "pedagogical-es-v3.1"
 GOALS = {
     1: (82, 100, 6, 9),
     2: (74, 84, 9, 12),
@@ -341,6 +342,7 @@ def _general_candidates(text, level, legacy):
 
 def _loss(candidate, level, estimate=0.0):
     from app.services.clear_spanish import overflow
+    from app.services.sentence_bands import distance as sentence_distance
 
     score = candidate.metric
     low, high, min_length, max_length = GOALS[level]
@@ -350,9 +352,19 @@ def _loss(candidate, level, estimate=0.0):
     length_distance = max(0, min_length - length, length - max_length)
     return (
         (overflow(candidate.text, level) * 100000 if level <= 3 else 0)
+        + (
+            0
+            if level == 5 and candidate.method == "cleaned_original"
+            else sentence_distance(candidate.text, level) * 10000000
+        )
         + distance * 1000
         + abs(score.score - target) * 0.01
         + length_distance * 0.002
+        - (
+            200000
+            if level == 5 and candidate.method in {"cleaned_original_band", "cleaned_original"}
+            else 0
+        )
         - estimate * 0.01
     )
 
@@ -446,6 +458,7 @@ def _keeps_named_concepts(source, text):
     # Keep a necessary educational name alongside its accessible explanation.
     terms = (
         "inteligencia artificial",
+        "arqueología",
         "biología marina",
         "bioluminiscencia",
         "cartílago",
@@ -493,6 +506,25 @@ def _compose_levels(text, units):
         removed = tuple(fragment for unit in units for fragment in memo[unit][level - 1].removed)
         variants = {text: Candidate(text, "original", removed)}
         variants.update({item.text: item for item in seeds})
+        if level == 5:
+            variants[text] = Candidate(text, "cleaned_original", removed)
+            variants = {
+                value: Candidate(
+                    value,
+                    "cleaned_original" if original_structure(value, text) else item.method,
+                    item.removed,
+                    item.pre_support_text,
+                    item.support,
+                )
+                for value, item in variants.items()
+            }
+        from app.services.sentence_bands import regroup as band_variants
+
+        for seed in seeds:
+            for value in band_variants(seed.text, level):
+                variants[value] = Candidate(
+                    value, seed.method, seed.removed, seed.pre_support_text, seed.support
+                )
         lo, hi, *_ = GOALS[level]
         for seed in seeds:
             m = seed.metric
@@ -510,7 +542,9 @@ def _compose_levels(text, units):
         candidates = [
             c
             for c in candidates
-            if _safe_numbers(text, c) and (level > 1 or c.metric.score >= source_score)
+            if _safe_numbers(text, c)
+            and (level > 1 or c.metric.score >= source_score)
+            and (level != 5 or c.metric.score >= source_score)
         ]
         groups.append(
             sorted(
@@ -543,7 +577,7 @@ def _compose_levels(text, units):
                 readability_score=m.score,
                 readability_level=label(m.score),
                 avg_sentence_length=average,
-                target_met=lo <= m.score <= hi and min_words <= average <= max_words,
+                target_met=meets_band(item.text, level, cleanup(text)[0]),
                 method=item.method,
                 pre_support_text=item.pre_support_text,
                 pre_support_readability_score=measure(item.pre_support_text).score
@@ -640,10 +674,20 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
                 if not item.support
             )
         raw = [candidates_by_text.setdefault((item.text, item.removed), item) for item in raw]
+        if level == 5:
+            raw = [
+                Candidate(
+                    item.text, "cleaned_original", item.removed, item.pre_support_text, item.support
+                )
+                if original_structure(item.text, cleanup(text)[0])
+                else item
+                for item in raw
+            ]
         unique = {
             item.text: item
             for item in raw
             if item.text
+            and not item.support
             and words(item.text)
             and _safe_numbers(text, item)
             and _surface_safe(item.text)
@@ -679,7 +723,8 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
         for seed in ranked[:2]:
             result = control(text, seed.text, level, allow_local_excerpt=allow_local_excerpt)
             if (
-                _surface_safe(result.text)
+                not result.support
+                and _surface_safe(result.text)
                 and _keeps_named_concepts(text, result.text)
                 and _no_inserted_meta(text, result.text)
                 and not any(fragment in result.text for fragment in noise)
@@ -698,6 +743,57 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
                     )
                 )
         ranked = sorted([*ranked, *controlled], key=lambda item: (_loss(item, level), item.text))
+        from app.services.sentence_bands import distance as sentence_distance
+        from app.services.sentence_bands import regroup as band_variants
+
+        short = [item for item in ranked if not overflow(item.text, level)]
+        seeds = list({item.text: item for item in [*ranked[:6], *short[:8]]}.values())
+        if plan:
+            seeds.append(Candidate(" ".join(plan[1]), "reviewed_local_alignment"))
+        if level == 5:
+            seeds.append(Candidate(cleanup(text)[0], "cleaned_original", noise))
+            seeds.extend(
+                Candidate(value, "cleaned_original", noise)
+                for value in minimal_edits(cleanup(text)[0])
+                if original_structure(value, cleanup(text)[0])
+            )
+        calibrated = [
+            Candidate(
+                value,
+                (
+                    "cleaned_original"
+                    if original_structure(value, cleanup(text)[0])
+                    else "cleaned_original_band"
+                )
+                if seed.method == "cleaned_original"
+                else "sentence_band_clauses",
+                seed.removed,
+                seed.pre_support_text,
+                seed.support,
+            )
+            for seed in seeds
+            for grouped in sorted(
+                set(band_variants(seed.text, level))
+                | set(band_variants(seed.text, level, relaxed=True))
+            )
+            for value in (basic_links(grouped) if level == 2 else [grouped])
+            if _surface_safe(value)
+            and (not plan or source_hash(value.casefold()) != source_hash(text.casefold()))
+            and _safe_numbers(text, Candidate(value, "band", seed.removed))
+            and (level != 5 or measure(value).score >= source.score)
+        ]
+        ranked = sorted(
+            [*ranked, *calibrated],
+            key=lambda item: (
+                sentence_distance(item.text, level, cleanup(text)[0]),
+                _loss(item, level),
+                item.text,
+            ),
+        )
+        if level <= 3:
+            compliant = [item for item in ranked if meets_band(item.text, level)]
+            if compliant:
+                ranked = compliant
         # Structural search needs measurements, not a learned call per variant.
         # Keep interval-centred choices and score extremes for the monotone DP.
         shortlist = list(
@@ -717,12 +813,6 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
                 (loss + cost(item, level), path + [item])
                 for loss, path in paths
                 if path[-1].metric.score > item.metric.score + 0.001
-                and (not plan or level > 3 or not overflow(item.text, level))
-                and (
-                    not plan
-                    or level > 3
-                    or set(words(path[-1].text.casefold())) != set(words(item.text.casefold()))
-                )
             ]
             if options:
                 next_paths.append(min(options, key=lambda pair: pair[0]))
@@ -744,8 +834,7 @@ def _choose_levels(text, legacy=None, *, allow_local_excerpt=False):
                 "readability_score": metric.score,
                 "readability_level": label(metric.score),
                 "avg_sentence_length": metric.word_count / metric.sentence_count,
-                "target_met": low <= metric.score <= high
-                and minimum <= metric.word_count / metric.sentence_count <= maximum,
+                "target_met": meets_band(item.text, level, cleanup(text)[0]),
                 "method": item.method,
                 "pre_support_text": item.pre_support_text,
                 "pre_support_readability_score": measure(item.pre_support_text).score

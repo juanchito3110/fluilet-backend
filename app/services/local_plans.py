@@ -11,6 +11,15 @@ from app.services.topic_library import TOPICS
 # A new formal reference revision for the club replaces the former short overview.
 # Its facts/dates are the same, and its provider remains 'local', never Wikipedia.
 SOURCE_REVISIONS = {
+    "juegos olimpicos": (
+        "Los Juegos Olímpicos modernos reúnen competiciones de numerosos deportes.",
+        "La primera edición de los Juegos de verano de la era moderna se celebró en Atenas en 1896.",
+        "Los Juegos de invierno comenzaron en 1924 en Chamonix y se dedican a deportes practicados sobre nieve o hielo, por lo que su programa difiere del de verano.",
+        "La tradición antigua se relaciona con competiciones celebradas en Olimpia, en Grecia.",
+        "El símbolo olímpico tiene cinco aros entrelazados.",
+        "Los deportes y las pruebas han cambiado a lo largo de las ediciones.",
+        "Los Juegos de verano y los de invierno tienen programas deportivos diferentes.",
+    ),
     "real madrid": (
         "El Real Madrid Club de Fútbol constituye una entidad deportiva cuya sede se encuentra ubicada en Madrid, España, y cuya fundación tuvo lugar el 6 de marzo de 1902 bajo la denominación de Madrid Foot Ball Club.",
         "La concesión del título de Real se produjo en 1920, incorporándose desde entonces dicha distinción a la denominación de la entidad.",
@@ -241,7 +250,7 @@ SIMPLE = {
     "juegos olimpicos": (
         "Los Juegos Olímpicos modernos reúnen muchos deportes.",
         "Los primeros Juegos de verano modernos fueron en Atenas. Se celebraron en el año 1896.",
-        "Los Juegos de invierno empezaron en 1924, en Chamonix.",
+        "Los Juegos de invierno empezaron en 1924, en Chamonix. Sus deportes se practican sobre nieve o sobre hielo. Así sus pruebas son distintas a las de verano.",
         "Los Juegos antiguos tenían pruebas en Olimpia, Grecia.",
         "Su símbolo tiene cinco aros que están entrelazados.",
         "Los deportes y las pruebas han cambiado con los años.",

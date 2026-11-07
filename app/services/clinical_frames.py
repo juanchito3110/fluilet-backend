@@ -97,3 +97,96 @@ def rewrite_frame(text, level):
             "Asimismo, la implementación de herramientas tecnológicas actuales facilita mucho la comprensión de los libros en la escuela."
         )
     return None
+
+
+def question_rows(source):
+    """Reviewed facts only for the exact two previously documented inputs."""
+    if rewrite_frame(source, 1) is None:
+        return []
+    if "obstaculiza" in source.casefold():
+        return [
+            (
+                [],
+                [
+                    "niños|infantes",
+                    "diagnóstico|diagnosticados",
+                    "atención|inatención",
+                    "fonológicas|sonidos",
+                ],
+                "¿Qué dificultades se mencionan en estos niños?",
+                (
+                    "Problemas de atención o con los sonidos del habla",
+                    "Problemas para ver colores o reconocer formas",
+                    "Problemas para mover brazos o mantener el equilibrio",
+                    "Problemas para recordar rutas o calcular distancias",
+                ),
+                "fact",
+            ),
+            (
+                [],
+                [
+                    "aumento|proliferación|cada vez más",
+                    "imágenes|estímulos",
+                    "sonidos|audiovisuales",
+                    "dificulta|obstaculiza",
+                ],
+                "¿Qué hace más difícil comprender la lectura según el texto?",
+                (
+                    "El aumento de imágenes y sonidos fragmentados",
+                    "La falta de libros en todas las escuelas",
+                    "El cambio de los horarios de clase",
+                    "El tamaño de las páginas de los libros",
+                ),
+                "cause",
+            ),
+            (
+                [],
+                ["lectura|leer|lee|lectora", "continua|continuo|sostenida"],
+                "¿Qué significa leer de forma continua en esta lectura?",
+                (
+                    "Entender lo leído sin perder el hilo",
+                    "Leer solo palabras sueltas sin relacionarlas",
+                    "Mirar las páginas sin entender sus ideas",
+                    "Repetir sonidos sin seguir el sentido del texto",
+                ),
+                "concept",
+            ),
+        ]
+    return [
+        (
+            [],
+            ["alumnos|estudiantes", "necesitan", "materiales|cosas"],
+            "¿Qué necesitan los alumnos con más dificultades?",
+            (
+                "Materiales para aprender que puedan usar",
+                "Materiales preparados solo para alumnos muy avanzados",
+                "Materiales con instrucciones que no puedan comprender",
+                "Materiales sin relación con las tareas escolares",
+            ),
+            "fact",
+        ),
+        (
+            [],
+            ["herramientas", "ayuda|facilita|fácil", "libros"],
+            "¿Para qué ayudan las herramientas tecnológicas según el texto?",
+            (
+                "Para entender mejor los libros de la escuela",
+                "Para memorizar solamente los títulos de los libros",
+                "Para sustituir la lectura por la copia de dibujos",
+                "Para practicar únicamente el cálculo sin leer libros",
+            ),
+            "purpose",
+        ),
+        (
+            [],
+            ["materiales|cosas", "usar|accesibles"],
+            "¿Qué significa que un material sea accesible?",
+            (
+                "Que el alumno pueda utilizarlo para aprender",
+                "Que el material tenga muchas páginas y palabras difíciles",
+                "Que el material se reserve solo para los profesores",
+                "Que el material esté escrito sin instrucciones claras",
+            ),
+            "concept",
+        ),
+    ]

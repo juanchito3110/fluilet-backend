@@ -12,7 +12,6 @@ from app.encyclopedia import ARTICLES
 from app.lesson_sources import lesson_excerpt
 from app.nlp.pipeline import pipeline
 from app.nlp.readability import measure
-from app.nlp.segmentation import sentences, words
 from app.services import resources as lexical_resources
 from app.services.demo_refresh import refresh_marked
 from app.services.lexicon_es import CURATED
@@ -34,14 +33,10 @@ async def test_reviewed_bank_has_five_measured_progressive_versions(key):
 
     for item in result.level_previews:
         metric = measure(item["adapted_text"])
-        assert_measured_level(item)
-        if item["level"] <= 3:
-            from app.services.clear_spanish import LIMITS
-
-            assert (
-                max(len(words(unit)) for unit in sentences(item["adapted_text"]))
-                <= LIMITS[item["level"]]
-            )
+        assert_measured_level(item, original)
+        if item["level"] <= 4:
+            low, high = {1: (6, 9), 2: (9, 12), 3: (12, 15), 4: (15, 19)}[item["level"]]
+            assert low <= metric.word_count / metric.sentence_count <= high
         for support in item.get("pedagogical_support", []):
             assert support["evidence"] in original
         assert len({f["text"] for f in item.get("pedagogical_support", [])}) == len(

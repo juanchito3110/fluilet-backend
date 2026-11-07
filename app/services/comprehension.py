@@ -444,18 +444,25 @@ def evidence_for(text, expressions):
 
 
 def reviewed_facts(text, source):
-    from app.services.pedagogy import _local_plan
-    from app.services.question_bank import reviewed_rows
-
     # An arbitrary pasted text can mention NASA and somebody else's birth year.
     # Curated annotations are licensed only for their exact reference/excerpt.
     # Other documents use their own structured facts, never a topic-only lookup.
-    if _local_plan(source, allow_excerpt=True) is None:
+    from app.services.clinical_frames import question_rows
+    from app.services.pedagogy import _local_plan
+    from app.services.question_bank import reviewed_rows
+
+    clinical = question_rows(source)
+    if _local_plan(source, allow_excerpt=True) is None and not clinical:
         return
     rows = [
         ([topic], anchors, stem, options, kind) for topic, anchors, stem, options, kind in REVIEWED
     ]
     rows.extend(reviewed_rows())
+    if clinical:
+        rows = [
+            (topics, [norm(a) for a in anchors], stem, options, kind)
+            for topics, anchors, stem, options, kind in clinical
+        ]
     for topics, anchors, stem, options, kind in rows:
         if not all(
             re.search(topic, norm(source)) and re.search(topic, norm(text)) for topic in topics
@@ -470,15 +477,60 @@ def _options_from_values(values, formatter):
     return tuple(formatter(value) for value in values)
 
 
+def clause_contrasts(clause, text, *, purpose=False):
+    """Preserve the grammatical arguments and domain of an unobserved cause.
+
+    These are hypotheses for a reading quiz, never assertions added to the
+    lesson. Unsupported verb frames are skipped instead of using random water,
+    sunshine or transport answers for every topic.
+    """
+    choices = {
+        "recibe": ("pierde", "almacena", "produce"),
+        "reciben": ("pierden", "almacenan", "producen"),
+        "tiene": ("pierde", "busca", "produce"),
+        "tienen": ("pierden", "buscan", "producen"),
+        "quiere": ("evita", "olvida", "necesita"),
+        "quieren": ("evitan", "olvidan", "necesitan"),
+        "necesita": ("evita", "rechaza", "pierde"),
+        "necesitan": ("evitan", "rechazan", "pierden"),
+        "medir": ("almacenar", "producir", "transportar"),
+        "conocer": ("recorrer", "proteger", "dibujar"),
+        "observar": ("dibujar", "contar", "clasificar"),
+        "crear": ("guardar", "mover", "revisar"),
+        "producir": ("almacenar", "transportar", "consumir"),
+        "respirar": ("almacenar", "transportar", "producir"),
+        "guardar": ("crear", "mover", "comparar"),
+        "transportar": ("almacenar", "producir", "consumir"),
+        "conservar": ("distribuir", "borrar", "traducir"),
+        "estudiar": ("dibujar", "recorrer", "proteger"),
+        "realizar": ("detener", "reducir", "cambiar"),
+    }
+    for verb, alternatives in choices.items():
+        match = re.search(r"\b" + verb + r"\b", clause, re.I)
+        if match is None or (purpose and match.start() != 0):
+            continue
+        values = tuple(
+            clause[: match.start()] + other + clause[match.end() :] for other in alternatives
+        )
+        if all(norm(value) not in norm(text) for value in values):
+            return values
+    return contextual_distractors(clause, text)
+
+
 def extracted_facts(text):
     """Only whole grammatical constituents qualify; oversized facts are skipped."""
-    for sentence in sentences(text):
+    # A semicolon joins whole statements at richer levels. Analyze each clause
+    # as well as the full sentence; evidence remains an exact delivered span.
+    units = [part.strip() for unit in sentences(text) for part in re.split(r";\s+", unit)]
+    for sentence in units:
         unit = sentence.strip(". !?\n")
+        temporal_unit = unit
+        unit = re.sub(r"^En \d{4},?\s+", "", unit)
         # A single leading subject and a finite verb, not an arbitrary regex cut.
         head = re.match(
             r"^(?P<subject>(?:(?:El|La|Los|Las|Un|Una|Su|Sus|Estos|Estas)\s+)?[\wÁÉÍÓÚÑáéíóúñ]+(?:\s+[\wáéíóúñ]+){0,7}?)\s+"
-            r"(?P<predicate>(?:es|son|fue|fueron|tiene|tienen|usa|usan|utiliza|utilizan|"
-            r"recibe|reciben|produce|producen|permite|permiten|ayuda|ayudan|vive|viven|"
+            r"(?P<predicate>(?:no\s+)?(?:es|son|fue|fueron|tiene|tienen|usa|usan|utiliza|utilizan|"
+            r"recibe|reciben|produce|producen|permite|permiten|prepara|preparan|transforma|transforman|contiene|contienen|absorbe|absorben|ayuda|ayudan|vive|viven|"
             r"hace|hacen|necesita|necesitan|recorre|recorren|gira|giran|refleja|reflejan|busca|buscan|"
             r"come|comen|lleva|llevan|crea|crean|comienza|comenzo|comenzó|nació|abrió|"
             r"sigue|siguen|da|dan|se)\b.+)$",
@@ -501,6 +553,12 @@ def extracted_facts(text):
                 "lo",
                 "con ellos",
                 "al excavar",
+                "eso",
+                "esto",
+                "muchos",
+                "muchas",
+                "ese día",
+                "esta fecha",
             }
         ):
             head = None
@@ -513,7 +571,12 @@ def extracted_facts(text):
             and affirmative
             and not re.search(r"\b(?:si|aunque|porque|que)\b", subject, re.I)
         ):
-            for match in re.finditer(r"\b(1[5-9]\d{2}|20\d{2})\b", unit):
+            for match in re.finditer(r"\b(1[5-9]\d{2}|20\d{2})\b", temporal_unit):
+                if re.search(
+                    r"\by\s+(?:mi|tu|su|el|la|los|las|un|una)\b.+\b(?:nació|nacio|fue|comenzó|comenzo|fundó|fundo)\b",
+                    norm(temporal_unit[: match.start()]),
+                ):
+                    continue
                 year = int(match[0])
                 # Do not choose another year already present in this sentence.
                 wrong = [
@@ -574,33 +637,80 @@ def extracted_facts(text):
             and not re.search(r"\b(?:si|aunque|solo si)\b", cause["main"], re.I)
         ):
             reason = cause["reason"]
-            yield Fact(
-                f"¿Por qué {cause['main'][0].lower() + cause['main'][1:]}?",
-                "Porque " + reason,
-                (
-                    "Porque recibe menos luz del Sol",
-                    "Porque no tiene agua suficiente",
-                    "Porque cambia su posición en el lugar",
-                ),
-                sentence,
-                "cause",
-            )
+            alternatives = clause_contrasts(reason, text)
+            if alternatives:
+                yield Fact(
+                    f"¿Por qué {cause['main'][0].lower() + cause['main'][1:]}?",
+                    "Porque " + reason,
+                    tuple(
+                        "Porque " + (value[0].lower() + value[1:] if reason[0].islower() else value)
+                        for value in alternatives
+                    ),
+                    sentence,
+                    "cause",
+                )
         purpose = re.fullmatch(
-            r"(?P<main>.+?)\s+para\s+(?P<goal>(?:ver|conocer|observar|estudiar|crear|hacer|obtener|producir|respirar|aprender|enviar|medir|guardar|buscar|llegar|explorar|entender)\b.+)",
+            r"(?P<main>.+?)\s+para\s+(?P<goal>(?:ver|conocer|observar|estudiar|crear|hacer|obtener|producir|respirar|aprender|enviar|medir|guardar|conservar|realizar|buscar|llegar|explorar|entender)\b.+)",
             unit,
             re.I,
         )
         if purpose and head and affirmative and 2 <= len(words(purpose["goal"])) <= 10:
+            alternatives = clause_contrasts(purpose["goal"], text, purpose=True)
+            if alternatives:
+                yield Fact(
+                    f"¿Para qué {purpose['main'][0].lower() + purpose['main'][1:]}?",
+                    "Para " + purpose["goal"],
+                    tuple("Para " + value[0].lower() + value[1:] for value in alternatives),
+                    sentence,
+                    "purpose",
+                )
+        function = re.fullmatch(
+            r"(?P<subject>.+?)\s+(?:permite|permiten|sirve para|sirven para)\s+(?P<goal>(?:transportar|observar|conocer|recibir|medir|guardar|producir)\b.+)",
+            unit,
+            re.I,
+        )
+        if function and head and affirmative and 2 <= len(words(function["goal"])) <= 10:
+            alternatives = clause_contrasts(function["goal"], text, purpose=True)
+            if alternatives:
+                yield Fact(
+                    f"¿Para qué {'sirven' if function['subject'].split()[0].lower() in {'los', 'las', 'sus', 'estos', 'estas'} else 'sirve'} {function['subject'][0].lower() + function['subject'][1:]} según la lectura?",
+                    "Para " + function["goal"],
+                    tuple("Para " + v[0].lower() + v[1:] for v in alternatives),
+                    sentence,
+                    "purpose",
+                )
+        movement = re.fullmatch(
+            r".+?\bpermiten? que (?P<result>.+? se )(?P<verb>mueva|muevan)", unit
+        )
+        if movement and head and affirmative:
+            plural = movement["verb"] == "muevan"
+            alternatives = (
+                ("detengan", "calienten", "iluminen")
+                if plural
+                else ("detenga", "caliente", "ilumine")
+            )
             yield Fact(
-                f"¿Para qué {purpose['main'][0].lower() + purpose['main'][1:]}?",
-                "Para " + purpose["goal"],
-                (
-                    "Para medir el tiempo que transcurre",
-                    "Para cambiar la forma de sus piezas",
-                    "Para transportar objetos a otro lugar",
-                ),
+                f"¿Qué {'permiten' if plural else 'permite'} {subject[0].lower() + subject[1:]} según la lectura?",
+                "Que " + movement["result"] + movement["verb"],
+                tuple("Que " + movement["result"] + v for v in alternatives),
                 sentence,
                 "purpose",
+            )
+        title = re.fullmatch(
+            r"(?P<actor>.+?) recibió el título de (?P<title>[\wáéíóúñ]+) en \d{4} y lo incorporó a su nombre",
+            unit,
+        )
+        if title:
+            yield Fact(
+                f"¿Por qué cambió el nombre {'del ' + title['actor'][3:].lower() if title['actor'].startswith('El ') else 'de ' + title['actor'].lower()} según la lectura?",
+                "Porque recibió el título de " + title["title"],
+                (
+                    "Porque eligió un lugar distinto para trabajar",
+                    "Porque cambió el grupo de personas a cargo",
+                    "Porque empezó una actividad completamente diferente",
+                ),
+                sentence,
+                "cause",
             )
         if head and 3 <= len(words(head["predicate"])) <= 12:
             # Actions remain whole and are anchored to this named subject.
@@ -610,7 +720,7 @@ def extracted_facts(text):
             contrasts = contextual_distractors(predicate, text)
             if contrasts:
                 yield Fact(
-                    f"¿Qué explica la lectura sobre {subject}?",
+                    f"¿Qué explica la lectura sobre {subject[0].lower() + subject[1:] if subject.split()[0].casefold() in {'el', 'la', 'los', 'las', 'un', 'una', 'su', 'sus', 'estos', 'estas'} else subject}?",
                     predicate[0].upper() + predicate[1:],
                     contrasts,
                     sentence,
@@ -631,6 +741,9 @@ def contextual_distractors(predicate, text):
         ("raíces", "hojas", "ramas", "flores", "semillas"),
         ("la luz", "el calor", "el sonido", "la energía", "el movimiento"),
         ("las lentes", "los espejos", "las ruedas", "los motores", "los sensores"),
+        ("instrucciones", "imágenes", "señales", "sonidos"),
+        ("evaporación", "condensación", "precipitación", "infiltración"),
+        ("una planta", "una roca", "una tabla de arcilla", "una lámina de metal"),
     )
     for family in groups:
         for token in family:
@@ -735,11 +848,67 @@ def valid_fact(fact, text):
     )
 
 
+def aligned_source_facts(source, text):
+    """Carry grammar-bound source facts across explicit clause rewrites.
+
+    This is not a topic lookup: the fact is extracted from this source, then
+    requires its actor and answer in a nearby complete span of this delivery.
+    Dates cannot be borrowed from another actor, and negative scopes cannot
+    disappear. Private text lives only in request-local variables.
+    """
+    if source == text:
+        return
+    from app.services.clear_spanish import _HEAD
+
+    stop = set(
+        "el la los las un una unos unas su sus ese esa esos esas este esta estos estas esto eso del para porque como donde según lectura total año años por que con sin son fue tiene puede pueden".split()
+    )
+    available = {norm(t) for t in words(text)}
+    for fact in extracted_facts(source):
+        if fact.evidence in text:
+            yield fact
+            continue
+        head = _HEAD.match(fact.evidence)
+        if head is None:
+            continue
+        actors = [
+            norm(t)
+            for t in words(head["subject"])
+            if len(t) >= 4 and norm(t) not in stop and norm(t) in available
+        ]
+        values = [
+            norm(t)
+            for t in words(fact.answer)
+            if (len(t) >= 4 or t.isdigit()) and norm(t) not in stop and norm(t) in available
+        ]
+        if not actors or not values:
+            continue
+        # Every numeric value in the answer is required, not just a word like
+        # 'año'. For causes/purposes at least one content argument must survive.
+        numbers = re.findall(r"\d+(?:[.,]\d+)*", fact.answer)
+        anchors = list(dict.fromkeys([*actors[:2], *(numbers or values[:2])]))
+        evidence = evidence_for(text, [r"\b" + re.escape(t) + r"\b" for t in anchors])
+        if evidence is None:
+            continue
+
+        def negative(value):
+            return len(re.findall(r"\b(?:no|nunca|sin)\b", value, re.I))
+
+        if negative(fact.evidence) and negative(evidence) < negative(fact.evidence):
+            continue
+        yield Fact(fact.stem, fact.answer, fact.distractors, evidence, fact.kind)
+
+
 def build_questions(text, age=None, source=None, count=3):
     source = text if source is None else source
     facts, used_answers, used_stems = [], set(), set()
     reviewed = list(reviewed_facts(text, source))
-    pools = [reviewed, extracted_facts(text), vocabulary_facts(text)]
+    pools = [
+        reviewed,
+        extracted_facts(text),
+        aligned_source_facts(source, text),
+        vocabulary_facts(text),
+    ]
     for pool in pools:
         for fact in pool:
             if (
@@ -763,7 +932,18 @@ def build_questions(text, age=None, source=None, count=3):
     if not facts:
         raise ValueError("reading_has_no_evidence")
     # Reviewed facts win; choose a cause/purpose and a concept when available.
-    selected = facts[:1]
+    first = next(
+        (
+            f
+            for f in facts
+            if f.kind in {"year", "quantity", "place", "fact", "origin", "attribute"}
+        ),
+        None,
+    )
+    selected = [
+        first
+        or next((f for f in facts if f.kind not in {"cause", "purpose", "recognition"}), facts[0])
+    ]
     for slot, kinds in enumerate(
         ({"cause", "purpose"}, {"concept", "vocabulary", "inference", "statement"})
     ):
@@ -774,7 +954,7 @@ def build_questions(text, age=None, source=None, count=3):
             if slot == 0:
                 following = next((f for f in facts if f not in selected and f.kind in kinds), None)
             else:
-                following = next((f for f in reviewed if f in facts and f not in selected), None)
+                following = next((f for f in facts if f not in selected and f.kind in kinds), None)
         if following is None:
             following = next((f for f in reviewed if f in facts and f not in selected), None)
         if following:

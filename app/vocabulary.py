@@ -3,7 +3,7 @@
 import re
 
 from app.education import normalized
-from app.nlp.segmentation import WORD_RE, sentences, words
+from app.nlp.segmentation import sentences, words
 
 # Definitions are authored independently; examples always come from the reading.
 _ENTRIES = (
@@ -151,58 +151,133 @@ _ENTRIES = (
 )
 
 
-def _example(text, term):
+def _example(text, term, offset=None):
     pattern = re.compile(r"\b" + re.escape(term) + r"\b", re.I)
-    for sentence in sentences(text):
-        found = pattern.search(sentence)
-        if found:
-            if len(sentence) <= 240:
-                return sentence
-            start = max(0, found.start() - 70)
-            return sentence[start : found.end() + 100].strip()
+    cursor = 0
+    for unit in sentences(text):
+        start = text.find(unit, cursor)
+        if pattern.search(unit) and (offset is None or start <= offset < start + len(unit)):
+            return unit
+        cursor = start + len(unit)
     return term
 
 
+def _eligible(term):
+    tokens = words(term)
+    return bool(tokens) and len("".join(tokens)) >= 4 and not any(c.isdigit() for c in term)
+
+
 def key_vocabulary(text):
+    from app.services.glossary_es import entries
+
     result, chosen = [], set()
-    available = {normalized(token) for token in words(text)}
-    for forms, definition in _ENTRIES:
-        for term in forms.split("|"):
-            if " " not in term and normalized(term) not in available:
+    context = normalized(text)
+    candidates = []
+    for order, (forms, definition) in enumerate(entries()):
+        for form in forms:
+            if not _eligible(form):
                 continue
-            match = re.search(r"\b" + re.escape(term) + r"\b", text, re.I)
-            if match and normalized(match[0]) not in chosen:
+            for match in re.finditer(r"\b" + re.escape(form) + r"\b", text, re.I):
                 word = match[0]
-                result.append(
-                    {"word": word, "definition": definition, "example": _example(text, word)}
-                )
-                chosen.add(normalized(word))
+                key = normalized(word)
+                near = normalized(_example(text, word, match.start()))
+                scopes = {
+                    "escala": r"mapa|distancia|cartograf",
+                    "leyenda": r"mapa|cartograf",
+                    "testigo": r"relevo|corredor|pista",
+                    "corteza": r"corteza terrestre|corteza de la tierra|volcan|magma|planeta",
+                    "redes": r"internet|ordenador|informatic|datos",
+                    "modelo": r"informatic|inteligencia artificial|robot|entrenamiento|aprendizaje",
+                    "modelos": r"informatic|inteligencia artificial|robot|entrenamiento|aprendizaje",
+                    "paso": r"algoritmo|instrucciones|programa|orden",
+                }
+                if key in scopes and not re.search(scopes[key], context):
+                    continue
+                if key in {"programa", "programas"}:
+                    computing = bool(
+                        re.search(
+                            r"informatic|ordenador|robot|videojuego|instrucciones|algoritmo|software|inteligencia artificial|aparatos",
+                            context,
+                        )
+                    )
+                    if computing != definition.startswith("Conjunto ordenado"):
+                        continue
+                if key in {"cientifico", "cientificos", "cientifica", "cientificas"}:
+                    before = text[max(0, match.start() - 25) : match.start()].casefold()
+                    if before.strip() and not re.search(
+                        r"\b(?:el|la|los|las|un|una|unos|unas|del|al|con|entre|para|de|a)\s+$",
+                        before,
+                    ):
+                        continue
+                # The same spelling has separate, explicitly authored senses.
+                if key == "masa":
+                    baking = bool(
+                        re.search(r"\b(?:pan|harina|horno|panadera)\b", near)
+                    ) and not bool(
+                        re.match(
+                            r"masa de (?:un |el |la )?(?:planeta|cuerpo|estrella)",
+                            normalized(text[match.start() :]),
+                        )
+                    )
+                    if baking != ("panadería" in definition):
+                        continue
+                if key == "tierra":
+                    planet = word[0].isupper() and not re.search(r"huerto|semillas|riegan", context)
+                    if planet != definition.startswith("Planeta"):
+                        continue
+                if key == "claro" and not re.search(r"(?:el|un|al)\s+claro\b", text, re.I):
+                    continue
+                if key in {"estilo", "estilos", "espalda"} and not re.search(
+                    r"natacion|nadar|nada", context
+                ):
+                    continue
+                if key in {
+                    "prueba",
+                    "cultivo",
+                    "paso",
+                    "modelo",
+                    "vela",
+                    "masa",
+                    "estudio",
+                    "diseno",
+                }:
+                    before = text[max(0, match.start() - 25) : match.start()].casefold()
+                    if re.search(
+                        r"\b(?:yo|tú|él|ella|usted|nosotros|vosotros|ellos|ellas)\s+$", before
+                    ):
+                        continue
+                    if re.search(r"\byo\s+[\wáéíóúñ]+(?:o|oy)\s+y(?:\s+no)?\s+$", before):
+                        continue
+                    if key in {"prueba", "cultivo", "vela", "paso"} and not re.search(
+                        r"\b(?:el|la|un|una|su|este|esta|ese|esa|otro|otra|cada|al|del)\s+$", before
+                    ):
+                        continue
+                priority = (len(words(word)) > 1, len(word), -order)
+                candidates.append((priority, word, definition, match.start()))
                 break
+    for _, word, definition, offset in sorted(candidates, reverse=True):
+        key = normalized(word)
+        if key in chosen:
+            continue
+        result.append(
+            {"word": word, "definition": definition, "example": _example(text, word, offset)}
+        )
+        chosen.add(key)
         if len(result) == 4:
             return result
-    # An unfamiliar article may define its own terms. Keep the definition
-    # extractive instead of guessing meanings from a neural model.
-    for sentence in sentences(text):
-        match = re.match(r"(?:El|La|Un|Una)\s+(.{2,60}?)\s+(?:es|son|se llama)\s+(.+)", sentence)
-        if match and normalized(match[1]) not in chosen and len(words(match[1])) <= 4:
-            result.append({"word": match[1], "definition": match[2], "example": sentence})
-            chosen.add(normalized(match[1]))
-            if len(result) == 4:
-                return result
-    # Context-only entries are explicitly labelled; no made-up dictionary meaning.
-    for match in WORD_RE.finditer(text):
-        word = match[0]
-        if len(word) < 5 or not word.isalpha() or normalized(word) in chosen:
-            continue
-        example = _example(text, word)
-        result.append(
-            {
-                "word": word,
-                "definition": f"En esta lectura, su significado se entiende en este contexto: «{example}»",
-                "example": example,
-            }
+    # Unknown terms may be defined by the author. Only an explicit complete
+    # definition is eligible; a random long token is never a glossary entry.
+    for unit in sentences(text):
+        match = re.match(
+            r"(?:El|La|Un|Una)\s+([^.;:]{4,50}?)\s+(?:es|son|se llama)\s+(.+)[.!?]$", unit
         )
-        chosen.add(normalized(word))
+        if not match or len(words(match[1])) > 3 or not _eligible(match[1]):
+            continue
+        term = match[1]
+        definition = f"En esta lectura, {term} es {match[2].rstrip('.')} .".replace(" .", ".")
+        if normalized(term) not in chosen and 10 <= len(words(definition)) <= 22:
+            result.append({"word": term, "definition": definition, "example": unit})
+            chosen.add(normalized(term))
         if len(result) == 4:
             break
     return result
@@ -216,8 +291,6 @@ def fun_fact(text, hint=""):
     )
     selected = selected or next((unit for unit in suitable if re.search(r"\d", unit)), None)
     selected = selected or (suitable[0] if suitable else units[0])
-    if len(selected) > 480:
-        selected = selected[:477].rsplit(" ", 1)[0] + "…"
     return f"Dato de la lectura: «{selected}»"
 
 

@@ -1,6 +1,7 @@
 """Extraction exclusively from RAM. No upload filenames or temporary files."""
 
 import io
+import re
 import unicodedata
 
 from fastapi import HTTPException, Request
@@ -14,6 +15,19 @@ class IngestionError(ValueError):
 
 def clean_text(text: str) -> str:
     text = unicodedata.normalize("NFC", text).replace("\r\n", "\n").replace("\r", "\n")
+    text = text.replace("\u00ad", "")
+    # Restore a known noun split by PDF line wrapping. Unknown hyphenated
+    # compounds and numbers retain their original spelling.
+    from app.services.glossary_es import entries
+
+    known = {form.casefold() for forms, _ in entries() for form in forms}
+
+    def wrap(match):
+        joined = match[1] + match[2]
+        return joined if joined.casefold() in known else match[0]
+
+    if "-" in text and "\n" in text:
+        text = re.sub(r"\b([^\W\d_]{2,50})-\s*\n\s*([^\W\d_]{2,50})\b", wrap, text)
     if any(unicodedata.category(char) == "Cs" for char in text):
         raise IngestionError("invalid_unicode")
     text = "".join(

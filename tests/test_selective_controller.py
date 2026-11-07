@@ -66,26 +66,20 @@ def test_no_unlicensed_support_for_unknown_or_changed_conditions(source):
     assert supports(source) == []
 
 
-async def test_support_metrics_are_distinct_from_core_and_persisted(client, make_user):
+async def test_current_policy_does_not_append_repeated_support_to_hit_a_score(client, make_user):
     source = ARTICLES["antiguo egipto"].text
     result = await pipeline.run(source, 1)
-    supported = [p for p in result.level_previews if p["pedagogical_support"]]
-    assert supported
-    for preview in supported:
-        assert preview["pre_support_text"]
-        assert (
-            preview["pre_support_readability_score"] == measure(preview["pre_support_text"]).score
-        )
+    assert all(not p["pedagogical_support"] for p in result.level_previews)
+    for preview in result.level_previews:
         assert preview["readability_score"] == measure(preview["adapted_text"]).score
-        assert all(f["evidence"] in source for f in preview["pedagogical_support"])
+        assert preview["target_met"]
     _, headers, _ = await make_user()
     response = await client.post(
         "/api/v1/adaptations/text", headers=headers, json={"text": source, "level": 1}
     )
     assert response.status_code == 200
     data = response.json()
-    assert data["pedagogical_support"] == data["level_previews"][0]["pedagogical_support"]
-    assert data["pedagogical_support"]
+    assert data["pedagogical_support"] == []
     assert (await client.get("/api/v1/adaptations/" + data["id"], headers=headers)).json() == data
 
 

@@ -12,6 +12,21 @@ def sanitize(text):
         return ""
 
     text = html.unescape(re.sub(r"<[^>]+>", "", text))
+    # Bounded OCR correction in animal enumerations. A scientific variable v
+    # or a Roman numeral V is not a conjunction and must remain untouched.
+    animals = r"(?:crustáceos|moluscos|peces|mamíferos|aves|reptiles)"
+
+    def animal_conjunction(match):
+        removed.append(match[0])
+        return match[1] + " y "
+
+    text = re.sub(rf"\b({animals})\s+v\s+(?={animals}\b)", animal_conjunction, text, flags=re.I)
+
+    def dangling_ocr(match):
+        removed.append(match[0])
+        return match[1]
+
+    text = re.sub(rf"\b({animals})\s+(v)(?=[.]?\s*$)", dangling_ocr, text)
     text = re.sub(r"\[(?:\d+(?:[,–-]\d+)*|[a-z]|cita requerida|nota \d+)\]", drop, text, flags=re.I)
     text = re.sub(
         r"\((?:[^()]*(?:AFI|IPA|pronunciaci[oó]n|[ˈˌ]|t[ií]tulo original|en ingl[eé]s)[^()]*|"

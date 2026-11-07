@@ -31,15 +31,12 @@ def assert_grounded_questions(items, text, count=3):
         assert item["hint"] and "___" not in item["question"]
 
 
-def assert_measured_level(preview):
+def assert_measured_level(preview, original=None):
     from app.nlp.readability import measure
-    from app.services.pedagogy import GOALS
+    from app.services.sentence_bands import meets_band
 
     actual = measure(preview["adapted_text"])
-    lo, hi, min_words, max_words = GOALS[preview["level"]]
-    average = actual.word_count / actual.sentence_count
     assert preview["readability_score"] == actual.score
-    assert preview["target_met"] == (lo <= actual.score <= hi and min_words <= average <= max_words)
-    # v3 prioritizes whole short clauses and meaning. The frozen v2.3 report
-    # remains separate; runtime targets must never be made true by rounding,
-    # filler, removing facts, or ignoring an individual long sentence.
+    # Tests using this helper exercise rewritten catalog versions. v3.1 targets
+    # are the explicit sentence-length policy, not the historic numeric score.
+    assert preview["target_met"] == meets_band(preview["adapted_text"], preview["level"], original)

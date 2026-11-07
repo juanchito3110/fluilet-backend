@@ -38,6 +38,8 @@ def reading_chunks(text: str) -> list[str]:
         units = secondary_segments(sentence) if len(words(sentence)) > 800 else [sentence]
         for unit in units:
             position = text.find(unit, cursor)
+            if position < cursor:
+                raise InvalidText("sentence_alignment_failed")
             span = text[cursor : position + len(unit)]
             cursor = position + len(unit)
             count = len(words(unit))

@@ -14,12 +14,12 @@ from app.services.scaffolding import supports
 from tests.question_assertions import assert_measured_level
 
 
-def assert_bands(previews):
+def assert_bands(previews, source):
     assert [p["level"] for p in previews] == list(range(1, 6))
     scores = [p["readability_score"] for p in previews]
     assert all(a > b for a, b in zip(scores, scores[1:], strict=False))
     for item in previews:
-        assert_measured_level(item)
+        assert_measured_level(item, source)
         assert item["readability_score"] == measure(item["adapted_text"]).score
 
 
@@ -36,10 +36,41 @@ def test_every_local_excerpt_has_five_measured_levels_and_grounded_questions(key
     source = lesson_excerpt(ARTICLES[key].text, group)
     _, previews, progressive = choose_levels(source, allow_local_excerpt=True)
     assert progressive
-    assert_bands(previews)
+    assert_bands(previews, source)
     assert len(words(source)) <= LESSON_WORD_LIMITS[group]
     age = {"6-8": 7, "9-11": 10, "12+": 12}[group]
     for preview in previews:
+        # Independent release criteria from the requested policy, not inferred
+        # from the engine's own target flag or historical Szigriszt score bands.
+        average = len(words(preview["adapted_text"])) / len(sentences(preview["adapted_text"]))
+        bounds = {1: (6, 9), 2: (9, 12), 3: (12, 15), 4: (15, 19)}
+        if preview["level"] <= 4:
+            low, high = bounds[preview["level"]]
+            assert low <= average <= high
+        else:
+            if average <= 19:
+                from difflib import SequenceMatcher
+
+                assert len(sentences(preview["adapted_text"])) == len(sentences(source))
+                assert (
+                    SequenceMatcher(
+                        None,
+                        words(preview["adapted_text"].casefold()),
+                        words(source.casefold()),
+                        autojunk=False,
+                    ).ratio()
+                    >= 0.85
+                )
+        from app.vocabulary import key_vocabulary
+
+        vocabulary = key_vocabulary(preview["adapted_text"])
+        assert 4 <= len(vocabulary) <= 6
+        for term in vocabulary:
+            assert len("".join(words(term["word"]))) >= 4
+            assert not any(c.isdigit() for c in term["word"])
+            assert term["word"] in preview["adapted_text"]
+            assert 10 <= len(words(term["definition"])) <= 22
+            assert term["example"] in sentences(preview["adapted_text"])
         items = education.lesson_questions(preview["adapted_text"], age, source)
         assert_questions(items, source, preview["adapted_text"], group)
 
@@ -68,7 +99,7 @@ async def test_baseball_generation_all_ages_and_levels(client, make_user, topic,
     assert data["source"]["provider"] == "local" and "béisbol" in data["resolved_topic"]
     assert len(words(data["original_text"])) <= LESSON_WORD_LIMITS[group]
     assert len(words(data["adapted_text"])) <= 240
-    assert_bands(data["level_previews"])
+    assert_bands(data["level_previews"], data["original_text"])
     assert data["level_progression_met"]
     assert data["adapted_text"] == data["level_previews"][level - 1]["adapted_text"]
     assert data["readability_score"] == measure(data["adapted_text"]).score
@@ -117,7 +148,7 @@ async def test_dense_wikipedia_baseball_uses_verified_local_reference_for_all_ba
     assert "pedagogical_local_reference" in data["warnings"]
     assert data["source"]["provider"] == "local" and data["source"]["revision_id"] is None
     assert data["original_text"] == lesson_excerpt(ARTICLES["beisbol"].text, group)
-    assert_bands(data["level_previews"])
+    assert_bands(data["level_previews"], data["original_text"])
     assert_questions(
         data["comprehension_questions"], data["original_text"], data["adapted_text"], group
     )

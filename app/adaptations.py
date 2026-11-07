@@ -392,15 +392,8 @@ async def generate_lesson(
         child_age=child_age,
         allow_local_excerpt=True,
     )
-    from app.services.pedagogy import GOALS
-
     needs_local_reference = entry.provider == "wikipedia" and (
-        not result.level_progression_met
-        or not all(
-            GOALS[p["level"]][0] <= p["readability_score"] <= GOALS[p["level"]][1]
-            for p in result.level_previews
-        )
-        or (payload.simplification_level == 1 and result.metrics["score_delta"] < 15)
+        not result.level_progression_met or not all(p["target_met"] for p in result.level_previews)
     )
     if result.adapted_text == result.original_text or needs_local_reference:
         fallback = local_article(resolve_topic(payload.category, payload.topic))
@@ -421,10 +414,7 @@ async def generate_lesson(
             raise HTTPException(
                 503, "La fuente disponible no permite una simplificación fiel. Prueba otro tema."
             )
-    if not result.level_progression_met or not all(
-        GOALS[p["level"]][0] <= p["readability_score"] <= GOALS[p["level"]][1]
-        for p in result.level_previews
-    ):
+    if not result.level_progression_met or not all(p["target_met"] for p in result.level_previews):
         result.warnings.append("pedagogical_bands_not_met")
     return await persist(
         result,
@@ -471,9 +461,18 @@ async def get_adaptation(
         "original_text": content.original_text,
         "adapted_text": content.adapted_text,
     }
+    # Enrich the retained pair in memory, including older glossary formats.
+    # This does not replace the historical text, metrics, UUID or reading logs.
+    payload["key_vocabulary"] = await asyncio.to_thread(
+        vocabulary.key_vocabulary, content.adapted_text
+    )
     historical_questions = payload.get("comprehension_questions", [])
-    if len(historical_questions) < 3 or any(
-        len(q.get("options", [])) != 4 for q in historical_questions
+    from app.services.pedagogy import VERSION
+
+    if (
+        payload.get("engine_version") != VERSION
+        or len(historical_questions) < 3
+        or any(len(q.get("options", [])) != 4 for q in historical_questions)
     ):
         payload["comprehension_questions"] = await asyncio.to_thread(
             education.lesson_questions,
