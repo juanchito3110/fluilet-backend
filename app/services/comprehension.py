@@ -36,21 +36,21 @@ REVIEWED = (
     (
         "luna",
         ("refleja", "sol"),
-        "¿De dónde viene la luz que refleja la Luna?",
+        "¿De dónde viene la luz que refleja la Luna según la lectura?",
         ("De la luz del Sol", "De la luz de Marte", "De la luz de Venus", "De la luz de Saturno"),
         "origin",
     ),
     (
         "luna",
         ("29,5",),
-        "¿Cuánto dura un ciclo de fases de la Luna?",
+        "¿Cuánto dura un ciclo de fases de la Luna según la lectura?",
         ("Cerca de 29,5 días", "Cerca de 7 días", "Cerca de 15 días", "Cerca de 60 días"),
         "quantity",
     ),
     (
         "luna",
         ("crater", "golpes|impactos"),
-        "¿Qué causó muchos cráteres de la Luna?",
+        "¿Qué causó muchos cráteres de la Luna según la lectura?",
         (
             "Los impactos contra su superficie",
             "Los flujos de lava endurecida",
@@ -62,7 +62,7 @@ REVIEWED = (
     (
         "luna",
         ("mareas", "gravedad|fuerza"),
-        "¿Qué relación tiene la Luna con las mareas?",
+        "¿Qué relación tiene la Luna con las mareas según la lectura?",
         (
             "Su gravedad influye en ellas",
             "Su luz reflejada calienta el agua",
@@ -74,21 +74,21 @@ REVIEWED = (
     (
         "madrid",
         ("1902",),
-        "¿En qué año se fundó el Real Madrid?",
+        "¿En qué año se fundó el Real Madrid según la lectura?",
         ("En el año 1902", "En el año 1920", "En el año 1947", "En el año 1896"),
         "year",
     ),
     (
         "madrid",
         ("1920", "real"),
-        "¿Cuándo recibió el club el título de Real?",
+        "¿Cuándo recibió el club el título de Real según la lectura?",
         ("En el año 1920", "En el año 1902", "En el año 1947", "En el año 1958"),
         "year",
     ),
     (
         "madrid",
         ("blanc",),
-        "¿Qué color caracteriza la camiseta del Real Madrid?",
+        "¿Qué color caracteriza la camiseta del Real Madrid según la lectura?",
         (
             "Una camiseta de color blanco",
             "Una camiseta de color verde",
@@ -100,7 +100,7 @@ REVIEWED = (
     (
         "madrid",
         ("santiago bernabeu",),
-        "¿En qué estadio juega de local el Real Madrid?",
+        "¿En qué estadio juega de local el Real Madrid según la lectura?",
         (
             "En el estadio Santiago Bernabéu",
             "En el estadio de Mestalla",
@@ -112,14 +112,14 @@ REVIEWED = (
     (
         "madrid",
         ("1947",),
-        "¿En qué año abrió el estadio Santiago Bernabéu?",
+        "¿En qué año abrió el estadio Santiago Bernabéu según la lectura?",
         ("En el año 1947", "En el año 1902", "En el año 1920", "En el año 1969"),
         "year",
     ),
     (
         "madrid",
         ("fifa", "siglo xx"),
-        "¿Qué reconocimiento otorgó la FIFA al Real Madrid?",
+        "¿Qué reconocimiento otorgó la FIFA al Real Madrid según la lectura?",
         (
             "Mejor club del siglo XX",
             "Mejor club del siglo XIX",
@@ -131,7 +131,7 @@ REVIEWED = (
     (
         "marina",
         ("estudia", "vida|seres vivos", "mar"),
-        "¿Qué estudia la biología marina?",
+        "¿Qué estudia la biología marina según la lectura?",
         (
             "Los seres vivos del mar",
             "Los seres vivos de agua dulce",
@@ -143,7 +143,7 @@ REVIEWED = (
     (
         "marina",
         ("algas", "luz", "alimento|comida"),
-        "¿Para qué aprovechan la luz las algas?",
+        "¿Para qué aprovechan la luz las algas según la lectura?",
         (
             "Para producir su propio alimento",
             "Para mantener constante su temperatura corporal",
@@ -155,12 +155,12 @@ REVIEWED = (
     (
         "marina",
         ("coral", "refugio"),
-        "¿Qué proporcionan los arrecifes de coral a muchos animales?",
+        "¿Qué proporcionan los arrecifes de coral a muchos animales según la lectura?",
         (
             "Un refugio donde pueden vivir",
-            "Un soporte para sostener equipos de pesca",
-            "Una zona para acumular arena de playa",
-            "Un lugar donde termina el agua dulce",
+            "Una fuente de calor para mantener su temperatura",
+            "Una zona sin corrientes donde siempre encuentran alimento",
+            "Un límite entre las aguas dulces y saladas",
         ),
         "purpose",
     ),
@@ -179,7 +179,7 @@ REVIEWED = (
     (
         "futbol|fútbol",
         ("once", "jugadores"),
-        "¿Cuántos jugadores tiene cada equipo de fútbol en el campo?",
+        "¿Cuántos jugadores tiene cada equipo de fútbol en el campo según la lectura?",
         (
             "Un total de once jugadores",
             "Un total de cinco jugadores",
@@ -191,7 +191,7 @@ REVIEWED = (
     (
         "futbol|fútbol",
         ("45",),
-        "¿Cuánto dura cada parte reglamentaria del partido?",
+        "¿Cuánto dura cada parte reglamentaria del partido según la lectura?",
         (
             "Un tiempo de 45 minutos",
             "Un tiempo de 20 minutos",
@@ -203,19 +203,19 @@ REVIEWED = (
     (
         "futbol|fútbol",
         ("balon", "porteria"),
-        "¿Cuál es la meta de un equipo de fútbol?",
+        "¿Cuál es la meta de un equipo de fútbol según la lectura?",
         (
             "Meter el balón en la portería rival",
-            "Meter el balón en una canasta",
-            "Llevar el balón fuera del estadio",
-            "Guardar el balón en el vestuario",
+            "Mantener el balón más tiempo que el rival",
+            "Completar más pases que el equipo rival",
+            "Recorrer más distancia que el otro equipo",
         ),
         "purpose",
     ),
     (
         "robot",
         ("sensor", "entorno|cerca|informacion|datos"),
-        "¿Para qué utiliza sensores un robot?",
+        "¿Para qué utiliza sensores un robot según la lectura?",
         (
             "Para obtener datos de su entorno",
             "Para ejecutar los movimientos del robot",
@@ -227,7 +227,7 @@ REVIEWED = (
     (
         "robot",
         ("motor", "movimiento|mover"),
-        "¿Qué permiten hacer los motores de un robot?",
+        "¿Qué permiten hacer los motores de un robot según la lectura?",
         (
             "Mover partes de su cuerpo",
             "Procesar los datos obtenidos por sensores",
@@ -239,7 +239,7 @@ REVIEWED = (
     (
         "robot",
         ("instrucciones|pasos|programa",),
-        "¿Qué guía las tareas que realiza un robot?",
+        "¿Qué guía las tareas que realiza un robot según la lectura?",
         (
             "Las instrucciones de un programa",
             "La energía almacenada en la batería",
@@ -251,7 +251,7 @@ REVIEWED = (
     (
         "agujero",
         ("gravedad|fuerza", "luz", "impide|no.*sal"),
-        "¿Por qué no sale la luz del interior de un agujero negro?",
+        "¿Por qué no sale la luz del interior de un agujero negro según la lectura?",
         (
             "Porque su gravedad impide que escape",
             "Porque su horizonte refleja toda la luz",
@@ -263,19 +263,19 @@ REVIEWED = (
     (
         "agujero",
         ("horizonte de sucesos",),
-        "¿Cómo se llama el límite del agujero negro descrito?",
+        "¿Cómo se llama el límite del agujero negro descrito según la lectura?",
         (
             "El llamado horizonte de sucesos",
-            "El llamado cinturón de asteroides",
-            "La llamada corteza del planeta",
-            "La llamada órbita de Marte",
+            "La llamada esfera de fotones",
+            "El llamado disco de acreción",
+            "La llamada órbita más estable",
         ),
         "concept",
     ),
     (
         "agujero",
         ("masa", "distancia"),
-        "¿De qué depende el efecto gravitatorio del agujero negro?",
+        "¿De qué depende el efecto gravitatorio del agujero negro según la lectura?",
         (
             "De la masa y la distancia",
             "Del tamaño y del brillo de las estrellas",
@@ -287,7 +287,7 @@ REVIEWED = (
     (
         "egipto",
         ("nilo",),
-        "¿Junto a qué río se desarrolló el antiguo Egipto?",
+        "¿Junto a qué río se desarrolló el antiguo Egipto según la lectura?",
         (
             "Junto al gran río Nilo",
             "Junto al gran río Amazonas",
@@ -299,7 +299,7 @@ REVIEWED = (
     (
         "egipto",
         ("rio|nilo", "cultivo|agricultura"),
-        "¿Por qué ayudaban las crecidas del Nilo a los egipcios?",
+        "¿Por qué ayudaban las crecidas del Nilo a los egipcios según la lectura?",
         (
             "Porque favorecían los cultivos junto al río",
             "Porque ayudaban a transportar piedras para las pirámides",
@@ -311,7 +311,7 @@ REVIEWED = (
     (
         "egipto",
         ("papiro", "escribir|escritura"),
-        "¿Para qué utilizaban el papiro en el antiguo Egipto?",
+        "¿Para qué utilizaban el papiro en el antiguo Egipto según la lectura?",
         (
             "Como un soporte para escribir",
             "Como una tela para confeccionar ropa",
@@ -326,16 +326,16 @@ REVIEWED = (
         "¿Qué eran los jeroglíficos mencionados en la lectura?",
         (
             "Signos de un sistema de escritura",
-            "Piezas de un barco de guerra",
-            "Ruedas de un carro de transporte",
-            "Partes de un reloj de agua",
+            "Dibujos para decorar sin comunicar mensajes",
+            "Señales usadas solo para contar cosechas",
+            "Símbolos que indicaban únicamente las rutas",
         ),
         "vocabulary",
     ),
     (
         "inteligencia artificial",
         ("datos", "entrena|entrenamiento"),
-        "¿Qué se utiliza para entrenar algunos modelos de inteligencia artificial?",
+        "¿Qué se utiliza para entrenar algunos modelos de inteligencia artificial según la lectura?",
         (
             "Un conjunto de datos de aprendizaje",
             "Un conjunto de reglas escritas a mano",
@@ -347,7 +347,7 @@ REVIEWED = (
     (
         "inteligencia artificial",
         ("errores",),
-        "¿Por qué conviene revisar las respuestas de la inteligencia artificial?",
+        "¿Por qué conviene revisar las respuestas de la inteligencia artificial según la lectura?",
         (
             "Porque sus resultados pueden tener errores",
             "Porque sus respuestas pueden tardar en aparecer",
@@ -359,7 +359,7 @@ REVIEWED = (
     (
         "inteligencia artificial",
         ("patrones",),
-        "¿Qué tarea puede realizar la inteligencia artificial descrita?",
+        "¿Qué tarea puede realizar la inteligencia artificial descrita según la lectura?",
         (
             "Reconocer patrones a partir de datos",
             "Enviar mensajes entre redes de ordenadores",
@@ -371,19 +371,19 @@ REVIEWED = (
     (
         "faro",
         ("luz", "costa"),
-        "¿Qué señala el pequeño faro con su luz?",
+        "¿Qué señala el pequeño faro con su luz según la lectura?",
         (
             "La posición de la costa",
-            "La posición de las estrellas",
-            "La posición de las nubes",
-            "La posición de los peces",
+            "La posición de otros barcos",
+            "La posición de bancos de arena",
+            "La entrada de cada río",
         ),
         "fact",
     ),
     (
         "faro",
         ("destellos",),
-        "¿Para qué sirven las distintas secuencias de destellos de los faros?",
+        "¿Para qué sirven las distintas secuencias de destellos de los faros según la lectura?",
         (
             "Para distinguir un faro de otro",
             "Para indicar siempre la misma distancia a tierra",
@@ -395,7 +395,7 @@ REVIEWED = (
     (
         "faro",
         ("orilla|no navega|no viaja",),
-        "¿En qué consiste el viaje del pequeño faro?",
+        "¿En qué consiste el viaje del pequeño faro según la lectura?",
         (
             "En entender su función desde la orilla",
             "En buscar un nuevo puerto donde vivir",
@@ -407,26 +407,26 @@ REVIEWED = (
     (
         "nasa",
         ("1958",),
-        "¿En qué año comenzó a trabajar la NASA?",
+        "¿En qué año comenzó a trabajar la NASA según la lectura?",
         ("En el año 1958", "En el año 1969", "En el año 1945", "En el año 1981"),
         "year",
     ),
     (
         "nasa",
         ("1969", "luna"),
-        "¿Cuándo llegó Apolo 11 a la Luna?",
+        "¿Cuándo llegó Apolo 11 a la Luna según la lectura?",
         ("En el año 1969", "En el año 1958", "En el año 1902", "En el año 1981"),
         "year",
     ),
     (
         "nasa",
         ("radio", "datos|informacion"),
-        "¿Cómo envían información las sondas y los robots espaciales?",
+        "¿Cómo envían información las sondas y los robots espaciales según la lectura?",
         (
             "Mediante señales de radio al viajar",
-            "Mediante cartas enviadas en barcos",
-            "Mediante señales de humo en montañas",
-            "Mediante cables por todo el espacio",
+            "Mediante pulsos de luz láser",
+            "Mediante ondas de sonido a distancia",
+            "Mediante señales por un cable continuo",
         ),
         "concept",
     ),

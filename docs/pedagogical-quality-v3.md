@@ -35,6 +35,11 @@ No se reentrenaron ni reemplazaron sus pesos.
    Los años se contrastan con años; las cantidades conservan su unidad; las
    definiciones y funciones tienen opciones del mismo tipo. Cada opción nueva
    tiene entre 3 y 12 palabras. La posición correcta es reproducible y variable.
+   La revisión editorial también retiró distractores anacrónicos o ajenos al
+   dominio, como satélites en la vida vikinga o cartas para transmitir datos
+   desde una sonda. Las preguntas revisadas delimitan expresamente su respuesta
+   a lo explicado en la lectura: una alternativa plausible en el mundo real no
+   se presenta como falsa universalmente.
 5. Las anotaciones del catálogo solo se aplican a su fuente exacta o a un
    extracto reconocido. Un texto libre que mencione la NASA y el nacimiento de
    otra persona no atribuye ese año a la agencia. Los eventos negados tampoco
@@ -143,7 +148,7 @@ con negación o fechas ajenas, el límite de recursión, la conservación de fec
 factuales, cuentas sin niños, permisos, controles de lectores independientes y
 la cadena real de Alembic en PostgreSQL.
 
-Validación final: **911 pruebas aprobadas en PostgreSQL (343,41 s)**,
+Validación final: **914 pruebas aprobadas en PostgreSQL (354,88 s)**,
 `ruff check`, `ruff format --check` sobre los 138 archivos Python y
 `python -m pip check` correctos. Android: **32 pruebas de administración
 aprobadas**, `assembleRelease` y `bundleRelease` correctos; firmas APK v2 y

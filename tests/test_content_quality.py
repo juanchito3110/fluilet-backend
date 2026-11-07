@@ -127,6 +127,38 @@ def test_nasa_year_is_a_specific_fact_with_four_temporal_options():
     assert_complete_questions(questions)
 
 
+def test_reviewed_question_bank_has_complete_scoped_alternatives():
+    from app.services.comprehension import REVIEWED
+    from app.services.question_bank import reviewed_rows
+
+    for _, _, stem, options, _ in [*REVIEWED, *reviewed_rows()]:
+        assert stem.startswith("¿") and stem.endswith("?")
+        # Real-world alternatives may also be true; the question must explicitly
+        # ask which fact is established by this particular reading or story.
+        assert any(
+            term in stem.lower() for term in ("lectura", "texto", "cuento", "relato", "novela")
+        )
+        assert len(set(options)) == 4
+        assert all(3 <= len(words(option)) <= 12 and option[0].isupper() for option in options)
+        assert all(not re.search(r"___|\.\.\.|…", option) for option in options)
+
+
+@pytest.mark.parametrize("key", ("vikingos", "castillos"))
+async def test_medieval_quizzes_keep_distractors_in_the_historical_context(key):
+    source = ARTICLES[key].text
+    result = await pipeline.run(source, 1)
+    for preview in result.level_previews:
+        questions = build_questions(preview["adapted_text"], 7, source)
+        assert_complete_questions(questions)
+        for question in questions:
+            assert "según la lectura" in question["question"]
+            assert not re.search(
+                r"satélite|avión|ordenador|motor eléctrico|teléfono|internet",
+                " ".join(question["options"]),
+                re.I,
+            )
+
+
 def test_unrelated_year_or_negated_event_is_never_assigned_to_nasa():
     text = "La NASA estudia el espacio. La abuela de Luis nació en 1958. El Sol da luz."
     questions = build_questions(text, 10)
