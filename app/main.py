@@ -23,6 +23,7 @@ from app.health import router as health_router
 from app.nlp.mt5 import runtime
 from app.password_reset import router as password_reset_router
 from app.privacy import PrivacyMiddleware, validation_error
+from app.public_pages import router as public_pages_router
 from app.services import email_service
 
 
@@ -189,12 +190,21 @@ async def update_current_user(
 
 
 @app.delete("/api/v1/users/me", status_code=204, tags=["users"])
-async def deactivate_current_user(
-    user: models.User = Depends(auth.require_roles(*ADULTS)), db: AsyncSession = Depends(get_db)
+async def delete_current_user(
+    user: models.User = Depends(auth.get_current_user), db: AsyncSession = Depends(get_db)
 ):
+    from app.services.account_deletion import erase_account
+
+    if user.email.casefold() == "admin@fluilet.com":
+        raise HTTPException(403, "La cuenta maestra del administrador no puede eliminarse.")
+    if user.role not in ADULTS:
+        raise HTTPException(
+            403, "Solo el tutor o el adulto independiente puede eliminar su cuenta."
+        )
     user = await lock_user(user, db)
-    user.is_active = False
-    await auth.revoke_all(user, db)
+    if user is None:
+        raise auth.unauthorized()
+    await erase_account(user, db)
     await db.commit()
     return Response(status_code=204)
 
@@ -357,6 +367,7 @@ app.include_router(academic_demo_router)
 app.include_router(admin_router)
 app.include_router(health_router)
 app.include_router(password_reset_router)
+app.include_router(public_pages_router)
 
 
 @app.post("/api/v1/auth/verify-parental-pin", tags=["auth"])

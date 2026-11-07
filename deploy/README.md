@@ -1,5 +1,19 @@
 # DigitalOcean: arranque reproducible del backend
 
+## Eliminación de datos y páginas públicas
+
+`/privacy` y `/delete-account` son las URLs públicas de privacidad y eliminación;
+también existen `/privacidad` y `/eliminar-cuenta`. La API conserva el contrato
+`DELETE /api/v1/users/me` → 204 y ahora borra físicamente la cuenta y sus datos.
+[Contrato, restauración demo y operación](../docs/account-deletion-and-privacy.md).
+
+La política de esta instalación no conserva dumps de datos personales. Conservar
+solo respaldos de código durante un despliegue; no usar `pg_dump` sobre producción
+ni habilitar copias de datos/WAL sin revisar primero la política publicada.
+Los respaldos PostgreSQL históricos autorizados se retiran del servidor.
+
+## Arranque
+
 En el checkout del servidor, copia `deploy/digitalocean.env.example` a `.env` con
 permisos `600` y completa sus valores privados. La contraseña de PostgreSQL debe
 coincidir con la del URL y estar codificada para URL en `DATABASE_URL`. El hostname
@@ -18,8 +32,8 @@ curl --fail https://your-domain.example/health/ready
 
 El `CMD` de la imagen ejecuta `app.bootstrap`: toma un bloqueo asesor de PostgreSQL,
 aplica `alembic upgrade head` y, solo si termina correctamente, reemplaza el proceso
-por Uvicorn. Se aplican las **nueve revisiones**, cuyo head se llama
-`0009_password_reset` (hay dos revisiones históricas con prefijo 0004). No se añade
+por Uvicorn. Se aplican las **diez revisiones**, cuyo head se llama
+`0010_reader_controls` (hay dos revisiones históricas con prefijo 0004). No se añade
 una migración ficticia. Después, el lifespan carga el checkpoint y asegura las
 cuentas/perfiles demo de forma idempotente. Un error de migración impide abrir HTTP.
 

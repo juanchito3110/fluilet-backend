@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Privacidad y control de tus datos en Fluilet, lectura adaptativa inteligente.">
+  <title>__TITLE__ · Fluilet</title>
+  <style>
+    :root { --ink:#24203b; --muted:#5e5a70; --purple:#6638bb; --line:#e5dff0; --paper:#fff; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:#f7f5fc; font:17px/1.75 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    a { color:#57309f; text-underline-offset:4px; }
+    a:hover { color:#381b6c; }
+    a:focus-visible { outline:3px solid #aa81ec; outline-offset:5px; border-radius:3px; }
+    .skip { position:absolute; left:16px; top:-100px; padding:8px 18px; background:white; z-index:1; }
+    .skip:focus { top:12px; }
+    header { background:var(--paper); border-bottom:1px solid var(--line); }
+    .header-inner { max-width:1080px; margin:auto; padding:23px 32px; display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+    .brand { font-size:34px; font-weight:850; letter-spacing:-1.8px; line-height:1.1; color:var(--purple); text-decoration:none; }
+    .brand span { color:#9773ce; }
+    .tagline { display:block; font-size:11px; font-weight:600; letter-spacing:.5px; line-height:1.7; color:var(--muted); margin-top:5px; }
+    nav { display:flex; gap:24px; flex-wrap:wrap; font-size:14px; font-weight:600; }
+    main { max-width:1080px; margin:0 auto; padding:52px 32px 64px; }
+    .hero { background:linear-gradient(125deg,#57309f,#7c4dcc); color:white; border-radius:24px; padding:40px 44px; margin-bottom:28px; }
+    .eyebrow { font-size:12px; text-transform:uppercase; letter-spacing:1.7px; font-weight:700; margin:0 0 12px; color:#e4d6fa; }
+    h1 { font-size:clamp(29px,5vw,43px); line-height:1.2; letter-spacing:-1px; margin:0 0 18px; }
+    .hero p:last-child { max-width:710px; margin:0; color:#f0e8ff; }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) 250px; gap:28px; align-items:start; }
+    article,.card { background:var(--paper); border:1px solid var(--line); border-radius:20px; }
+    article { padding:12px 36px 32px; }
+    section { padding-top:24px; }
+    section + section { margin-top:24px; border-top:1px solid var(--line); }
+    h2 { font-size:22px; line-height:1.4; letter-spacing:-.3px; margin:0 0 12px; }
+    h3 { font-size:17px; line-height:1.5; margin:0 0 8px; }
+    p { margin:0 0 16px; }
+    ul,ol { padding-left:23px; margin:12px 0 20px; }
+    li + li { margin-top:12px; }
+    .card { padding:24px; font-size:14px; color:var(--muted); }
+    .card p:last-child { margin-bottom:0; }
+    .card + .card { margin-top:18px; }
+    .card h2 { color:var(--ink); font-size:17px; }
+    .note { border-left:3px solid #9c73dc; padding:14px 18px; background:#f5f0fc; border-radius:0 10px 10px 0; }
+    .route { display:block; background:#f5f0fc; padding:16px 20px; border-radius:12px; font-weight:650; margin:18px 0; }
+    .button { display:inline-block; background:var(--purple); color:#fff; text-decoration:none; padding:12px 20px; border-radius:11px; font-weight:650; line-height:1.5; }
+    .button:hover { color:#fff; background:#512698; }
+    .small { font-size:14px; color:var(--muted); }
+    .email { overflow-wrap:anywhere; }
+    footer { max-width:1080px; margin:auto; padding:0 32px 32px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; color:var(--muted); font-size:13px; }
+    @media(max-width:800px) { .layout { grid-template-columns:1fr; } aside { display:grid; grid-template-columns:1fr 1fr; gap:18px; } .card + .card { margin:0; } }
+    @media(max-width:520px) { body { font-size:16px; } .header-inner { padding:20px; gap:20px; } nav { gap:18px; } main { padding:28px 16px 36px; } .hero { padding:30px 24px; border-radius:18px; } article { padding:4px 23px 24px; } aside { grid-template-columns:1fr; } footer { padding:0 20px 28px; } .button { width:100%; text-align:center; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#contenido">Ir al contenido</a>
+  <header>
+    <div class="header-inner">
+      <a class="brand" href="/privacy" aria-label="Fluilet, privacidad">Flui<span>let</span><small class="tagline">Lectura adaptativa inteligente</small></a>
+      <nav aria-label="Privacidad y cuenta">
+        <a href="/privacy">Privacidad</a>
+        <a href="/delete-account">Eliminar cuenta</a>
+      </nav>
+    </div>
+  </header>
+  <main id="contenido">
+__CONTENT__
+  </main>
+  <footer><span>Fluilet · Aprender a tu ritmo.</span><span>Actualizado el 7 de noviembre de 2026</span></footer>
+</body>
+</html>

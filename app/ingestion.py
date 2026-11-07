@@ -128,7 +128,10 @@ async def extract_safely(data: bytes, media_type: str) -> str:
     try:
         async with asyncio.timeout(10):
             while not parent.poll():
-                if not process.is_alive():
+                # The worker can send its result and exit between poll() and
+                # is_alive(). Drain a completed result before treating exit as
+                # a crash, without relaxing time or resource limits.
+                if not process.is_alive() and not parent.poll():
                     raise IngestionError("document_not_processable")
                 await asyncio.sleep(0.02)
             success, result = await asyncio.to_thread(parent.recv)

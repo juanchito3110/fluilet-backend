@@ -1,6 +1,12 @@
 .env
 .env.*
 !.env.example
+*.dump
+*.backup
+*.sql.gz
+*.db
+*.sqlite
+*.sqlite3
 .venv/
 venv/
 __pycache__/

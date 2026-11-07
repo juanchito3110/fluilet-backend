@@ -286,20 +286,9 @@ async def remove_user(
         raise HTTPException(404, "Usuario no encontrado.")
     if target.is_master_admin:
         raise HTTPException(400, "La cuenta maestra no puede eliminarse.")
-    linked = (
-        await db.scalars(
-            select(models.ChildProfile.user_id).where(
-                models.ChildProfile.tutor_id == user_id, models.ChildProfile.user_id.is_not(None)
-            )
-        )
-    ).all()
-    await db.execute(delete(models.User).where(models.User.id == user_id))
-    if linked:
-        await db.execute(
-            delete(models.User).where(
-                models.User.id.in_(linked), models.User.role == models.UserRole.NINO
-            )
-        )
+    from app.services.account_deletion import erase_account
+
+    await erase_account(target, db)
     await db.commit()
     return Response(status_code=204)
 
