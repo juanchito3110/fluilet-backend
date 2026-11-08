@@ -23,10 +23,9 @@ async def test_public_pages_are_complete_responsive_html_without_auth(client, pa
     assert html.lower().startswith("<!doctype html>") and html.rstrip().endswith("</html>")
     assert "__CONTENT__" not in html and "__TITLE__" not in html
     assert "Fluilet" in html and "fluilet123@gmail.com" in html
-    assert (
-        "Inicio → 🛡️ Cuenta, privacidad y eliminación de datos → Eliminar mi cuenta y datos" in html
-    )
+    assert "Inicio → Cuenta, privacidad y eliminación de datos → Eliminar mi cuenta y datos" in html
     assert "Cuenta y privacidad" not in html
+    assert "Inicio → 🛡️" not in html
     assert "@media" in html and "no-store" in response.headers["cache-control"]
     assert "frame-ancestors 'none'" in response.headers["content-security-policy"]
     markup = Markup()
@@ -64,7 +63,7 @@ async def test_deletion_aliases_offer_direct_email_request_without_reinstalling(
     page = await client.get("/delete-account")
     assert page.content == (await client.get("/eliminar-cuenta")).content
     for phrase in (
-        "Inicio → 🛡️ Cuenta, privacidad y eliminación de datos → Eliminar mi cuenta y datos",
+        "Inicio → Cuenta, privacidad y eliminación de datos → Eliminar mi cuenta y datos",
         "inmediata y permanente",
         "Historial de lectura",
         "Adaptaciones guardadas",
