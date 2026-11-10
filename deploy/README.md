@@ -1,5 +1,14 @@
 # DigitalOcean: arranque reproducible del backend
 
+## HTTPS en la IP del servidor actual
+
+El droplet `67.205.150.186` usa nginx y `fluilet-backend.service` nativos, sin
+Docker. Su configuración es `deploy/nginx-ip.conf`; HTTP sigue disponible para
+Android 1.0, sin redirección ni HSTS. El puerto 8000 queda solo en loopback.
+[Emisión del certificado de IP, renovación automática y verificación](../docs/https.md).
+Las instrucciones de Compose de abajo corresponden a un despliegue alternativo;
+no reemplazan el servicio nativo ni su configuración nginx.
+
 ## Eliminación de datos y páginas públicas
 
 `/privacy` y `/delete-account` son las URLs públicas de privacidad y eliminación;

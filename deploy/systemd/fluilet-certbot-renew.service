@@ -1,0 +1,11 @@
+[Unit]
+Description=Renew Fluilet Let's Encrypt IP certificate
+Wants=network-online.target
+After=network-online.target nginx.service
+ConditionPathExists=/etc/letsencrypt/renewal/fluilet-ip.conf
+
+[Service]
+Type=oneshot
+ExecStart=/opt/certbot/bin/certbot renew --cert-name fluilet-ip --non-interactive --no-random-sleep-on-renew --quiet
+TimeoutStartSec=15min
+UMask=0077

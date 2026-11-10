@@ -1,0 +1,12 @@
+[Unit]
+Description=Check Fluilet IP certificate renewal twice daily
+
+[Timer]
+OnCalendar=*-*-* 00,12:00:00 UTC
+RandomizedDelaySec=10min
+AccuracySec=1min
+Persistent=true
+Unit=fluilet-certbot-renew.service
+
+[Install]
+WantedBy=timers.target
