@@ -80,3 +80,95 @@ async def test_deletion_aliases_offer_direct_email_request_without_reinstalling(
         tag == "a" and attrs.get("href", "").startswith("mailto:fluilet123@gmail.com?subject=")
         for tag, attrs in markup.tags
     )
+
+
+class InstallLinks(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.links = {}
+        self.current = None
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            self.current = (dict(attrs), [])
+
+    def handle_data(self, data):
+        if self.current is not None:
+            self.current[1].append(data)
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self.current is not None:
+            attrs, parts = self.current
+            self.links[" ".join("".join(parts).split())] = attrs
+            self.current = None
+
+
+@pytest.mark.parametrize("path", ["/instalar", "/install"])
+async def test_install_pages_are_complete_html_with_the_existing_csp(client, path):
+    response = await client.get(path)
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "text/html; charset=utf-8"
+    assert "frame-ancestors 'none'" in response.headers["content-security-policy"]
+    assert response.text.lower().startswith("<!doctype html>")
+    assert response.text.rstrip().endswith("</html>")
+    markup = Markup()
+    markup.feed(response.text)
+    assert ("html", {"lang": "es"}) in markup.tags
+    assert any(tag == "meta" and attrs.get("name") == "viewport" for tag, attrs in markup.tags)
+    assert sum(tag == "h1" for tag, _ in markup.tags) == 1
+    assert not any(tag in {"script", "iframe", "img"} for tag, _ in markup.tags)
+    assert any(tag == "svg" for tag, _ in markup.tags)
+    assert any(tag == "a" and attrs.get("href") == "/instalar" for tag, attrs in markup.tags)
+
+
+@pytest.mark.parametrize("path", ["/instalar", "/install"])
+async def test_install_buttons_keep_the_approved_labels_and_destinations(client, path):
+    page = await client.get(path)
+    markup = InstallLinks()
+    markup.feed(page.text)
+    for label, destination in (
+        ("1. Habilitar acceso en Google Groups", "https://groups.google.com/g/evaluadores-fluilet"),
+        ("2. Descargar en Google Play", "https://play.google.com/apps/testing/com.fluilet.app"),
+    ):
+        attrs = markup.links[label]
+        assert attrs["href"] == destination
+        assert attrs["target"] == "_blank" and "noopener" in attrs["rel"].split()
+    assert markup.links["Descargar APK directo"]["href"] == "/descargar/fluilet.apk"
+
+
+@pytest.mark.parametrize("path", ["/instalar", "/install"])
+async def test_install_page_head_supports_qr_link_probes(client, path):
+    head = await client.head(path)
+    get = await client.get(path)
+    assert head.status_code == 200 and head.content == b""
+    for header in ("content-type", "content-length", "content-security-policy"):
+        assert head.headers[header] == get.headers[header]
+
+
+@pytest.mark.parametrize("method", ["GET", "HEAD"])
+async def test_apk_download_streams_the_configured_file(client, tmp_path, monkeypatch, method):
+    payload = b"PK\x03\x04Fluilet APK test bytes\x00\xff"
+    apk = tmp_path / "release.apk"
+    apk.write_bytes(payload)
+    monkeypatch.setenv("FLUILET_APK_PATH", str(apk))
+    response = await client.request(method, "/descargar/fluilet.apk")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/vnd.android.package-archive"
+    assert response.headers["content-disposition"] == 'attachment; filename="fluilet.apk"'
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert int(response.headers["content-length"]) == len(payload)
+    assert response.content == (payload if method == "GET" else b"")
+
+
+@pytest.mark.parametrize("method", ["GET", "HEAD"])
+async def test_missing_apk_is_a_controlled_404(client, tmp_path, monkeypatch, method):
+    path = tmp_path / "missing.apk"
+    monkeypatch.setenv("FLUILET_APK_PATH", str(path))
+    response = await client.request(method, "/descargar/fluilet.apk")
+    assert response.status_code == 404
+    assert str(path) not in response.text
+
+
+async def test_apk_download_does_not_serve_a_directory(client, tmp_path, monkeypatch):
+    monkeypatch.setenv("FLUILET_APK_PATH", str(tmp_path))
+    assert (await client.get("/descargar/fluilet.apk")).status_code == 404

@@ -29,6 +29,14 @@ services:
       RANKER_CHECKPOINT: /srv/fluilet/checkpoints/context-ranker-v2.3/model.json
       DEMO_ACCOUNTS_ENABLED: ${DEMO_ACCOUNTS_ENABLED:-true}
       MT5_ENABLED: ${MT5_ENABLED:-false}
+      FLUILET_APK_PATH: ${FLUILET_APK_PATH:-/srv/fluilet/descargas/fluilet.apk}
+    volumes:
+      - type: bind
+        source: /srv/fluilet/descargas
+        target: /srv/fluilet/descargas
+        read_only: true
+        bind:
+          create_host_path: false
     ports: ["127.0.0.1:8000:8000"]
     depends_on:
       db:
