@@ -107,6 +107,13 @@ class InstallLinks(HTMLParser):
 async def test_install_pages_are_complete_html_with_the_existing_csp(client, path):
     response = await client.get(path)
     assert response.status_code == 200
+    for notice in (
+        "Join group",
+        "No tienes permiso",
+        "descárgala en Google Play",
+        "No se encontró el elemento",
+    ):
+        assert notice in response.text
     assert response.headers["content-type"] == "text/html; charset=utf-8"
     assert "frame-ancestors 'none'" in response.headers["content-security-policy"]
     assert response.text.lower().startswith("<!doctype html>")
