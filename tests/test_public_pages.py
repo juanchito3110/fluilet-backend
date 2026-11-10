@@ -135,11 +135,21 @@ async def test_install_buttons_keep_the_approved_labels_and_destinations(client,
     markup.feed(page.text)
     for label, destination in (
         ("1. Habilitar acceso en Google Groups", "https://groups.google.com/g/evaluadores-fluilet"),
-        ("2. Descargar en Google Play", "https://play.google.com/apps/testing/com.fluilet.app"),
+        (
+            "2. Confirmar acceso en Google Play",
+            "https://play.google.com/apps/testing/com.fluilet.app",
+        ),
     ):
         attrs = markup.links[label]
         assert attrs["href"] == destination
         assert attrs["target"] == "_blank" and "noopener" in attrs["rel"].split()
+    native = markup.links["Abrir ficha en pantalla completa en Google Play"]
+    assert native["href"] == "market://details?id=com.fluilet.app"
+    assert "target" not in native
+    labels = list(markup.links)
+    assert labels.index("Abrir ficha en pantalla completa en Google Play") == (
+        labels.index("2. Confirmar acceso en Google Play") + 1
+    )
     assert markup.links["Descargar APK directo"]["href"] == "/descargar/fluilet.apk"
 
 
